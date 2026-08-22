@@ -1292,21 +1292,51 @@ input[type='range']::-moz-range-thumb {
   color: #6253a8;
 }
 
-/* 领域分析操作行 */
-.analyze-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px dashed var(--line-strong);
+/* 目标/机会卡片：标题块 + 右下角来源便签 */
+.goal-title-block {
+  flex: 1;
+  min-width: 0;
 }
 
-.analyze-row .tag {
+.goal-title-block h3 {
+  margin: 0;
+}
+
+/* 「来自想法」小字便签：贴在标题右下角 */
+.source-note {
+  display: block;
+  width: fit-content;
+  margin-left: auto;
+  margin-top: 2px;
+  padding: 1px 7px;
+  font-style: normal;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  background: var(--paper-deep);
+  border-radius: 3px;
+  transform: rotate(-1.2deg);
+  box-shadow: 1px 1px 0 rgba(46, 40, 28, 0.08);
+}
+
+/* 机会卡操作行：AI 初评/重评 → 领域分析 → 转正为目标 */
+.opp-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  margin: 10px 0 2px;
+}
+
+.opp-actions .tag {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   margin-left: 0;
+}
+
+.opp-actions .btn.tiny {
+  margin-left: 4px;
 }
 
 /* 小旋转点：分析进行中 */

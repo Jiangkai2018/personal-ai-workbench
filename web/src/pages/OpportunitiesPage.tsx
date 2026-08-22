@@ -236,7 +236,10 @@ export default function OpportunitiesPage() {
         {items.map((o) => (
           <li key={o.id} className="card goal-card">
             <div className="goal-head">
-              <h3 className={o.scope === 'family' ? 'family-label' : ''}>{o.title}</h3>
+              <div className="goal-title-block">
+                <h3 className={o.scope === 'family' ? 'family-label' : ''}>{o.title}</h3>
+                {o.source_idea_id ? <em className="source-note">✎ 来自想法</em> : null}
+              </div>
               <em className={`tag tag-status-${o.status}`}>{STATUS_TEXT[o.status]}</em>
               {o.scope === 'family' ? <em className="tag tag-family">家庭</em> : null}
             </div>
@@ -244,7 +247,10 @@ export default function OpportunitiesPage() {
             <p className="score-line">
               总分 <strong>{o.total}</strong>/100
               {o.ai_scored ? <em className="tag tag-ai">AI 初评</em> : null}
-              {o.source_idea_id ? <em className="tag">来自想法</em> : null}
+            </p>
+
+            {/* 操作行：AI 初评/重评 → 领域分析 → 转正为目标 */}
+            <div className="opp-actions">
               <button
                 type="button"
                 className="btn ghost"
@@ -254,42 +260,7 @@ export default function OpportunitiesPage() {
               >
                 {scoringId === o.id ? 'AI 初评中…' : o.ai_scored ? 'AI 重评' : 'AI 初评'}
               </button>
-              {o.goal_id ? (
-                <em className="tag tag-status-candidate">已转正为目标</em>
-              ) : (
-                <button
-                  type="button"
-                  className="btn tiny"
-                  aria-label={`转正为目标：${o.title}`}
-                  onClick={() => promote(o)}
-                  disabled={promotingId === o.id}
-                >
-                  {promotingId === o.id ? '转正中…' : '转正为目标'}
-                </button>
-              )}
-            </p>
 
-            <div className="dim-grid">
-              {DIMS.map((d) => (
-                <label key={d.key} className="dim-item">
-                  <span>
-                    {d.label} <em className="pct">{o.scores[d.key]}/20</em>
-                  </span>
-                  <input
-                    type="range"
-                    min={0}
-                    max={20}
-                    step={1}
-                    aria-label={`调整-${d.label}-${o.title}`}
-                    value={o.scores[d.key]}
-                    onChange={(e) => adjust(o, d.key, Number(e.target.value))}
-                  />
-                </label>
-              ))}
-            </div>
-
-            {/* 领域分析（异步长任务）：分析中 → 查看报告 / 重新分析 */}
-            <div className="analyze-row">
               {(() => {
                 const report = reportByOpp.get(o.id)
                 if (analyzingId === o.id || report?.status === 'running') {
@@ -302,7 +273,7 @@ export default function OpportunitiesPage() {
                 if (report?.status === 'done') {
                   return (
                     <>
-                      <Link to={`/reports/${report.id}`} className="btn tiny" aria-label={`查看报告：${o.title}`}>
+                      <Link to={`/reports/${report.id}`} className="btn ghost" aria-label={`查看报告：${o.title}`}>
                         查看报告
                       </Link>
                       <button
@@ -342,6 +313,39 @@ export default function OpportunitiesPage() {
                   </button>
                 )
               })()}
+
+              {o.goal_id ? (
+                <em className="tag tag-status-candidate">已转正为目标</em>
+              ) : (
+                <button
+                  type="button"
+                  className="btn tiny"
+                  aria-label={`转正为目标：${o.title}`}
+                  onClick={() => promote(o)}
+                  disabled={promotingId === o.id}
+                >
+                  {promotingId === o.id ? '转正中…' : '转正为目标'}
+                </button>
+              )}
+            </div>
+
+            <div className="dim-grid">
+              {DIMS.map((d) => (
+                <label key={d.key} className="dim-item">
+                  <span>
+                    {d.label} <em className="pct">{o.scores[d.key]}/20</em>
+                  </span>
+                  <input
+                    type="range"
+                    min={0}
+                    max={20}
+                    step={1}
+                    aria-label={`调整-${d.label}-${o.title}`}
+                    value={o.scores[d.key]}
+                    onChange={(e) => adjust(o, d.key, Number(e.target.value))}
+                  />
+                </label>
+              ))}
             </div>
           </li>
         ))}
