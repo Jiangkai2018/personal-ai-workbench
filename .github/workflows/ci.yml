@@ -1,0 +1,55 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    name: lint + test + build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: 后端单测（vitest）
+        run: npm run test
+
+      - name: 构建（server + web）
+        run: npm run build
+
+  e2e:
+    name: e2e（Playwright）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      # e2e 配置复用本机 Chrome（channel: chrome），CI 里改为安装 Playwright 自带 Chromium
+      - name: 安装 Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: 跑 e2e
+        run: npm run e2e
+        env:
+          CI: 'true'
+          PLAYWRIGHT_CHANNEL: 'chromium'

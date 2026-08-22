@@ -1,0 +1,52 @@
+{
+  "name": "personal-ai-workbench",
+  "version": "0.1.0",
+  "private": true,
+  "description": "个人 AI 工作台 —— 把 目标→任务→每日执行→复盘→知识沉淀→反哺目标 的闭环跑起来",
+  "license": "MIT",
+  "type": "module",
+  "keywords": [
+    "personal-knowledge",
+    "productivity",
+    "goal-management",
+    "local-first",
+    "markdown",
+    "react",
+    "express"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Jiangkai2018/personal-ai-workbench.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Jiangkai2018/personal-ai-workbench/issues"
+  },
+  "homepage": "https://github.com/Jiangkai2018/personal-ai-workbench#readme",
+  "workspaces": [
+    "server",
+    "web",
+    "e2e"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n server,web -c blue,green \"npm run dev -w server\" \"npm run dev -w web\"",
+    "dev:server": "npm run dev -w server",
+    "dev:web": "npm run dev -w web",
+    "build": "npm run build -w server && npm run build -w web",
+    "test": "npm run test -w server",
+    "test:watch": "npm run test:watch -w server",
+    "e2e": "npm run e2e -w e2e",
+    "lint": "eslint web/src server/src server/test"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "concurrently": "^9.1.0",
+    "eslint": "10.9.0",
+    "eslint-plugin-react-hooks": "7.1.1",
+    "eslint-plugin-react-refresh": "0.5.4",
+    "globals": "17.11.0",
+    "typescript-eslint": "8.67.0"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

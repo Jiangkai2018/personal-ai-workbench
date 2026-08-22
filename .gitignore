@@ -1,0 +1,44 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+build/
+*.tsbuildinfo
+
+# vite
+web/dist/
+
+# test / e2e artifacts
+e2e/test-results/
+e2e/playwright-report/
+e2e/.tmp-data/
+test-results/
+playwright-report/
+
+# env & secrets
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# logs
+*.log
+npm-debug.log*
+
+# 本地个性化脚本（含账号名/代理端口，不入库）
+setup-remotes.sh
+
+# 工作数据（Markdown 即数据源，但本仓库默认不跟踪运行时产生的数据；
+# 真实部署由 git 自动同步环节管理）
+data/*.md
+data/**/*.md
+data/**/
+
+# 保留 data 目录本身
+!data/.gitkeep
+
+# 个人笔记（本地保存，不入库）
+AI副业全景调研-从夯到拉.md
