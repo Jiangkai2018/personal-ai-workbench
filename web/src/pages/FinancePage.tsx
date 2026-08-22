@@ -7,6 +7,8 @@ interface PreviewResponse {
   owner: string
   skipped: number
   duplicates: { local: number; remote: number; batch: number }
+  /** 远端已删除、将重新导入的行数 */
+  resurrected?: number
   rows: PreviewRow[]
   aiError?: string
 }
@@ -233,8 +235,10 @@ export default function FinancePage() {
           <div className="finance-preview">
             <p className="finance-preview-summary">
               {preview.source === 'wechat' ? '微信' : '支付宝'} · 归属 {preview.owner === 'Kai' ? 'Kai' : preview.owner} ·
-              待导入 <strong>{rows.length}</strong> 笔 · 重复跳过 {dupTotal} 笔（远端已存在 {preview.duplicates.remote} /
-              本地已导 {preview.duplicates.local} / 批内 {preview.duplicates.batch}）· 非收支/未成功 {preview.skipped} 笔
+              待导入 <strong>{rows.length}</strong> 笔
+              {preview.resurrected ? `（其中 ${preview.resurrected} 笔远端已删除、将重新导入）` : ''} · 重复跳过{' '}
+              {dupTotal} 笔（远端已存在 {preview.duplicates.remote} / 本地已导 {preview.duplicates.local} / 批内{' '}
+              {preview.duplicates.batch}）· 非收支/未成功 {preview.skipped} 笔
             </p>
             {preview.aiError && <p className="muted">⚠ {preview.aiError}（未命中行已用默认分类）</p>}
             {rows.length > 0 && (

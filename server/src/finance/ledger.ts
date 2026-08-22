@@ -61,6 +61,24 @@ export class ImportLedger {
     )
   }
 
+  /** 清除过期指纹（远端随手记已删除对应流水时调用 —— 远端为唯一事实源） */
+  async forgetFingerprints(fingerprints: string[]): Promise<void> {
+    if (fingerprints.length === 0) return
+    const drop = new Set(fingerprints)
+    const { fingerprints: existing, records } = await this.readRaw()
+    const kept = [...existing].filter((f) => !drop.has(f))
+    if (kept.length === existing.size) return
+    await mkdir(path.dirname(this.file), { recursive: true })
+    await writeFile(
+      this.file,
+      matter.stringify('# 导入指纹库（自动维护，勿手改）', {
+        fingerprints: kept,
+        records,
+      }),
+      'utf8',
+    )
+  }
+
   /** 一次导入会话结束：追加一条历史汇总 */
   async recordSession(record: Omit<ImportRecord, 'date'>): Promise<void> {
     const { fingerprints: existing, records } = await this.readRaw()

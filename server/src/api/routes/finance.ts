@@ -174,21 +174,29 @@ export function financeRouter(dataDir: string): Router {
           return
         }
 
-        // 去重第一道：本地指纹
+        // 去重第一道：本地指纹 —— 但远端随手记是唯一事实源：
+        // 命中指纹的行若远端已无对应流水（用户在随手记删除过），视为可重新导入并清除过期指纹
         const imported = await ledger.imported()
         // 去重第二道：远端流水匹配
         const remote = parsed.rows.length > 0 ? await remoteExisting(parsed.rows) : new Set<string>()
 
         const fresh: BillRow[] = []
         const seenInBatch = new Set<string>()
+        const staleFps: string[] = []
         let localDup = 0
         let remoteDup = 0
         let batchDup = 0
+        let resurrected = 0
         for (const row of parsed.rows) {
           const fp = fingerprintOf(row.source, row.orderId)
           if (imported.has(fp)) {
-            localDup++
-            continue
+            if (remote.has(remoteKey(row))) {
+              localDup++
+              continue
+            }
+            // 远端已删除：清除过期指纹，允许重导
+            staleFps.push(fp)
+            resurrected++
           }
           if (remote.has(remoteKey(row))) {
             remoteDup++
@@ -200,6 +208,9 @@ export function financeRouter(dataDir: string): Router {
           }
           seenInBatch.add(fp)
           fresh.push(row)
+        }
+        if (staleFps.length > 0) {
+          await ledger.forgetFingerprints(staleFps)
         }
 
         // 分类：规则 + AI 兜底
@@ -218,6 +229,8 @@ export function financeRouter(dataDir: string): Router {
           owner: parsed.owner,
           skipped: parsed.skipped,
           duplicates: { local: localDup, remote: remoteDup, batch: batchDup },
+          /** 远端已删除、本次将重新导入的行数（本地指纹已同步清除） */
+          resurrected,
           rows,
           aiError: classified.aiError,
         })
