@@ -39,6 +39,9 @@ export const api = {
   createIdea: (input: { content: string; scope: Scope; track: Track }) =>
     request<Idea>('/api/ideas', { method: 'POST', body: JSON.stringify(input) }),
   listIdeas: (scope: Scope) => request<Idea[]>(`/api/ideas?scope=${scope}`),
+  patchIdea: (id: string, patch: Partial<{ content: string; scope: Scope; track: Track }>) =>
+    request<Idea>(`/api/ideas/${id}`, { method: 'PATCH', body: JSON.stringify(patch) }),
+  deleteIdea: (id: string) => request<{ ok: boolean }>(`/api/ideas/${id}`, { method: 'DELETE' }),
 
   // 机会
   createOpportunity: (input: { title: string; scope: Scope; scores: Opportunity['scores']; note?: string }) =>

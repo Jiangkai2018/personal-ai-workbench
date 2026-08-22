@@ -85,4 +85,79 @@ describe('想法 API —— 捕获漏斗起点', () => {
     expect(fam.body).toHaveLength(1)
     expect(fam.body[0].content).toBe('给娃打疫苗')
   })
+
+  describe('编辑 —— PATCH /api/ideas/:id', () => {
+    it('改正文与轨道：返回更新后实体且磁盘文件同步变化', async () => {
+      const created = await agent
+        .post('/api/ideas')
+        .send({ content: '原始想法内容' })
+        .expect(201)
+
+      const res = await agent
+        .patch(`/api/ideas/${created.body.id}`)
+        .send({ content: '改后的想法内容', track: 'maintenance' })
+        .expect(200)
+      expect(res.body.content).toBe('改后的想法内容')
+      expect(res.body.track).toBe('maintenance')
+
+      const raw = await readFile(path.join(dataDir, 'ideas', `${created.body.id}.md`), 'utf8')
+      expect(raw).toContain('改后的想法内容')
+      expect(raw).not.toContain('原始想法内容')
+    })
+
+    it('空正文返回 400，不存在的 id 返回 404', async () => {
+      const res = await agent
+        .patch('/api/ideas/not-exist')
+        .send({ content: 'x' })
+        .expect(404)
+      expect(res.body.error).toBe('NOT_FOUND')
+    })
+
+    it('不提供任何字段返回 400', async () => {
+      const created = await agent.post('/api/ideas').send({ content: '又一个' }).expect(201)
+      await agent.patch(`/api/ideas/${created.body.id}`).send({}).expect(400)
+    })
+  })
+
+  describe('删除 —— DELETE /api/ideas/:id', () => {
+    it('删除后文件消失、列表少一条', async () => {
+      const created = await agent.post('/api/ideas').send({ content: '待删除' }).expect(201)
+      await agent.delete(`/api/ideas/${created.body.id}`).expect(200)
+
+      const files = await readdir(path.join(dataDir, 'ideas'))
+      expect(files).not.toContain(`${created.body.id}.md`)
+    })
+
+    it('不存在的 id 返回 404', async () => {
+      await agent.delete('/api/ideas/not-exist').expect(404)
+    })
+
+    it('已转正（被机会引用）的想法返回 409', async () => {
+      const created = await agent.post('/api/ideas').send({ content: '要转正的' }).expect(201)
+      await agent
+        .post('/api/proposals')
+        .send({ action: 'promote_idea_to_opportunity', source_id: created.body.id })
+        .expect(201)
+      // 找到刚建的提案并批准 → 想法被标记 promoted_to_id
+      const proposals = await agent.get('/api/proposals?status=pending').expect(200)
+      const target = proposals.body.find(
+        (p: { source_id: string }) => p.source_id === created.body.id,
+      )
+      await agent.post(`/api/proposals/${target.id}/approve`).expect(200)
+
+      const res = await agent.delete(`/api/ideas/${created.body.id}`).expect(409)
+      expect(res.body.error).toBe('ALREADY_PROMOTED')
+    })
+
+    it('有待审提案的想法返回 409，提示先去确认中心', async () => {
+      const created = await agent.post('/api/ideas').send({ content: '待审中的' }).expect(201)
+      await agent
+        .post('/api/proposals')
+        .send({ action: 'promote_idea_to_opportunity', source_id: created.body.id })
+        .expect(201)
+
+      const res = await agent.delete(`/api/ideas/${created.body.id}`).expect(409)
+      expect(res.body.error).toBe('PENDING_PROPOSAL')
+    })
+  })
 })

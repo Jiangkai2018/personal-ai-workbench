@@ -5,6 +5,14 @@
 
 ## [Unreleased]
 
+### Added
+
+- 想法编辑与删除：`PATCH/DELETE /api/ideas/:id`；已转正或存在待审提案的想法拒绝删除（409）
+
+### Fixed
+
+- e2e 断言精确化：确认中心的 toast 与「已处理」标签同文案导致的 strict mode 偶发失败
+
 ### Planned
 
 - AI Agent 接入：复盘 Agent、提案 Agent（仍需人工批准）

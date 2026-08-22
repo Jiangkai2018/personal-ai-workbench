@@ -673,6 +673,88 @@ body::after {
   word-break: break-word;
 }
 
+/* 想法条目上的轻操作（编辑/删除） */
+.btn.ghost {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  padding: 4px 8px;
+  margin-left: 2px;
+  vertical-align: 2px;
+  box-shadow: none;
+}
+
+.btn.ghost:hover {
+  color: var(--ink);
+  background: rgba(33, 31, 27, 0.06);
+  transform: none;
+  box-shadow: none;
+}
+
+.btn.ghost.danger:hover {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
+/* 想法编辑表单 */
+.idea-edit textarea {
+  width: 100%;
+  border: 1px solid rgba(194, 64, 28, 0.35);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  font-size: 15px;
+  font-family: inherit;
+  background: var(--card-warm);
+  color: var(--ink);
+  resize: vertical;
+  min-height: 72px;
+  line-height: 1.6;
+}
+
+.idea-edit textarea:focus {
+  outline: none;
+  border-color: rgba(194, 64, 28, 0.55);
+  box-shadow: 0 0 0 4px rgba(194, 64, 28, 0.08);
+}
+
+.idea-edit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.idea-edit-row select {
+  border: none;
+  background: var(--paper);
+  border-radius: 9px;
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--ink-2);
+  padding: 6px 8px;
+}
+
+.idea-edit-actions {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.idea-edit-actions .btn.tiny {
+  margin-left: 0;
+}
+
+.idea-edit-actions .tiny-cancel {
+  color: var(--muted);
+  background: transparent;
+}
+
+.idea-edit-actions .tiny-cancel:hover {
+  background: rgba(33, 31, 27, 0.06);
+  color: var(--ink);
+}
+
 .tags {
   display: inline-flex;
   align-items: center;

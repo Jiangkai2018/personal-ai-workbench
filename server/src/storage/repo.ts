@@ -2,7 +2,7 @@
 // 无数据库、无索引：读=遍历目录解析 frontmatter，写=写文件。个人规模足够。
 import matter from 'gray-matter'
 import { randomBytes } from 'node:crypto'
-import { mkdir, readFile, readdir, writeFile } from 'node:fs/promises'
+import { mkdir, readFile, readdir, unlink, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import type { Entity } from '../domain/types'
 
@@ -115,5 +115,15 @@ export class EntityStore {
     const { content, ...front } = merged
     await writeFile(this.filePath(type, id), matter.stringify(content, compact(front)), 'utf8')
     return merged
+  }
+
+  /** 删除实体文件；不存在返回 false（幂等由调用方判断） */
+  async remove(type: string, id: string): Promise<boolean> {
+    try {
+      await unlink(this.filePath(type, id))
+      return true
+    } catch {
+      return false
+    }
   }
 }

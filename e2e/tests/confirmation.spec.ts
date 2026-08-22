@@ -65,7 +65,8 @@ test('驳回提案：不产生新实体', async ({ page }) => {
     .getByRole('listitem', { hasText: 'E2E 不该转正的' })
     .getByRole('button', { name: '驳回' })
     .click()
-  await expect(page.getByText(/已驳回/)).toBeVisible()
+  // 精确匹配 toast（避免同时命中「已处理」列表里的"已驳回 · 江凯"标签）
+  await expect(page.getByText('已驳回', { exact: true })).toBeVisible()
 
   await page.getByRole('link', { name: '机会' }).click()
   await expect(page.getByText('E2E 不该转正的')).not.toBeVisible()
