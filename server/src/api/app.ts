@@ -13,6 +13,7 @@ import { todayRouter } from './routes/today'
 import { opportunityRouter } from './routes/opportunities'
 import { reviewRouter } from './routes/reviews'
 import { reportRouter } from './routes/reports'
+import { financeRouter } from './routes/finance'
 import { AiError, createAiScorer, type AiScorer } from '../ai/scoreClient'
 import { createReportGenerator, type ReportGenerator } from '../ai/reportClient'
 
@@ -56,6 +57,7 @@ export function createApp({ dataDir, jwtSecret, aiScorer, reportGenerator }: App
   app.use('/api/tasks', requireAuth(secret), taskRouter(store))
   app.use('/api/today', requireAuth(secret), todayRouter(store))
   app.use('/api/reviews', requireAuth(secret), reviewRouter(store, reviewStore))
+  app.use('/api/finance', requireAuth(secret), financeRouter(dataDir))
 
   // 统一错误处理：zod 校验失败 → 400，AI 不可用 → 503，其余 → 500
   app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

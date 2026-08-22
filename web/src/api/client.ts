@@ -1,5 +1,5 @@
 // 极简 fetch 封装：统一 JSON、错误解析为 zod 的 issues 第一条信息
-import type { Scope, Track, Idea, Goal, Task, TodayData, SessionUser, Opportunity, Review, Report } from '../types'
+import type { Scope, Track, Idea, Goal, Task, TodayData, SessionUser, Opportunity, Review, Report, PreviewRow } from '../types'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
@@ -94,4 +94,66 @@ export const api = {
   // 晚间复盘
   createReview: (scope: Scope) => request<Review>('/api/reviews', { method: 'POST', body: JSON.stringify({ scope }) }),
   listReviews: () => request<Review[]>('/api/reviews'),
+
+  // 财务：随手记凭证
+  getFinanceCredential: () =>
+    request<{ configured: boolean; source?: string; maskedToken?: string; updatedAt?: string | null }>(
+      '/api/finance/credential',
+    ),
+  saveFinanceCredential: (token: string) =>
+    request<{ ok: boolean; verified: boolean; memberCount?: number; sample?: string }>(
+      '/api/finance/credential',
+      { method: 'PUT', body: JSON.stringify({ token }) },
+    ),
+  testFinanceCredential: () =>
+    request<{ ok: boolean; memberCount: number; sample: string }>('/api/finance/credential/test', {
+      method: 'POST',
+    }),
+
+  // 财务：账单导入
+  previewBills: (filename: string, body: ArrayBuffer) =>
+    request<{
+      source: 'wechat' | 'alipay'
+      owner: string
+      skipped: number
+      duplicates: { local: number; remote: number; batch: number }
+      rows: PreviewRow[]
+      aiError?: string
+    }>(`/api/finance/bills/preview`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/octet-stream', 'x-file-name': encodeURIComponent(filename) },
+      body: body as BodyInit,
+    }),
+  commitBills: (
+    rows: {
+      source: string
+      time: string
+      type: 'income' | 'expense'
+      amount: number
+      orderId: string
+      fingerprint: string
+      categoryId: string
+      remark?: string
+      detail?: string
+      categorySource?: string
+    }[],
+    owner: string,
+  ) =>
+    request<{ total: number; batchWritten: number; singleWritten: number; failed: { detail: string; reason: string }[] }>(
+      '/api/finance/bills/commit',
+      { method: 'POST', body: JSON.stringify({ rows, owner }) },
+    ),
+  getFinanceImports: () =>
+    request<
+      {
+        date: string
+        source: string
+        total: number
+        batchWritten: number
+        singleWritten: number
+        failed: number
+      }[]
+    >('/api/finance/imports'),
+  getFinanceCategories: () =>
+    request<Record<string, { name: string; id: string }[]>>('/api/finance/categories'),
 }

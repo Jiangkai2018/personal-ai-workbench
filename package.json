@@ -39,6 +39,7 @@
   },
   "devDependencies": {
     "@eslint/js": "10.0.1",
+    "@types/echarts": "^4.9.22",
     "concurrently": "^9.1.0",
     "eslint": "10.9.0",
     "eslint-plugin-react-hooks": "7.1.1",
@@ -48,5 +49,9 @@
   },
   "engines": {
     "node": ">=22"
+  },
+  "dependencies": {
+    "echarts": "^6.1.0",
+    "xlsx": "^0.18.5"
   }
 }

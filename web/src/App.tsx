@@ -6,6 +6,7 @@ import OpportunitiesPage from './pages/OpportunitiesPage'
 import GoalsPage from './pages/GoalsPage'
 import TasksPage from './pages/TasksPage'
 import ReviewsPage from './pages/ReviewsPage'
+import FinancePage from './pages/FinancePage'
 import ReportViewPage from './pages/ReportViewPage'
 import LoginPage from './pages/LoginPage'
 import { api } from './api/client'
@@ -71,6 +72,13 @@ function NavIcon({ name }: { name: string }) {
       return (
         <svg {...common}>
           <path d="M20 14.8A8.6 8.6 0 1 1 9.2 4a6.9 6.9 0 0 0 10.8 10.8z" />
+        </svg>
+      )
+    case 'finance':
+      return (
+        <svg {...common}>
+          <circle cx="12" cy="12" r="8.5" />
+          <path d="M9.5 8.8h3.4a2.1 2.1 0 0 1 0 4.2H9.5m0 0h4a2.1 2.1 0 0 1 0 4.2H9.5m1.7-9.6v10.8M8 8.8h1.6m0 9.4H8" />
         </svg>
       )
     default:
@@ -153,6 +161,7 @@ export default function App() {
             <Route path="/goals" element={<GoalsPage />} />
             <Route path="/tasks" element={<TasksPage />} />
             <Route path="/reviews" element={<ReviewsPage />} />
+            <Route path="/finance" element={<FinancePage />} />
             <Route path="/reports/:id" element={<ReportViewPage />} />
           </Routes>
         </main>
@@ -181,6 +190,10 @@ export default function App() {
           <NavLink to="/reviews">
             <NavIcon name="reviews" />
             复盘
+          </NavLink>
+          <NavLink to="/finance">
+            <NavIcon name="finance" />
+            财务
           </NavLink>
         </nav>
       </div>

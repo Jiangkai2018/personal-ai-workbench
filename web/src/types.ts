@@ -81,6 +81,24 @@ export interface Review {
   created_at: string
 }
 
+/** 财务：账单预览行（服务端 PreviewRow） */
+export interface PreviewRow {
+  source: 'wechat' | 'alipay'
+  time: string
+  type: 'income' | 'expense'
+  amount: number
+  categorySource: string
+  counterparty: string
+  detail: string
+  payMethod: string
+  orderId: string
+  remark: string
+  fingerprint: string
+  categoryId: string
+  categoryName: string
+  classifiedBy: 'rule' | 'ai' | 'fallback'
+}
+
 export interface TodayData {
   date: string
   scope: Scope
