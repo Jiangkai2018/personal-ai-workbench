@@ -1920,6 +1920,24 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
   max-width: 150px;
 }
 
+/* 预览行移除按钮：从本次导入剔除（不动随手记） */
+.row-remove {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.15s, background 0.15s;
+}
+
+.row-remove:hover {
+  color: var(--danger);
+  background: var(--danger-soft);
+}
+
 .finance-commit {
   display: flex;
   gap: 10px;

@@ -252,6 +252,7 @@ export default function FinancePage() {
                         <th>金额</th>
                         <th>对方/商品</th>
                         <th>随手记分类</th>
+                        <th aria-label="操作"></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -289,6 +290,17 @@ export default function FinancePage() {
                                 </optgroup>
                               ))}
                             </select>
+                          </td>
+                          <td>
+                            <button
+                              type="button"
+                              className="row-remove"
+                              aria-label={`移除：${r.detail || r.counterparty || r.orderId}`}
+                              title="从本次导入中移除（不影响随手记）"
+                              onClick={() => setRows((rs) => rs.filter((_, j) => j !== i))}
+                            >
+                              ✕
+                            </button>
                           </td>
                         </tr>
                       ))}
