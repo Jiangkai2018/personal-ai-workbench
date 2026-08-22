@@ -57,6 +57,18 @@ export interface Opportunity extends Entity {
   ai_scored_at?: string
 }
 
+/** 领域分析报告：对机会的深度分析（异步长任务，content 即 markdown 报告） */
+export interface Report extends Entity {
+  type: 'report'
+  status: 'running' | 'done' | 'failed'
+  opportunity_id: string
+  opportunity_title: string
+  model: string
+  started_at: string
+  finished_at?: string
+  error?: string
+}
+
 /** 晚间复盘：日小结 + 目标进度更新（按天+范围一份） */
 export interface Review {
   id: string

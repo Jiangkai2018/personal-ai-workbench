@@ -6,6 +6,7 @@ import OpportunitiesPage from './pages/OpportunitiesPage'
 import GoalsPage from './pages/GoalsPage'
 import TasksPage from './pages/TasksPage'
 import ReviewsPage from './pages/ReviewsPage'
+import ReportViewPage from './pages/ReportViewPage'
 import LoginPage from './pages/LoginPage'
 import { api } from './api/client'
 import type { Scope, SessionUser } from './types'
@@ -152,6 +153,7 @@ export default function App() {
             <Route path="/goals" element={<GoalsPage />} />
             <Route path="/tasks" element={<TasksPage />} />
             <Route path="/reviews" element={<ReviewsPage />} />
+            <Route path="/reports/:id" element={<ReportViewPage />} />
           </Routes>
         </main>
 

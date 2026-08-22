@@ -12,18 +12,21 @@ import { taskRouter } from './routes/tasks'
 import { todayRouter } from './routes/today'
 import { opportunityRouter } from './routes/opportunities'
 import { reviewRouter } from './routes/reviews'
+import { reportRouter } from './routes/reports'
 import { AiError, createAiScorer, type AiScorer } from '../ai/scoreClient'
+import { createReportGenerator, type ReportGenerator } from '../ai/reportClient'
 
 export interface AppOptions {
   dataDir: string
   jwtSecret?: string
   /** 可注入假实现供测试；默认读环境变量创建真实客户端 */
   aiScorer?: AiScorer
+  reportGenerator?: ReportGenerator
 }
 
 const DEFAULT_JWT_SECRET = 'dev-secret-change-me'
 
-export function createApp({ dataDir, jwtSecret, aiScorer }: AppOptions): Express {
+export function createApp({ dataDir, jwtSecret, aiScorer, reportGenerator }: AppOptions): Express {
   const secret = jwtSecret ?? process.env.WORKBENCH_JWT_SECRET ?? DEFAULT_JWT_SECRET
   if (secret === DEFAULT_JWT_SECRET && process.env.NODE_ENV !== 'test') {
     // 开源默认值兜底：带默认密钥对外部署是真实风险，启动时大声提醒
@@ -34,6 +37,7 @@ export function createApp({ dataDir, jwtSecret, aiScorer }: AppOptions): Express
   const store = new EntityStore(dataDir)
   const reviewStore = new ReviewStore(dataDir)
   const scorer = aiScorer ?? createAiScorer()
+  const generator = reportGenerator ?? createReportGenerator()
   const app = express()
   app.use(express.json())
   app.use(cookieParser())
@@ -46,7 +50,8 @@ export function createApp({ dataDir, jwtSecret, aiScorer }: AppOptions): Express
   // 登录/找回等公开路由；其余 /api/* 全部 requireAuth（工作台默认登录后可进）
   app.use('/api/auth', authRouter(dataDir, secret))
   app.use('/api/ideas', requireAuth(secret), ideaRouter(store, scorer))
-  app.use('/api/opportunities', requireAuth(secret), opportunityRouter(store, scorer))
+  app.use('/api/opportunities', requireAuth(secret), opportunityRouter(store, scorer, generator))
+  app.use('/api/reports', requireAuth(secret), reportRouter(store))
   app.use('/api/goals', requireAuth(secret), goalRouter(store))
   app.use('/api/tasks', requireAuth(secret), taskRouter(store))
   app.use('/api/today', requireAuth(secret), todayRouter(store))

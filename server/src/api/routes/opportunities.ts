@@ -1,9 +1,10 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import type { EntityStore } from '../../storage/repo'
-import type { Opportunity } from '../../domain/types'
+import type { Opportunity, Report } from '../../domain/types'
 import { scoreTotal, statusFor, type Scores } from '../../domain/opportunity'
 import type { AiScorer } from '../../ai/scoreClient'
+import type { ReportGenerator } from '../../ai/reportClient'
 
 const dimSchema = z.object({
   value: z.number().min(0).max(20).default(0),
@@ -29,7 +30,11 @@ const patchOpportunitySchema = z.object({
   note: z.string().max(2000).optional(),
 })
 
-export function opportunityRouter(store: EntityStore, aiScorer: AiScorer): Router {
+export function opportunityRouter(
+  store: EntityStore,
+  aiScorer: AiScorer,
+  reportGenerator: ReportGenerator,
+): Router {
   const router = Router()
 
   // AI 预评（不落盘）：给"新机会"表单填初值，用户调整后再创建
@@ -66,6 +71,52 @@ export function opportunityRouter(store: EntityStore, aiScorer: AiScorer): Route
         ai_scored_at: new Date().toISOString(),
       })
       res.json(updated)
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  // 领域分析：异步长任务 —— 立即返回 running 状态的报告，后台生成完写回文件
+  router.post('/:id/analyze', async (req, res, next) => {
+    try {
+      const opp = await store.get<Opportunity>('opportunity', req.params.id)
+      if (!opp) {
+        res.status(404).json({ error: 'NOT_FOUND', message: '机会不存在' })
+        return
+      }
+      const reports = (await store.list('report')) as Report[]
+      if (reports.some((r) => r.opportunity_id === opp.id && r.status === 'running')) {
+        res.status(409).json({ error: 'ANALYZE_RUNNING', message: '该机会已有分析在进行中' })
+        return
+      }
+
+      const report = await store.create({
+        type: 'report',
+        status: 'running',
+        opportunity_id: opp.id,
+        opportunity_title: opp.title,
+        model: reportGenerator.model,
+        scope: opp.scope,
+        track: opp.track,
+        body: '',
+        started_at: new Date().toISOString(),
+      })
+
+      // 后台任务：失败不抛到路由，写回报告文件
+      void (async () => {
+        try {
+          const content = await reportGenerator.generate({ title: opp.title, note: opp.note })
+          await store.update('report', report.id, { status: 'done', finished_at: new Date().toISOString() }, content)
+        } catch (err) {
+          await store.update('report', report.id, {
+            status: 'failed',
+            error: (err as Error).message,
+            finished_at: new Date().toISOString(),
+          })
+        }
+      })()
+
+      res.status(202).json(report)
     } catch (err) {
       next(err)
     }

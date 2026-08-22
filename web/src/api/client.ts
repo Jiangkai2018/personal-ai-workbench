@@ -1,5 +1,5 @@
 // 极简 fetch 封装：统一 JSON、错误解析为 zod 的 issues 第一条信息
-import type { Scope, Track, Idea, Goal, Task, TodayData, SessionUser, Opportunity, Review } from '../types'
+import type { Scope, Track, Idea, Goal, Task, TodayData, SessionUser, Opportunity, Review, Report } from '../types'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
@@ -61,6 +61,13 @@ export const api = {
   /** 一键转正为目标 */
   promoteOpportunityToGoal: (id: string) =>
     request<Goal>(`/api/opportunities/${id}/promote-to-goal`, { method: 'POST' }),
+  /** 发起领域分析（异步，返回 running 状态的报告） */
+  analyzeOpportunity: (id: string) =>
+    request<Report>(`/api/opportunities/${id}/analyze`, { method: 'POST' }),
+
+  // 领域分析报告
+  listReports: () => request<Report[]>('/api/reports'),
+  getReport: (id: string) => request<Report>(`/api/reports/${id}`),
 
   // 想法一键转正为机会（服务端自动 AI 初评）
   promoteIdea: (id: string) =>

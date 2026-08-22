@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import { api } from '../api/client'
 import { useScope } from '../App'
-import type { Opportunity } from '../types'
+import type { Opportunity, Report } from '../types'
 
 const DIMS: { key: keyof Opportunity['scores']; label: string; hint: string }[] = [
   { key: 'value', label: '价值度', hint: '天花板 + 复利' },
@@ -50,6 +51,52 @@ export default function OpportunitiesPage() {
   const [aiApplied, setAiApplied] = useState(false)
   const [scoringId, setScoringId] = useState<string | null>(null)
   const [promotingId, setPromotingId] = useState<string | null>(null)
+
+  // 领域分析（异步长任务）：轮询直到没有 running
+  const [reports, setReports] = useState<Report[]>([])
+  const [analyzingId, setAnalyzingId] = useState<string | null>(null)
+
+  async function loadReports() {
+    try {
+      setReports(await api.listReports())
+    } catch {
+      // 报告列表加载失败不打扰主列表
+    }
+  }
+  useEffect(() => {
+    loadReports()
+  }, [scope])
+
+  const hasRunning = reports.some((r) => r.status === 'running')
+  useEffect(() => {
+    if (!hasRunning) return
+    const timer = setInterval(loadReports, 5000)
+    return () => clearInterval(timer)
+  }, [hasRunning])
+
+  /** 每个机会的最新一份报告（列表按创建时间倒序，取首个） */
+  const reportByOpp = useMemo(() => {
+    const map = new Map<string, Report>()
+    for (const r of reports) {
+      if (!map.has(r.opportunity_id)) map.set(r.opportunity_id, r)
+    }
+    return map
+  }, [reports])
+
+  async function analyze(o: Opportunity) {
+    setMsg('')
+    setError('')
+    setAnalyzingId(o.id)
+    try {
+      await api.analyzeOpportunity(o.id)
+      setMsg(`「${o.title}」领域分析已启动，完成后可查看报告`)
+      loadReports()
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setAnalyzingId(null)
+    }
+  }
 
   async function aiPreview() {
     const t = title.trim()
@@ -239,6 +286,62 @@ export default function OpportunitiesPage() {
                   />
                 </label>
               ))}
+            </div>
+
+            {/* 领域分析（异步长任务）：分析中 → 查看报告 / 重新分析 */}
+            <div className="analyze-row">
+              {(() => {
+                const report = reportByOpp.get(o.id)
+                if (analyzingId === o.id || report?.status === 'running') {
+                  return (
+                    <span className="tag tag-status-pending">
+                      <span className="spin" aria-hidden="true" /> 领域分析中…
+                    </span>
+                  )
+                }
+                if (report?.status === 'done') {
+                  return (
+                    <>
+                      <Link to={`/reports/${report.id}`} className="btn tiny" aria-label={`查看报告：${o.title}`}>
+                        查看报告
+                      </Link>
+                      <button
+                        type="button"
+                        className="btn ghost"
+                        aria-label={`重新分析：${o.title}`}
+                        onClick={() => analyze(o)}
+                      >
+                        重新分析
+                      </button>
+                    </>
+                  )
+                }
+                if (report?.status === 'failed') {
+                  return (
+                    <>
+                      <em className="tag tag-status-rejected" title={report.error}>分析失败</em>
+                      <button
+                        type="button"
+                        className="btn ghost"
+                        aria-label={`重新分析：${o.title}`}
+                        onClick={() => analyze(o)}
+                      >
+                        重新分析
+                      </button>
+                    </>
+                  )
+                }
+                return (
+                  <button
+                    type="button"
+                    className="btn ghost"
+                    aria-label={`领域分析：${o.title}`}
+                    onClick={() => analyze(o)}
+                  >
+                    领域分析
+                  </button>
+                )
+              })()}
             </div>
           </li>
         ))}

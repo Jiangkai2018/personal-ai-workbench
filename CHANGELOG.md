@@ -14,6 +14,7 @@
 
 - 想法编辑与删除：`PATCH/DELETE /api/ideas/:id`；已转正的想法拒绝删除（409）
 - AI 初评：`POST /api/opportunities/ai-preview`（表单预填）、`POST /api/opportunities/:id/ai-score`（落盘重评）；`.env` 配置 Anthropic 兼容接口
+- 领域分析报告（异步长任务）：`POST /api/opportunities/:id/analyze`（202 + 后台三段式生成：赛道市场/同行格局/切入策略）+ `GET /api/reports(/:id)`；机会页轮询状态，`/reports/:id` 报告页（迷你 markdown 渲染器，零新依赖）；悬挂任务 10 分钟自动落败
 
 ### Fixed
 

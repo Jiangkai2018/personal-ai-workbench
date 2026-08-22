@@ -1292,6 +1292,156 @@ input[type='range']::-moz-range-thumb {
   color: #6253a8;
 }
 
+/* 领域分析操作行 */
+.analyze-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.analyze-row .tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 0;
+}
+
+/* 小旋转点：分析进行中 */
+.spin {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid rgba(194, 64, 28, 0.25);
+  border-top-color: var(--accent);
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 不确定进度条：左右往返的朱砂滑块 */
+.today-meter.running i.indeterminate {
+  width: 30%;
+  animation: indeterminate 1.4s var(--ease-out) infinite alternate;
+}
+
+@keyframes indeterminate {
+  from {
+    margin-left: 0;
+  }
+  to {
+    margin-left: 70%;
+  }
+}
+
+/* ------------------------------------------------------------
+   领域分析报告查看页
+   ------------------------------------------------------------ */
+
+.report-meta {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0 0 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.md-body h2,
+.md-body h3,
+.md-body h4,
+.md-body h5 {
+  font-family: var(--serif);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--ink);
+  margin: 26px 0 10px;
+  line-height: 1.4;
+}
+
+.md-body h2 {
+  font-size: 19px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.md-body h3 {
+  font-size: 16px;
+}
+
+.md-body h4,
+.md-body h5 {
+  font-size: 14.5px;
+}
+
+.md-body p {
+  font-size: 14.5px;
+  line-height: 1.8;
+  color: var(--ink-2);
+  margin: 8px 0;
+}
+
+.md-body ul,
+.md-body ol {
+  padding-left: 22px;
+  margin: 8px 0;
+  color: var(--ink-2);
+  font-size: 14.5px;
+  line-height: 1.8;
+}
+
+.md-body li {
+  margin: 4px 0;
+}
+
+.md-body li::marker {
+  color: var(--accent);
+}
+
+.md-body strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.md-body blockquote {
+  margin: 14px 0;
+  padding: 10px 14px;
+  background: var(--accent-soft);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 10px 10px 0;
+  color: var(--accent-deep);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.md-body blockquote p {
+  margin: 0;
+  color: inherit;
+  font-size: inherit;
+}
+
+.md-body hr {
+  border: none;
+  border-top: 1px dashed var(--line-strong);
+  margin: 20px 0;
+}
+
+.md-body code {
+  font-family: var(--mono);
+  font-size: 13px;
+  background: var(--paper-deep);
+  border-radius: 5px;
+  padding: 1px 5px;
+}
+
 .score-line {
   color: var(--ink-2);
   font-size: 14px;

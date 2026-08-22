@@ -26,6 +26,7 @@ Tomorrow's execution
 - **Idea capture** — 3-second quick capture on the home page + inbox, growth/maintenance tracks
 - **Opportunity scoring** — 5 dimensions × 0–20 = 0–100 total, auto-tiered: ≥80 candidate / 60–79 observing / <60 archived; sliders re-score live
 - **AI initial scoring** — configure any Anthropic-compatible endpoint (e.g. Zhipu BigModel) and new opportunities get scored by AI in one tap; idea→opportunity promotion auto-scores. AI advises, you decide
+- **Domain analysis reports** — kick off an async deep-dive per opportunity (market / competitors / entry strategy with real account profiles), read it on a dedicated report page
 - **Goals** — CRUD, milestones, progress slider; progress auto-advances from reviews
 - **Tasks** — four buckets (today / week / future / archive), goal linking & scheduling
 - **Nightly review** — daily summary + goal progress update (+10% per completed goal-linked task, idempotent per day+scope), review timeline
@@ -34,7 +35,7 @@ Tomorrow's execution
 - **Auth** — JWT httpOnly cookie sessions, CLI-managed accounts (no self sign-up), family-co-signed password recovery
 - **Storage** — Markdown + YAML frontmatter per entity ([ADR-0001](docs/adr/0001-markdown-as-data-source.md)); no database, git-friendly
 - **UI** — "Paper & Ink" design system; responsive from phone dock to desktop side-rail
-- **Tests** — 54 unit tests (vitest) + 22 e2e tests (Playwright, isolated data dir)
+- **Tests** — 59 unit tests (vitest) + 23 e2e tests (Playwright, isolated data dir)
 
 ### On the roadmap
 

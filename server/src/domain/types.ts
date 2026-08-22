@@ -77,4 +77,20 @@ export interface Opportunity extends Entity {
   ai_scored_at?: string
 }
 
-export type AnyEntity = Idea | Goal | Task | Opportunity
+/** 领域分析报告：对机会的深度分析（异步长任务，正文即 markdown 报告） */
+export type ReportStatus = 'running' | 'done' | 'failed'
+export interface Report extends Entity {
+  type: 'report'
+  status: ReportStatus
+  opportunity_id: string
+  /** 冗余标题：报告查看页不依赖机会存在 */
+  opportunity_title: string
+  /** 实际使用的模型 */
+  model: string
+  started_at: string
+  finished_at?: string
+  /** 失败原因（status=failed 时） */
+  error?: string
+}
+
+export type AnyEntity = Idea | Goal | Task | Opportunity | Report
