@@ -155,9 +155,11 @@ describe('导入指纹库', () => {
     const ledger = new ImportLedger(dir)
     const fp = fingerprintOf('alipay', 'order-1')
     expect(await ledger.imported()).toEqual(new Set())
-    await ledger.record([fp], { source: 'alipay', total: 1, batchWritten: 1, singleWritten: 0, failed: 0 })
+    await ledger.recordFingerprints([fp])
+    await ledger.recordSession({ source: 'alipay', total: 1, written: 1, failed: 0 })
     expect((await ledger.imported()).has(fp)).toBe(true)
-    await ledger.record([fingerprintOf('wechat', 'w1')], { source: 'wechat', total: 1, batchWritten: 1, singleWritten: 0, failed: 0 })
+    await ledger.recordFingerprints([fingerprintOf('wechat', 'w1')])
+    await ledger.recordSession({ source: 'wechat', total: 1, written: 1, failed: 0 })
     const history = await ledger.history()
     expect(history).toHaveLength(2)
     expect(history[0].source).toBe('wechat') // 新的在前

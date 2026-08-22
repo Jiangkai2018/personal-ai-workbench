@@ -13,8 +13,7 @@ export interface ImportRecord {
   date: string
   source: 'wechat' | 'alipay'
   total: number
-  batchWritten: number
-  singleWritten: number
+  written: number
   failed: number
 }
 
@@ -46,16 +45,31 @@ export class ImportLedger {
     return (await this.readRaw()).records
   }
 
-  /** 确认导入后：追加指纹与历史记录 */
-  async record(fingerprints: string[], record: Omit<ImportRecord, 'date'>): Promise<void> {
+  /** 单条导入成功后：立即记指纹（中断后不重导） */
+  async recordFingerprints(fingerprints: string[]): Promise<void> {
+    if (fingerprints.length === 0) return
     const { fingerprints: existing, records } = await this.readRaw()
     const merged = [...new Set([...existing, ...fingerprints])]
-    const entry: ImportRecord = { ...record, date: new Date().toISOString() }
     await mkdir(path.dirname(this.file), { recursive: true })
     await writeFile(
       this.file,
       matter.stringify('# 导入指纹库（自动维护，勿手改）', {
         fingerprints: merged,
+        records,
+      }),
+      'utf8',
+    )
+  }
+
+  /** 一次导入会话结束：追加一条历史汇总 */
+  async recordSession(record: Omit<ImportRecord, 'date'>): Promise<void> {
+    const { fingerprints: existing, records } = await this.readRaw()
+    const entry: ImportRecord = { ...record, date: new Date().toISOString() }
+    await mkdir(path.dirname(this.file), { recursive: true })
+    await writeFile(
+      this.file,
+      matter.stringify('# 导入指纹库（自动维护，勿手改）', {
+        fingerprints: [...existing],
         records: [entry, ...records].slice(0, 200),
       }),
       'utf8',

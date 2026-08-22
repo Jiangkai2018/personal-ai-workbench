@@ -2,13 +2,17 @@
 // 实测结论：鉴权仅需 authorization + client-key + trading-entity（sign/nonce/timestamp 可省）。
 // 所有私有 API 细节（路径、错误码）都收敛在这一个文件，上游变动只改这里。
 import type { CredentialStore } from './credential'
-import type { BillRow, CommitResult } from './types'
+import type { BillRow } from './types'
 
 const BASE = 'https://yun.feidee.net'
 
 /** 统一可读错误（路由层直接透传给前端） */
 export class SsjError extends Error {
-  /** TOKEN_INVALID = 凭证失效（前端引导重新填入）；UNAVAILABLE = 网络/服务问题 */
+  /**
+   * TOKEN_INVALID = 凭证失效（401，前端引导重新填入）
+   * LIMIT = 接口限额（如批量写入每日 2 次；可降级单条）
+   * UNAVAILABLE = 网络/服务/其他可重试错误
+   */
   constructor(message: string, public readonly kind: 'TOKEN_INVALID' | 'UNAVAILABLE' | 'LIMIT' = 'UNAVAILABLE') {
     super(message)
   }
@@ -59,18 +63,25 @@ export class SuishoujiClient {
     } catch {
       throw new SsjError('随手记服务无法连接，请稍后重试', 'UNAVAILABLE')
     }
-    if (res.status === 401 || res.status === 403) {
+    if (res.status === 401) {
       throw new SsjError('随手记凭证已失效：请在财务页重新填入 token', 'TOKEN_INVALID')
     }
     if (!res.ok) {
       let message = `随手记接口返回 ${res.status}`
+      let code = ''
       try {
-        const body = (await res.json()) as { message?: string }
+        const body = (await res.json()) as { message?: string; code?: string }
+        code = body.code ?? ''
         if (body.message) message = `随手记接口错误：${body.message}`
       } catch {
         // 非 JSON 错误体
       }
-      throw new SsjError(message, res.status === 429 ? 'LIMIT' : 'UNAVAILABLE')
+      // 403「权限不足」(0x0611) 实测是批量写入触达每日限额的表现，不是凭证问题；
+      // 标记为 LIMIT 让上层降级单条写入，而不是误导用户重填 token
+      if (res.status === 403 || res.status === 429 || code === '0x0611') {
+        throw new SsjError(`${message}（批量接口每日限额或权限限制，将降级为逐条写入）`, 'LIMIT')
+      }
+      throw new SsjError(message, 'UNAVAILABLE')
     }
     if (res.status === 204) return null
     return res.json()
@@ -110,28 +121,6 @@ export class SuishoujiClient {
     return body.data ?? []
   }
 
-  /** 批量写入（每天限 2 次、每次 ≤60 条） */
-  private async writeBatch(txs: TxInput[]): Promise<number> {
-    const body = (await this.call('/cab-accounting-ws/v3/account-book/transactions', {
-      method: 'POST',
-      body: JSON.stringify({
-        transaction_vo_list: txs.map((t) => ({
-          business_type: t.type === 'income' ? 'Income' : 'Expense',
-          amount: t.amount.toFixed(2),
-          transaction_time: t.timeMs,
-          images: [],
-          remark: t.remark,
-          category: { id: t.categoryId },
-          account: { id: t.accountId },
-          member: { id: t.memberId },
-        })),
-      }),
-    })) as { data?: unknown }
-    return Array.isArray((body as { data?: unknown[] })?.data)
-      ? (body as { data: unknown[] }).data.length
-      : txs.length
-  }
-
   /** 单条写入（不限次） */
   private async writeOne(t: TxInput): Promise<void> {
     await this.call(`/cab-accounting-ws/v2/account-book/transaction/${t.type === 'income' ? 'income' : 'expense'}`, {
@@ -149,50 +138,20 @@ export class SuishoujiClient {
   }
 
   /**
-   * 提交导入：批量优先，整批失败降级逐条，逐条失败收集原因。
-   * memberMap: BillRow → 随手记成员 id（由调用方按昵称规则解析）。
+   * 单条写入（用户决策：弃用批量接口 —— 其每日 2 次限额太紧，且失败语义不清）。
+   * 前端逐条调用并驱动进度条。
+   * 备注取商品名（用户决策：支付宝商品说明比原始备注更见文知意；微信同理，原始备注常为"/"）。
    */
-  async commit(rows: BillRow[], rowsMeta: { categoryId: string; memberId: string }[]): Promise<CommitResult> {
-    const result: CommitResult = { total: rows.length, batchWritten: 0, singleWritten: 0, failed: [] }
-    if (rows.length === 0) return result
-
-    const toInput = (i: number): TxInput => ({
-      type: rows[i].type,
-      amount: rows[i].amount,
-      timeMs: new Date(rows[i].time).getTime(),
-      categoryId: rowsMeta[i].categoryId,
+  async writeSingle(row: BillRow, meta: { categoryId: string; memberId: string }): Promise<void> {
+    await this.writeOne({
+      type: row.type,
+      amount: row.amount,
+      timeMs: new Date(row.time).getTime(),
+      categoryId: meta.categoryId,
       accountId: this.defaultAccountId,
-      memberId: rowsMeta[i].memberId,
-      remark: rows[i].remark || rows[i].detail || rows[i].categorySource,
+      memberId: meta.memberId,
+      remark: row.detail || row.remark || row.categorySource,
     })
-
-    const chunks: number[][] = []
-    for (let i = 0; i < rows.length; i += 60) {
-      chunks.push(rows.map((_, j) => j).slice(i, i + 60))
-    }
-    for (const chunk of chunks) {
-      try {
-        await this.writeBatch(chunk.map(toInput))
-        result.batchWritten += chunk.length
-      } catch (err) {
-        if (err instanceof SsjError && err.kind === 'TOKEN_INVALID') throw err
-        // 整批失败（可能触发每日 2 次限制或个别脏数据）：降级逐条
-        for (const i of chunk) {
-          try {
-            await this.writeOne(toInput(i))
-            result.singleWritten += 1
-          } catch (e2) {
-            if (e2 instanceof SsjError && e2.kind === 'TOKEN_INVALID') throw e2
-            result.failed.push({
-              orderId: rows[i].orderId,
-              detail: `${rows[i].time} ${rows[i].detail.slice(0, 30)} ¥${rows[i].amount}`,
-              reason: (e2 as Error).message,
-            })
-          }
-        }
-      }
-    }
-    return result
   }
 
   // 设计约定（用户要求）：产品功能不集成"删除流水"API —— 对家庭账本风险过高。

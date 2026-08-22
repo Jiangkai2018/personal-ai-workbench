@@ -15,8 +15,7 @@ interface ImportRecord {
   date: string
   source: string
   total: number
-  batchWritten: number
-  singleWritten: number
+  written: number
   failed: number
 }
 
@@ -34,8 +33,9 @@ export default function FinancePage() {
   const [preview, setPreview] = useState<PreviewResponse | null>(null)
   const [rows, setRows] = useState<PreviewRow[]>([])
   const [categories, setCategories] = useState<Record<string, { name: string; id: string }[]>>({})
-  const [committing, setCommitting] = useState(false)
-  const [result, setResult] = useState<{ batchWritten: number; singleWritten: number; failed: { detail: string; reason: string }[] } | null>(null)
+  const [progress, setProgress] = useState<{ done: number; total: number } | null>(null)
+  const cancelRef = useRef(false)
+  const [result, setResult] = useState<{ written: number; failed: { detail: string; reason: string }[] } | null>(null)
   const [error, setError] = useState('')
   const [history, setHistory] = useState<ImportRecord[]>([])
 
@@ -106,33 +106,53 @@ export default function FinancePage() {
 
   async function commit() {
     if (!preview) return
-    setCommitting(true)
     setError('')
-    try {
-      const res = await api.commitBills(
-        rows.map((r) => ({
-          source: r.source,
-          time: r.time,
-          type: r.type,
-          amount: r.amount,
-          orderId: r.orderId,
-          fingerprint: r.fingerprint,
-          categoryId: r.categoryId,
-          remark: r.remark,
-          detail: r.detail,
-          categorySource: r.categorySource,
-        })),
-        preview.owner,
-      )
-      setResult(res)
+    setResult(null)
+    cancelRef.current = false
+    setProgress({ done: 0, total: rows.length })
+
+    const failed: { detail: string; reason: string }[] = []
+    let written = 0
+    let done = 0
+    for (const r of rows) {
+      if (cancelRef.current) break
+      try {
+        const res = await api.commitOneBill(
+          {
+            source: r.source,
+            time: r.time,
+            type: r.type,
+            amount: r.amount,
+            orderId: r.orderId,
+            fingerprint: r.fingerprint,
+            categoryId: r.categoryId,
+            remark: r.remark,
+            detail: r.detail,
+            categorySource: r.categorySource,
+          },
+          preview.owner,
+        )
+        if (!res.skipped) written++
+      } catch (e) {
+        failed.push({ detail: `${r.time.slice(0, 16).replace('T', ' ')} ${r.detail.slice(0, 24)} ¥${r.amount}`, reason: (e as Error).message })
+        // 凭证失效：继续循环只会条条失败，直接中断
+        if ((e as Error).message.includes('凭证已失效')) {
+          setError((e as Error).message)
+          break
+        }
+      }
+      done++
+      setProgress({ done, total: rows.length })
+    }
+
+    setProgress(null)
+    setResult({ written, failed })
+    api.recordFinanceImport({ source: preview.source, total: rows.length, written, failed: failed.length }).catch(() => {})
+    if (!cancelRef.current) {
       setPreview(null)
       setRows([])
-      loadHistory()
-    } catch (e) {
-      setError((e as Error).message)
-    } finally {
-      setCommitting(false)
     }
+    loadHistory()
   }
 
   const dupTotal = preview ? preview.duplicates.local + preview.duplicates.remote + preview.duplicates.batch : 0
@@ -271,21 +291,35 @@ export default function FinancePage() {
                     </tbody>
                   </table>
                 </div>
-                <div className="finance-commit">
-                  <button type="button" className="btn primary" onClick={commit} disabled={committing}>
-                    {committing ? '写入中…' : `确认导入 ${rows.length} 笔`}
-                  </button>
-                  <button
-                    type="button"
-                    className="btn"
-                    onClick={() => {
-                      setPreview(null)
-                      setRows([])
-                    }}
-                  >
-                    取消
-                  </button>
-                </div>
+                {progress ? (
+                  <div className="finance-progress">
+                    <div className="finance-progress-text">
+                      逐条写入随手记… {progress.done}/{progress.total}（已完成 {Math.round((progress.done / progress.total) * 100)}%）
+                    </div>
+                    <div className="today-meter finance-progress-bar" aria-hidden="true">
+                      <i style={{ width: `${(progress.done / progress.total) * 100}%` }} />
+                    </div>
+                    <button type="button" className="btn" onClick={() => (cancelRef.current = true)}>
+                      停止导入
+                    </button>
+                  </div>
+                ) : (
+                  <div className="finance-commit">
+                    <button type="button" className="btn primary" onClick={commit}>
+                      确认导入 {rows.length} 笔（逐条写入）
+                    </button>
+                    <button
+                      type="button"
+                      className="btn"
+                      onClick={() => {
+                        setPreview(null)
+                        setRows([])
+                      }}
+                    >
+                      取消
+                    </button>
+                  </div>
+                )}
               </>
             )}
             {rows.length === 0 && <p className="ok">没有需要导入的新账单（全部为重复或被过滤）。</p>}
@@ -296,9 +330,8 @@ export default function FinancePage() {
         {result && (
           <div className="finance-result">
             <p className="ok">
-              导入完成：批量写入 {result.batchWritten} 笔
-              {result.singleWritten > 0 ? `，单条补写 ${result.singleWritten} 笔` : ''}
-              {result.failed.length > 0 ? `，失败 ${result.failed.length} 笔` : ''}。
+              导入完成：成功写入 {result.written} 笔
+              {result.failed.length > 0 ? `，失败 ${result.failed.length} 笔（可重新上传，已成功的会自动跳过）` : ''}。
             </p>
             {result.failed.length > 0 && (
               <ul className="finance-failed">
@@ -320,8 +353,7 @@ export default function FinancePage() {
               {history.slice(0, 5).map((h, i) => (
                 <li key={i}>
                   <span className="mono">{h.date.slice(0, 16).replace('T', ' ')}</span>{' '}
-                  {h.source === 'wechat' ? '微信' : '支付宝'} · 共 {h.total} 笔 · 成功{' '}
-                  {h.batchWritten + h.singleWritten}
+                  {h.source === 'wechat' ? '微信' : '支付宝'} · 共 {h.total} 笔 · 成功 {h.written}
                   {h.failed > 0 ? ` · 失败 ${h.failed}` : ''}
                 </li>
               ))}

@@ -97,16 +97,32 @@ export function financeRouter(dataDir: string): Router {
     }
   })
 
-  // ---- 成员（预览时展示归属） ----
+  // ---- 成员（预览时展示归属；进程内缓存 10 分钟，避免逐条导入时每行都查） ----
+
+  let membersCache: { at: number; data: { id: string; name: string }[] } | null = null
+  async function cachedMembers() {
+    if (membersCache && Date.now() - membersCache.at < 10 * 60_000) return membersCache.data
+    const data = await ssj.members()
+    membersCache = { at: Date.now(), data }
+    return data
+  }
 
   router.get('/members', async (_req, res, next) => {
     try {
-      res.json(await ssj.members())
+      res.json(await cachedMembers())
     } catch (err) {
       if (ssjFail(res, err)) return
       next(err)
     }
   })
+
+  /** 按账单归属解析随手记成员 id（Kai → 本人，其余 → 冰雪） */
+  async function resolveMemberId(owner: string): Promise<string | null> {
+    const members = await cachedMembers()
+    const kaiId = members.find((m) => m.name === MEMBER_KAI)?.id
+    const iceId = members.find((m) => m.name === MEMBER_ICE)?.id
+    return (owner === 'Kai' ? kaiId : iceId) ?? null
+  }
 
   // ---- 账单上传 → 预览 ----
 
@@ -211,77 +227,76 @@ export function financeRouter(dataDir: string): Router {
     },
   )
 
-  // ---- 确认导入 ----
+  // ---- 确认导入（用户决策：弃用批量接口，前端逐条调用驱动进度条） ----
 
-  const commitSchema = z.object({
-    rows: z
-      .array(
-        z.object({
-          source: z.enum(['wechat', 'alipay']),
-          time: z.string(),
-          type: z.enum(['income', 'expense']),
-          amount: z.number().positive(),
-          orderId: z.string().min(1),
-          fingerprint: z.string().min(8),
-          categoryId: z.string().min(1),
-          remark: z.string().max(500).optional().default(''),
-          detail: z.string().optional().default(''),
-          categorySource: z.string().optional().default(''),
-        }),
-      )
-      .min(1, '没有要导入的账单'),
+  const commitOneSchema = z.object({
+    row: z.object({
+      source: z.enum(['wechat', 'alipay']),
+      time: z.string(),
+      type: z.enum(['income', 'expense']),
+      amount: z.number().positive(),
+      orderId: z.string().min(1),
+      fingerprint: z.string().min(8),
+      categoryId: z.string().min(1),
+      remark: z.string().max(500).optional().default(''),
+      detail: z.string().optional().default(''),
+      categorySource: z.string().optional().default(''),
+    }),
     owner: z.string().default(''),
   })
 
-  router.post('/bills/commit', async (req, res, next) => {
+  router.post('/bills/commit-one', async (req, res, next) => {
     try {
-      const parsed = commitSchema.parse(req.body)
+      const parsed = commitOneSchema.parse(req.body)
+      const { row, owner } = parsed
 
-      // 提交前再校验一次本地指纹（预览与提交之间可能已导入过）
+      // 已导入过 → 幂等跳过（前端中断续传也安全）
       const imported = await ledger.imported()
-      const rows = parsed.rows.filter((r) => !imported.has(r.fingerprint))
+      if (imported.has(row.fingerprint)) {
+        res.json({ ok: true, skipped: true })
+        return
+      }
 
-      // 成员解析：微信昵称 Kai → 本人，其余 → 冰雪
-      const members = await ssj.members()
-      const kaiId = members.find((m) => m.name === MEMBER_KAI)?.id
-      const iceId = members.find((m) => m.name === MEMBER_ICE)?.id
-      const memberId = parsed.owner === 'Kai' ? kaiId : iceId
+      const memberId = await resolveMemberId(owner)
       if (!memberId) {
         res.status(502).json({ error: 'MEMBER_NOT_FOUND', message: '随手记成员解析失败，请检查账本成员' })
         return
       }
 
-      const billRows: BillRow[] = rows.map((r) => ({
-        source: r.source,
-        time: r.time,
-        type: r.type,
-        amount: r.amount,
-        categorySource: r.categorySource,
+      const billRow: BillRow = {
+        source: row.source,
+        time: row.time,
+        type: row.type,
+        amount: row.amount,
+        categorySource: row.categorySource,
         counterparty: '',
-        detail: r.detail,
+        detail: row.detail,
         payMethod: '',
-        orderId: r.orderId,
-        remark: r.remark,
-      }))
-      const result = await ssj.commit(
-        billRows,
-        rows.map((r) => ({ categoryId: r.categoryId, memberId })),
-      )
-
-      // 全部失败不记指纹；部分成功也记成功的？V0 简化：只记 未失败 行的指纹
-      const failedSet = new Set(result.failed.map((f) => f.orderId))
-      const okFps = rows.filter((r) => !failedSet.has(r.orderId)).map((r) => r.fingerprint)
-      await ledger.record(okFps, {
-        source: rows[0]?.source ?? 'wechat',
-        total: rows.length,
-        batchWritten: result.batchWritten,
-        singleWritten: result.singleWritten,
-        failed: result.failed.length,
-      })
-
-      res.json(result)
+        orderId: row.orderId,
+        remark: row.remark,
+      }
+      await ssj.writeSingle(billRow, { categoryId: row.categoryId, memberId })
+      await ledger.recordFingerprints([row.fingerprint])
+      res.json({ ok: true, skipped: false })
     } catch (err) {
       if (ssjFail(res, err)) return
+      next(err)
+    }
+  })
+
+  /** 一次导入会话结束：汇总一条历史 */
+  const recordSessionSchema = z.object({
+    source: z.enum(['wechat', 'alipay']),
+    total: z.number().int().min(0),
+    written: z.number().int().min(0),
+    failed: z.number().int().min(0),
+  })
+  router.post('/bills/record', async (req, res, next) => {
+    try {
+      const parsed = recordSessionSchema.parse(req.body)
+      await ledger.recordSession(parsed)
+      res.json({ ok: true })
+    } catch (err) {
       next(err)
     }
   })

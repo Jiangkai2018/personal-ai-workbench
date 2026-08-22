@@ -124,8 +124,8 @@ export const api = {
       headers: { 'content-type': 'application/octet-stream', 'x-file-name': encodeURIComponent(filename) },
       body: body as BodyInit,
     }),
-  commitBills: (
-    rows: {
+  commitOneBill: (
+    row: {
       source: string
       time: string
       type: 'income' | 'expense'
@@ -136,24 +136,21 @@ export const api = {
       remark?: string
       detail?: string
       categorySource?: string
-    }[],
+    },
     owner: string,
-  ) =>
-    request<{ total: number; batchWritten: number; singleWritten: number; failed: { detail: string; reason: string }[] }>(
-      '/api/finance/bills/commit',
-      { method: 'POST', body: JSON.stringify({ rows, owner }) },
-    ),
+  ) => request<{ ok: boolean; skipped: boolean }>('/api/finance/bills/commit-one', {
+    method: 'POST',
+    body: JSON.stringify({ row, owner }),
+  }),
+  recordFinanceImport: (summary: { source: 'wechat' | 'alipay'; total: number; written: number; failed: number }) =>
+    request<{ ok: boolean }>('/api/finance/bills/record', {
+      method: 'POST',
+      body: JSON.stringify(summary),
+    }),
   getFinanceImports: () =>
-    request<
-      {
-        date: string
-        source: string
-        total: number
-        batchWritten: number
-        singleWritten: number
-        failed: number
-      }[]
-    >('/api/finance/imports'),
+    request<{ date: string; source: string; total: number; written: number; failed: number }[]>(
+      '/api/finance/imports',
+    ),
   getFinanceCategories: () =>
     request<Record<string, { name: string; id: string }[]>>('/api/finance/categories'),
 }

@@ -1926,6 +1926,21 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
   align-items: center;
 }
 
+/* 逐条导入进度 */
+.finance-progress {
+  margin: 12px 0;
+}
+
+.finance-progress-text {
+  font-size: 13.5px;
+  color: var(--ink-2);
+  margin-bottom: 8px;
+}
+
+.finance-progress-bar {
+  margin: 0 0 10px;
+}
+
 .finance-commit .btn.primary {
   width: auto;
   margin-top: 0;
