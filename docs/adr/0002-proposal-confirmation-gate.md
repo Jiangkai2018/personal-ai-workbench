@@ -1,8 +1,8 @@
 # ADR-0002：承诺类动作必须经确认中心（提案门）
 
-- 状态：已接受
+- 状态：**已被 [ADR-0003](0003-direct-promotion.md) 取代**（2026-08-22）
 - 日期：2026-08-21
-- 关联代码：`server/src/api/routes/proposals.ts`
+- 关联代码：`server/src/api/routes/proposals.ts`（已移除）
 
 ## 背景
 

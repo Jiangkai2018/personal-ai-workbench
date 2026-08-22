@@ -5,9 +5,15 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **移除确认中心，转正一键直达**（ADR-0003，取代 ADR-0002）：想法→机会、机会→目标不再需要提案审批
+- 想法→机会转正时自动 AI 初评（AI 不可用时以 0 分创建，不阻塞）
+
 ### Added
 
-- 想法编辑与删除：`PATCH/DELETE /api/ideas/:id`；已转正或存在待审提案的想法拒绝删除（409）
+- 想法编辑与删除：`PATCH/DELETE /api/ideas/:id`；已转正的想法拒绝删除（409）
+- AI 初评：`POST /api/opportunities/ai-preview`（表单预填）、`POST /api/opportunities/:id/ai-score`（落盘重评）；`.env` 配置 Anthropic 兼容接口
 
 ### Fixed
 
@@ -15,7 +21,7 @@
 
 ### Planned
 
-- AI Agent 接入：复盘 Agent、提案 Agent（仍需人工批准）
+- AI Agent 深化：复盘 Agent、结合个人历史的初评增强
 - 知识沉淀模块：复盘结论反哺目标与机会决策
 - Git 自动同步：数据变更后自动 commit（可选 push）
 

@@ -15,6 +15,8 @@ export default function IdeasPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [draft, setDraft] = useState('')
   const [draftTrack, setDraftTrack] = useState<'growth' | 'maintenance'>('growth')
+  // 正在转正的想法 id（AI 初评需要几秒，按钮显示进行中）
+  const [promotingId, setPromotingId] = useState<string | null>(null)
 
   async function load() {
     try {
@@ -40,15 +42,23 @@ export default function IdeasPage() {
     }
   }
 
-  // 想法→机会：走确认中心（Agent 只提案，用户批准后生效）
+  // 想法→机会：一键直达（服务端自动 AI 初评，之后可在机会页调整）
   async function promote(idea: Idea) {
     setMsg('')
     setError('')
+    setPromotingId(idea.id)
     try {
-      await api.createProposal({ action: 'promote_idea_to_opportunity', source_id: idea.id })
-      setMsg('已提交转正提案，去确认中心批准后生效')
+      const opp = await api.promoteIdea(idea.id)
+      setMsg(
+        opp.ai_scored
+          ? `已转正为机会，AI 初评 ${opp.total}/100（可在机会页调整）`
+          : '已转正为机会（AI 未配置，可到机会页手动评分）',
+      )
+      load()
     } catch (err) {
       setError((err as Error).message)
+    } finally {
+      setPromotingId(null)
     }
   }
 
@@ -167,8 +177,9 @@ export default function IdeasPage() {
                       className="btn tiny"
                       aria-label={`转正：${idea.content}`}
                       onClick={() => promote(idea)}
+                      disabled={promotingId === idea.id}
                     >
-                      转正
+                      {promotingId === idea.id ? 'AI 初评中…' : '转正'}
                     </button>
                   )}
                   <button

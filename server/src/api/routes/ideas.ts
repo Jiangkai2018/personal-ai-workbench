@@ -1,7 +1,9 @@
 import { Router } from 'express'
 import { z } from 'zod'
 import type { EntityStore } from '../../storage/repo'
-import type { Idea, Proposal } from '../../domain/types'
+import type { Idea } from '../../domain/types'
+import { scoreTotal, statusFor, type Scores } from '../../domain/opportunity'
+import type { AiScorer } from '../../ai/scoreClient'
 
 const createIdeaSchema = z.object({
   content: z.string().trim().min(1, '内容不能为空').max(2000),
@@ -17,7 +19,7 @@ const patchIdeaSchema = z
   })
   .refine((v) => Object.keys(v).length > 0, { message: '至少提供一个要修改的字段' })
 
-export function ideaRouter(store: EntityStore): Router {
+export function ideaRouter(store: EntityStore, aiScorer: AiScorer): Router {
   const router = Router()
 
   // 捕获想法：写一个想法文件，状态 inbox。捕获成本为零。
@@ -69,7 +71,50 @@ export function ideaRouter(store: EntityStore): Router {
     }
   })
 
-  // 删除想法：已转正（被机会引用）或存在待审提案时拒绝，避免断链
+  // 一键转正为机会（直达，无确认环节）：创建机会 + AI 初评 + 回填 promoted_to_id。
+  // AI 失败不阻塞转正 —— 以 0 分创建，用户可稍后在机会页点「AI 初评」补打。
+  router.post('/:id/promote', async (req, res, next) => {
+    try {
+      const idea = await store.get<Idea>('idea', req.params.id)
+      if (!idea) {
+        res.status(404).json({ error: 'NOT_FOUND', message: '想法不存在' })
+        return
+      }
+      if (idea.promoted_to_id) {
+        res.status(409).json({ error: 'ALREADY_PROMOTED', message: '该想法已转正为机会' })
+        return
+      }
+
+      let scores: Scores = { value: 0, feasible: 0, window: 0, fit: 0, risk: 0 }
+      let aiScored = false
+      try {
+        scores = await aiScorer.score({ title: idea.content.slice(0, 200) })
+        aiScored = true
+      } catch {
+        // AI 不可用：0 分转正，不打断用户流程
+      }
+
+      const total = scoreTotal(scores)
+      const opportunity = await store.create({
+        type: 'opportunity',
+        body: '',
+        title: idea.content.slice(0, 200),
+        scope: idea.scope,
+        track: idea.track,
+        scores,
+        total,
+        status: statusFor(total),
+        source_idea_id: idea.id,
+        ...(aiScored ? { ai_scored: true, ai_scored_at: new Date().toISOString() } : {}),
+      })
+      await store.update('idea', idea.id, { promoted_to_id: opportunity.id })
+      res.status(201).json(opportunity)
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  // 删除想法：已转正（被机会引用）时拒绝，避免断链
   router.delete('/:id', async (req, res, next) => {
     try {
       const idea = await store.get<Idea>('idea', req.params.id)
@@ -79,14 +124,6 @@ export function ideaRouter(store: EntityStore): Router {
       }
       if (idea.promoted_to_id) {
         res.status(409).json({ error: 'ALREADY_PROMOTED', message: '该想法已转正为机会，不能删除' })
-        return
-      }
-      const pending = (await store.list('proposal')) as Proposal[]
-      if (pending.some((p) => p.source_id === idea.id && p.status === 'pending')) {
-        res.status(409).json({
-          error: 'PENDING_PROPOSAL',
-          message: '该想法有待确认的转正提案，先到确认中心处理',
-        })
         return
       }
       await store.remove('idea', idea.id)

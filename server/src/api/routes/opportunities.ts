@@ -3,6 +3,7 @@ import { z } from 'zod'
 import type { EntityStore } from '../../storage/repo'
 import type { Opportunity } from '../../domain/types'
 import { scoreTotal, statusFor, type Scores } from '../../domain/opportunity'
+import type { AiScorer } from '../../ai/scoreClient'
 
 const dimSchema = z.object({
   value: z.number().min(0).max(20).default(0),
@@ -28,8 +29,76 @@ const patchOpportunitySchema = z.object({
   note: z.string().max(2000).optional(),
 })
 
-export function opportunityRouter(store: EntityStore): Router {
+export function opportunityRouter(store: EntityStore, aiScorer: AiScorer): Router {
   const router = Router()
+
+  // AI 预评（不落盘）：给"新机会"表单填初值，用户调整后再创建
+  // 注意放在 /:id 之前注册，避免被参数路由吞掉
+  const aiPreviewSchema = z.object({
+    title: z.string().trim().min(1, '标题不能为空').max(200),
+    note: z.string().max(2000).optional(),
+  })
+  router.post('/ai-preview', async (req, res, next) => {
+    try {
+      const parsed = aiPreviewSchema.parse(req.body)
+      const scores = await aiScorer.score(parsed)
+      res.json({ scores })
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  // AI 初评（落盘）：对已有机会打分并保存，标记 ai_scored；用户可继续用滑块调整
+  router.post('/:id/ai-score', async (req, res, next) => {
+    try {
+      const existing = await store.get<Opportunity>('opportunity', req.params.id)
+      if (!existing) {
+        res.status(404).json({ error: 'NOT_FOUND', message: '机会不存在' })
+        return
+      }
+      const scores = await aiScorer.score({ title: existing.title, note: existing.note })
+      const total = scoreTotal(scores)
+      const updated = await store.update<Opportunity>('opportunity', existing.id, {
+        scores,
+        total,
+        status: statusFor(total),
+        ai_scored: true,
+        ai_scored_at: new Date().toISOString(),
+      })
+      res.json(updated)
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  // 一键转正为目标（直达，无确认环节）：创建目标 + 回填 goal_id
+  router.post('/:id/promote-to-goal', async (req, res, next) => {
+    try {
+      const opp = await store.get<Opportunity>('opportunity', req.params.id)
+      if (!opp) {
+        res.status(404).json({ error: 'NOT_FOUND', message: '机会不存在' })
+        return
+      }
+      if (opp.goal_id) {
+        res.status(409).json({ error: 'ALREADY_PROMOTED', message: '该机会已转正为目标' })
+        return
+      }
+      const goal = await store.create({
+        type: 'goal',
+        body: opp.note ?? '',
+        title: opp.title,
+        scope: opp.scope,
+        track: opp.track,
+        milestones: [],
+        progress: 0,
+        status: 'active',
+      })
+      await store.update('opportunity', opp.id, { goal_id: goal.id })
+      res.status(201).json(goal)
+    } catch (err) {
+      next(err)
+    }
+  })
 
   // 创建机会：5 维评分 → 算总分 + 分档
   router.post('/', async (req, res, next) => {

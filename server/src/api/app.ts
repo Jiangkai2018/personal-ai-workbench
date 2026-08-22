@@ -11,17 +11,19 @@ import { goalRouter } from './routes/goals'
 import { taskRouter } from './routes/tasks'
 import { todayRouter } from './routes/today'
 import { opportunityRouter } from './routes/opportunities'
-import { proposalRouter } from './routes/proposals'
 import { reviewRouter } from './routes/reviews'
+import { AiError, createAiScorer, type AiScorer } from '../ai/scoreClient'
 
 export interface AppOptions {
   dataDir: string
   jwtSecret?: string
+  /** 可注入假实现供测试；默认读环境变量创建真实客户端 */
+  aiScorer?: AiScorer
 }
 
 const DEFAULT_JWT_SECRET = 'dev-secret-change-me'
 
-export function createApp({ dataDir, jwtSecret }: AppOptions): Express {
+export function createApp({ dataDir, jwtSecret, aiScorer }: AppOptions): Express {
   const secret = jwtSecret ?? process.env.WORKBENCH_JWT_SECRET ?? DEFAULT_JWT_SECRET
   if (secret === DEFAULT_JWT_SECRET && process.env.NODE_ENV !== 'test') {
     // 开源默认值兜底：带默认密钥对外部署是真实风险，启动时大声提醒
@@ -31,6 +33,7 @@ export function createApp({ dataDir, jwtSecret }: AppOptions): Express {
   }
   const store = new EntityStore(dataDir)
   const reviewStore = new ReviewStore(dataDir)
+  const scorer = aiScorer ?? createAiScorer()
   const app = express()
   app.use(express.json())
   app.use(cookieParser())
@@ -42,21 +45,24 @@ export function createApp({ dataDir, jwtSecret }: AppOptions): Express {
 
   // 登录/找回等公开路由；其余 /api/* 全部 requireAuth（工作台默认登录后可进）
   app.use('/api/auth', authRouter(dataDir, secret))
-  app.use('/api/ideas', requireAuth(secret), ideaRouter(store))
-  app.use('/api/opportunities', requireAuth(secret), opportunityRouter(store))
-  app.use('/api/proposals', requireAuth(secret), proposalRouter(store))
+  app.use('/api/ideas', requireAuth(secret), ideaRouter(store, scorer))
+  app.use('/api/opportunities', requireAuth(secret), opportunityRouter(store, scorer))
   app.use('/api/goals', requireAuth(secret), goalRouter(store))
   app.use('/api/tasks', requireAuth(secret), taskRouter(store))
   app.use('/api/today', requireAuth(secret), todayRouter(store))
   app.use('/api/reviews', requireAuth(secret), reviewRouter(store, reviewStore))
 
-  // 统一错误处理：zod 校验失败 → 400，其余 → 500
+  // 统一错误处理：zod 校验失败 → 400，AI 不可用 → 503，其余 → 500
   app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
     if (err instanceof ZodError) {
       res.status(400).json({
         error: 'INVALID_INPUT',
         issues: err.issues.map((i) => ({ path: i.path.join('.'), message: i.message })),
       })
+      return
+    }
+    if (err instanceof AiError) {
+      res.status(503).json({ error: 'AI_UNAVAILABLE', message: err.message })
       return
     }
     console.error(err)

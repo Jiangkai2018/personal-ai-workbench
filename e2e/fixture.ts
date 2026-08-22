@@ -4,7 +4,7 @@ import { test as base } from '@playwright/test'
 import { rm } from 'node:fs/promises'
 import path from 'node:path'
 
-const ENTITY_DIRS = ['ideas', 'goals', 'tasks', 'opportunities', 'proposals', 'reviews']
+const ENTITY_DIRS = ['ideas', 'goals', 'tasks', 'opportunities', 'reviews']
 
 export const test = base.extend({
   page: async ({ page }, use) => {

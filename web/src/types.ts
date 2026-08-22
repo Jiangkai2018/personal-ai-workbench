@@ -52,18 +52,9 @@ export interface Opportunity extends Entity {
   goal_id?: string
   source_idea_id?: string
   note?: string
-}
-
-export interface Proposal extends Entity {
-  type: 'proposal'
-  action: 'promote_idea_to_opportunity' | 'promote_opportunity_to_goal'
-  status: 'pending' | 'approved' | 'rejected'
-  summary: string
-  source_type: 'idea' | 'opportunity'
-  source_id: string
-  payload: Record<string, unknown>
-  decided_at?: string
-  decided_by?: string
+  /** AI 初评标记：true = 当前分数来自 AI 初评（用户仍可调整覆盖） */
+  ai_scored?: boolean
+  ai_scored_at?: string
 }
 
 /** 晚间复盘：日小结 + 目标进度更新（按天+范围一份） */

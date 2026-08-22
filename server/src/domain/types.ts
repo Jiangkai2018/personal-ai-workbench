@@ -72,24 +72,9 @@ export interface Opportunity extends Entity {
   /** 来源想法 id（想法→机会转正时回填） */
   source_idea_id?: string
   note?: string
+  /** AI 初评标记：true = 当前分数来自 AI 初评（用户仍可调整覆盖） */
+  ai_scored?: boolean
+  ai_scored_at?: string
 }
 
-/** 提案：Agent 产出的待确认动作（转正等承诺类动作）。批准后由 Web 层执行文件操作 */
-export type ProposalAction = 'promote_idea_to_opportunity' | 'promote_opportunity_to_goal'
-export type ProposalStatus = 'pending' | 'approved' | 'rejected'
-export interface Proposal extends Entity {
-  type: 'proposal'
-  action: ProposalAction
-  status: ProposalStatus
-  /** 确认中心展示的一句话说明 */
-  summary: string
-  /** 转正来源：想法 或 机会 */
-  source_type: 'idea' | 'opportunity'
-  source_id: string
-  /** 执行所需的参数（标题/目标参数等） */
-  payload: Record<string, unknown>
-  decided_at?: string
-  decided_by?: string
-}
-
-export type AnyEntity = Idea | Goal | Task | Opportunity | Proposal
+export type AnyEntity = Idea | Goal | Task | Opportunity

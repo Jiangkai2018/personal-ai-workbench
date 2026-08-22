@@ -1267,8 +1267,30 @@ input[type='range']::-moz-range-thumb {
 }
 
 /* ------------------------------------------------------------
-   机会页：评分网格
+   机会页：评分网格 + AI 初评
    ------------------------------------------------------------ */
+
+.ai-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0 2px;
+}
+
+.ai-preview-row .btn.tiny {
+  margin-left: 0;
+  vertical-align: 0;
+}
+
+.ai-hint {
+  color: var(--family);
+  font-size: 12.5px;
+}
+
+.tag-ai {
+  background: #edeaf7;
+  color: #6253a8;
+}
 
 .score-line {
   color: var(--ink-2);

@@ -134,30 +134,11 @@ describe('想法 API —— 捕获漏斗起点', () => {
 
     it('已转正（被机会引用）的想法返回 409', async () => {
       const created = await agent.post('/api/ideas').send({ content: '要转正的' }).expect(201)
-      await agent
-        .post('/api/proposals')
-        .send({ action: 'promote_idea_to_opportunity', source_id: created.body.id })
-        .expect(201)
-      // 找到刚建的提案并批准 → 想法被标记 promoted_to_id
-      const proposals = await agent.get('/api/proposals?status=pending').expect(200)
-      const target = proposals.body.find(
-        (p: { source_id: string }) => p.source_id === created.body.id,
-      )
-      await agent.post(`/api/proposals/${target.id}/approve`).expect(200)
+      // 一键直达转正（AI 未配置时以 0 分创建，不阻塞）
+      await agent.post(`/api/ideas/${created.body.id}/promote`).expect(201)
 
       const res = await agent.delete(`/api/ideas/${created.body.id}`).expect(409)
       expect(res.body.error).toBe('ALREADY_PROMOTED')
-    })
-
-    it('有待审提案的想法返回 409，提示先去确认中心', async () => {
-      const created = await agent.post('/api/ideas').send({ content: '待审中的' }).expect(201)
-      await agent
-        .post('/api/proposals')
-        .send({ action: 'promote_idea_to_opportunity', source_id: created.body.id })
-        .expect(201)
-
-      const res = await agent.delete(`/api/ideas/${created.body.id}`).expect(409)
-      expect(res.body.error).toBe('PENDING_PROPOSAL')
     })
   })
 })

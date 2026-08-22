@@ -10,9 +10,9 @@
 
 ```
 想法（3 秒捕获，不判断好坏）
-  ↓ 转正提案 ✋需确认
+  ↓ 一键转正（自动 AI 初评）
 机会（5 维速评：值不值得做）
-  ↓ 转正提案 ✋需确认
+  ↓ 一键转正
 目标（承诺 + 里程碑 + 进度）
   ↓ 拆解排期
 任务（今天 / 本周 / 未来）
@@ -30,10 +30,11 @@
 
 - ⚡ **想法捕获**：首页 3 秒快捷捕获 + 想法收件箱，成长 / 维护双轨道
 - 🧭 **机会速评**：5 维打分（价值 / 可行 / 时间窗 / 匹配 / 风险）× 0–20 分 = 百分制，自动分档：≥80 转正候选、60–79 观察池、<60 归档，滑块实时重算
+- 🤖 **AI 初评**：配好 Anthropic 兼容接口（如智谱 BigModel）后，新建机会「AI 预评」一键填分；想法转正瞬间自动初评 —— AI 只建议，你随时改
 - 🎯 **目标管理**：CRUD + 里程碑 + 进度滑块（0–100）+ 复盘自动推进
 - ✅ **任务分桶**：今天 / 本周 / 未来 / 归档四桶，支持挂靠目标与排期
 - 🌙 **晚间复盘**：日小结 + 目标进度自动更新（每完成一个挂目标任务 +10%，封顶 100），按「日期 + 范围」幂等，复盘时间线可回溯
-- 🛂 **确认中心**：想法→机会、机会→目标等承诺类动作只出提案，人工批准后才执行文件操作；驳回不生效，重复提案 409
+- ⚡ **直达转正**：想法→机会、机会→目标一键完成，无中间审批环节（[ADR-0003](docs/adr/0003-direct-promotion.md)）
 - 👨‍👩‍👧 **个人 / 家庭双范围**：顶栏一键切换，家庭数据带标签隔离
 
 **鉴权与安全**
@@ -46,7 +47,7 @@
 
 - **Markdown 即数据库**（ADR-0001）：每实体一个带 YAML frontmatter 的 `.md`，git 友好，可直接阅读编辑
 - 统一错误处理（zod 校验 → 400 + 可读信息）
-- 52 个单测（vitest + supertest）+ 19 个 e2e（Playwright，隔离数据目录）
+- 54 个单测（vitest + supertest）+ 22 个 e2e（Playwright，隔离数据目录）
 
 **界面**
 
@@ -56,9 +57,9 @@
 
 ### 🚧 未来待接入
 
-- **AI Agent 接入**
+- **AI Agent 深化**
   - 复盘 Agent：替代 V0 确定性规则，生成更有洞察的日小结与进度建议
-  - 提案 Agent：自动评估想法 / 机会，向确认中心提交转正提案（仍需人工批准）
+  - 初评增强：结合历史目标 / 复盘数据给出更懂你的打分依据
 - **知识沉淀模块**：复盘结论沉淀为可检索的知识，反哺目标与机会决策
 - **Git 自动同步**：数据变更后自动 `git add / commit`（可选 push），本地 bare repo 验证
 - **PWA / 移动端安装**：主屏图标与离线壳
@@ -97,14 +98,15 @@ npm run dev
 personal-ai-workbench/
 ├── server/            # Express API + 领域逻辑 + 文件存储
 │   └── src/
-│       ├── api/       # 路由（auth/ideas/opportunities/goals/tasks/proposals/reviews/today）
+│       ├── api/       # 路由（auth/ideas/opportunities/goals/tasks/reviews/today）
 │       ├── auth/      # JWT + bcrypt + 家庭互证
 │       ├── cli/       # add-user / reset-password
 │       ├── domain/    # 领域规则（5 维评分分档等）
 │       └── storage/   # EntityStore / ReviewStore / UserStore（Markdown 文件）
 ├── web/               # React SPA（Vite，纯 CSS 设计系统）
-│   └── src/pages/     # 今日 / 想法 / 机会 / 目标 / 任务 / 确认 / 复盘 / 登录
+│   └── src/pages/     # 今日 / 想法 / 机会 / 目标 / 任务 / 复盘 / 登录
 ├── e2e/               # Playwright 端到端（.tmp-data 隔离）
+├── server/src/ai/     # AI 初评客户端（Anthropic 兼容接口）
 ├── data/              # ★ 你的全部数据（Markdown 文件，建议纳入 git）
 └── docs/              # 文档（使用手册）
 ```
@@ -117,10 +119,12 @@ personal-ai-workbench/
 | `WORKBENCH_DATA_DIR` | `<仓库根>/data` | 数据目录 |
 | `WORKBENCH_JWT_SECRET` | `dev-secret-change-me` | JWT 密钥，对外部署务必修改 |
 | `WORKBENCH_API` | `http://localhost:3000` | 前端 dev 代理目标 |
+| `WORKBENCH_AI_API_KEY` | 空 | AI 初评密钥（Anthropic 兼容接口，如智谱 BigModel），见 `.env.example` |
+| `WORKBENCH_AI_BASE_URL` / `WORKBENCH_AI_MODEL` | BigModel / `glm-5.3` | AI 接口地址与模型 |
 
 ## 设计原则
 
-1. **承诺必须人工确认** —— Agent 只能提案，不能替你承诺投入方向（[ADR-0002](docs/adr/0002-proposal-confirmation-gate.md)）。
+1. **AI 只建议，不做决定** —— AI 初评只填分数，转正等承诺动作由你亲手点击（[ADR-0003](docs/adr/0003-direct-promotion.md)）。
 2. **一切皆文件** —— 无数据库、无缓存、无供应商锁定；备份 = 备份目录（[ADR-0001](docs/adr/0001-markdown-as-data-source.md)）。
 3. **捕获零摩擦** —— 想法 3 秒记下，判断留给速评和复盘。
 4. **个人规模优先** —— 文件遍历式存储在千级条目内完全够用，不为假想的规模提前设计。

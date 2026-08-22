@@ -45,15 +45,57 @@ export default function OpportunitiesPage() {
 
   const draftTotal = Object.values(scores).reduce((a, b) => a + b, 0)
 
-  // 机会→目标：走确认中心，批准后转正
+  // 表单：AI 预评 —— 填初值，用户可再调整
+  const [aiApplying, setAiApplying] = useState(false)
+  const [aiApplied, setAiApplied] = useState(false)
+  const [scoringId, setScoringId] = useState<string | null>(null)
+  const [promotingId, setPromotingId] = useState<string | null>(null)
+
+  async function aiPreview() {
+    const t = title.trim()
+    if (!t) return
+    setError('')
+    setAiApplying(true)
+    try {
+      const res = await api.aiPreviewOpportunity(t)
+      setScores(res.scores)
+      setAiApplied(true)
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setAiApplying(false)
+    }
+  }
+
+  // 机会→目标：一键直达转正
   async function promote(o: Opportunity) {
     setMsg('')
     setError('')
+    setPromotingId(o.id)
     try {
-      await api.createProposal({ action: 'promote_opportunity_to_goal', source_id: o.id })
-      setMsg(`已提交「${o.title}」的转正提案，去确认中心批准后成为目标`)
+      await api.promoteOpportunityToGoal(o.id)
+      setMsg(`「${o.title}」已转正为目标`)
+      load()
     } catch (err) {
       setError((err as Error).message)
+    } finally {
+      setPromotingId(null)
+    }
+  }
+
+  // 卡片：AI 初评（落盘）—— 对已有机会（如想法转来的 0 分项）补打/重打
+  async function aiScore(o: Opportunity) {
+    setError('')
+    setMsg('')
+    setScoringId(o.id)
+    try {
+      const updated = await api.aiScoreOpportunity(o.id)
+      setItems((arr) => arr.map((x) => (x.id === updated.id ? updated : x)))
+      setMsg(`AI 已完成「${o.title}」初评：${updated.total}/100，可拖动滑块调整`)
+    } catch (err) {
+      setError((err as Error).message)
+    } finally {
+      setScoringId(null)
     }
   }
 
@@ -64,6 +106,7 @@ export default function OpportunitiesPage() {
       await api.createOpportunity({ title: title.trim(), scope, scores: scores as Opportunity['scores'] })
       setTitle('')
       setScores({ value: 0, feasible: 0, window: 0, fit: 0, risk: 0 })
+      setAiApplied(false)
       setShowForm(false)
       load()
     } catch (err) {
@@ -93,10 +136,27 @@ export default function OpportunitiesPage() {
             <input
               aria-label="机会标题"
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              onChange={(e) => {
+                setTitle(e.target.value)
+                setAiApplied(false)
+              }}
               placeholder="外部可能性（副业/赛道/跳槽…）"
             />
           </label>
+
+          <div className="ai-preview-row">
+            <button
+              type="button"
+              className="btn tiny"
+              onClick={aiPreview}
+              disabled={!title.trim() || aiApplying}
+            >
+              {aiApplying ? 'AI 评估中…' : 'AI 预评'}
+            </button>
+            {aiApplied && (
+              <span className="ai-hint">AI 初评已填入，可拖动滑块调整</span>
+            )}
+          </div>
 
           {DIMS.map((d) => (
             <label key={d.key}>
@@ -136,7 +196,17 @@ export default function OpportunitiesPage() {
 
             <p className="score-line">
               总分 <strong>{o.total}</strong>/100
+              {o.ai_scored ? <em className="tag tag-ai">AI 初评</em> : null}
               {o.source_idea_id ? <em className="tag">来自想法</em> : null}
+              <button
+                type="button"
+                className="btn ghost"
+                aria-label={`AI 初评：${o.title}`}
+                onClick={() => aiScore(o)}
+                disabled={scoringId === o.id}
+              >
+                {scoringId === o.id ? 'AI 初评中…' : o.ai_scored ? 'AI 重评' : 'AI 初评'}
+              </button>
               {o.goal_id ? (
                 <em className="tag tag-status-candidate">已转正为目标</em>
               ) : (
@@ -145,8 +215,9 @@ export default function OpportunitiesPage() {
                   className="btn tiny"
                   aria-label={`转正为目标：${o.title}`}
                   onClick={() => promote(o)}
+                  disabled={promotingId === o.id}
                 >
-                  转正为目标
+                  {promotingId === o.id ? '转正中…' : '转正为目标'}
                 </button>
               )}
             </p>

@@ -1,5 +1,5 @@
 // 极简 fetch 封装：统一 JSON、错误解析为 zod 的 issues 第一条信息
-import type { Scope, Track, Idea, Goal, Task, TodayData, SessionUser, Opportunity, Proposal, Review } from '../types'
+import type { Scope, Track, Idea, Goal, Task, TodayData, SessionUser, Opportunity, Review } from '../types'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
@@ -49,19 +49,22 @@ export const api = {
   listOpportunities: (scope: Scope) => request<Opportunity[]>(`/api/opportunities?scope=${scope}`),
   patchOpportunity: (id: string, patch: Partial<{ title: string; scores: Partial<Opportunity['scores']>; note: string }>) =>
     request<Opportunity>(`/api/opportunities/${id}`, { method: 'PATCH', body: JSON.stringify(patch) }),
+  /** AI 预评（不落盘）：新机会表单填初值 */
+  aiPreviewOpportunity: (title: string, note?: string) =>
+    request<{ scores: Opportunity['scores'] }>('/api/opportunities/ai-preview', {
+      method: 'POST',
+      body: JSON.stringify({ title, note }),
+    }),
+  /** AI 初评（落盘）：对已有机会打分 */
+  aiScoreOpportunity: (id: string) =>
+    request<Opportunity>(`/api/opportunities/${id}/ai-score`, { method: 'POST' }),
+  /** 一键转正为目标 */
+  promoteOpportunityToGoal: (id: string) =>
+    request<Goal>(`/api/opportunities/${id}/promote-to-goal`, { method: 'POST' }),
 
-  // 转正提案 / 确认中心
-  createProposal: (input: {
-    action: Proposal['action']
-    source_id: string
-    title?: string
-    description?: string
-    milestones?: string[]
-  }) => request<Proposal>('/api/proposals', { method: 'POST', body: JSON.stringify(input) }),
-  listProposals: (status?: Proposal['status']) =>
-    request<Proposal[]>(`/api/proposals${status ? `?status=${status}` : ''}`),
-  approveProposal: (id: string) => request<Proposal>(`/api/proposals/${id}/approve`, { method: 'POST' }),
-  rejectProposal: (id: string) => request<Proposal>(`/api/proposals/${id}/reject`, { method: 'POST' }),
+  // 想法一键转正为机会（服务端自动 AI 初评）
+  promoteIdea: (id: string) =>
+    request<Opportunity>(`/api/ideas/${id}/promote`, { method: 'POST' }),
 
   // 目标
   createGoal: (input: { title: string; scope: Scope; track: Track; description?: string; milestones?: string[] }) =>

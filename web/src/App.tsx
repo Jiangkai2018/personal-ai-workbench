@@ -1,11 +1,10 @@
 import { createContext, useContext, useEffect, useState } from 'react'
-import { NavLink, Route, Routes, useLocation } from 'react-router-dom'
+import { NavLink, Route, Routes } from 'react-router-dom'
 import TodayPage from './pages/TodayPage'
 import IdeasPage from './pages/IdeasPage'
 import OpportunitiesPage from './pages/OpportunitiesPage'
 import GoalsPage from './pages/GoalsPage'
 import TasksPage from './pages/TasksPage'
-import ConfirmationsPage from './pages/ConfirmationsPage'
 import ReviewsPage from './pages/ReviewsPage'
 import LoginPage from './pages/LoginPage'
 import { api } from './api/client'
@@ -73,20 +72,12 @@ function NavIcon({ name }: { name: string }) {
           <path d="M20 14.8A8.6 8.6 0 1 1 9.2 4a6.9 6.9 0 0 0 10.8 10.8z" />
         </svg>
       )
-    case 'confirmations':
-      return (
-        <svg {...common}>
-          <rect x="4" y="4" width="16" height="16" rx="4.5" />
-          <path d="M9 12.3l2.1 2.1 4-4.5" />
-        </svg>
-      )
     default:
       return null
   }
 }
 
 export default function App() {
-  const location = useLocation()
   // 会话恢复：undefined=加载中，null=未登录，SessionUser=已登录
   const [user, setUser] = useState<SessionUser | null | undefined>(undefined)
   const [scope, setScope] = useState<Scope>(() => {
@@ -99,19 +90,6 @@ export default function App() {
   useEffect(() => {
     api.me().then((u) => setUser(u))
   }, [])
-
-  // 首页"确认中心"角标：待确认提案数
-  const [pendingCount, setPendingCount] = useState(0)
-  useEffect(() => {
-    if (!user) return
-    let cancelled = false
-    api.listProposals('pending').then((ps) => {
-      if (!cancelled) setPendingCount(ps.length)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [user, location.pathname])
 
   if (user === undefined) {
     return <div className="page loading-page">加载中…</div>
@@ -173,7 +151,6 @@ export default function App() {
             <Route path="/opportunities" element={<OpportunitiesPage />} />
             <Route path="/goals" element={<GoalsPage />} />
             <Route path="/tasks" element={<TasksPage />} />
-            <Route path="/confirmations" element={<ConfirmationsPage />} />
             <Route path="/reviews" element={<ReviewsPage />} />
           </Routes>
         </main>
@@ -202,10 +179,6 @@ export default function App() {
           <NavLink to="/reviews">
             <NavIcon name="reviews" />
             复盘
-          </NavLink>
-          <NavLink to="/confirmations">
-            <NavIcon name="confirmations" />
-            确认{pendingCount > 0 ? <span className="badge">{pendingCount}</span> : null}
           </NavLink>
         </nav>
       </div>
