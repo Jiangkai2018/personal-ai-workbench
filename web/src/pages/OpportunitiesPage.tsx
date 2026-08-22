@@ -238,10 +238,13 @@ export default function OpportunitiesPage() {
             <div className="goal-head">
               <div className="goal-title-block">
                 <h3 className={o.scope === 'family' ? 'family-label' : ''}>{o.title}</h3>
-                {o.source_idea_id ? <em className="source-note">✎ 来自想法</em> : null}
+                {/* 元信息行：状态标签在左，来源便签贴右 —— 保持同一行 */}
+                <div className="goal-title-meta">
+                  <em className={`tag tag-status-${o.status}`}>{STATUS_TEXT[o.status]}</em>
+                  {o.scope === 'family' ? <em className="tag tag-family">家庭</em> : null}
+                  {o.source_idea_id ? <em className="source-note">✎ 来自想法</em> : null}
+                </div>
               </div>
-              <em className={`tag tag-status-${o.status}`}>{STATUS_TEXT[o.status]}</em>
-              {o.scope === 'family' ? <em className="tag tag-family">家庭</em> : null}
             </div>
 
             <p className="score-line">

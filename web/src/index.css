@@ -1302,12 +1302,24 @@ input[type='range']::-moz-range-thumb {
   margin: 0;
 }
 
-/* 「来自想法」小字便签：贴在标题右下角 */
+/* 元信息行：状态标签 + 家庭标签在左，来源便签贴右 */
+.goal-title-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+.goal-title-meta .tag {
+  margin-left: 0;
+  vertical-align: 0;
+}
+
+/* 「来自想法」小字便签：元信息行右端，微旋转的纸片感 */
 .source-note {
-  display: block;
-  width: fit-content;
+  display: inline-block;
   margin-left: auto;
-  margin-top: 2px;
   padding: 1px 7px;
   font-style: normal;
   font-size: 11px;
