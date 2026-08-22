@@ -56,7 +56,12 @@ export function financeRouter(dataDir: string): Router {
   })
 
   const saveCredentialSchema = z.object({
-    token: z.string().trim().min(10, 'token 不能为空'),
+    token: z
+      .string()
+      .trim()
+      .min(10, 'token 不能为空')
+      // 容错：整段复制 "Bearer xxx" 时剥掉前缀，避免拼出 "Bearer Bearer xxx"
+      .transform((v) => v.replace(/^Bearer\s+/i, '')),
     clientKey: z.string().trim().optional(),
     tradingEntity: z.string().trim().optional(),
   })
