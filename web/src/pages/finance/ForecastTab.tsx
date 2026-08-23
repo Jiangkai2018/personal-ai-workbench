@@ -14,6 +14,11 @@ const EMPTY: FinanceProfile = {
   years: 10,
 }
 
+/** 数字输入框：聚焦即全选 —— 直接输入覆盖原值（默认 0 不用先删） */
+function NumberInput(props: React.InputHTMLAttributes<HTMLInputElement>) {
+  return <input {...props} type="number" onFocus={(e) => e.target.select()} />
+}
+
 interface ProfileVersion {
   id: string
   archivedAt: string
@@ -146,9 +151,8 @@ export default function ForecastTab() {
                   setProfile((p) => ({ ...p, incomes: p.incomes.map((x, j) => (j === i ? { ...x, name: e.target.value } : x)) }))
                 }
               />
-              <input
+              <NumberInput
                 aria-label={`收入额${i}`}
-                type="number"
                 value={it.amount}
                 onChange={(e) =>
                   setProfile((p) => ({
@@ -190,9 +194,8 @@ export default function ForecastTab() {
                   }))
                 }
               />
-              <input
+              <NumberInput
                 aria-label={`开支额${i}`}
-                type="number"
                 value={it.amount}
                 onChange={(e) =>
                   setProfile((p) => ({
@@ -223,27 +226,24 @@ export default function ForecastTab() {
         <div className="profile-params">
           <label>
             月均弹性支出
-            <input
+            <NumberInput
               aria-label="月均弹性支出"
-              type="number"
               value={profile.variableMonthly}
               onChange={(e) => setProfile((p) => ({ ...p, variableMonthly: Number(e.target.value) }))}
             />
           </label>
           <label>
             当前积累
-            <input
+            <NumberInput
               aria-label="当前积累"
-              type="number"
               value={profile.initialSavings}
               onChange={(e) => setProfile((p) => ({ ...p, initialSavings: Number(e.target.value) }))}
             />
           </label>
           <label>
             年化收益率 %
-            <input
+            <NumberInput
               aria-label="年化收益率"
-              type="number"
               step="0.1"
               value={profile.annualRatePct}
               onChange={(e) => setProfile((p) => ({ ...p, annualRatePct: Number(e.target.value) }))}
@@ -251,9 +251,8 @@ export default function ForecastTab() {
           </label>
           <label>
             推演年限
-            <input
+            <NumberInput
               aria-label="推演年限"
-              type="number"
               value={profile.years}
               onChange={(e) => setProfile((p) => ({ ...p, years: Number(e.target.value) }))}
             />
