@@ -54,7 +54,10 @@ export default function ForecastTab() {
       await api.saveFinanceProfile(profile)
       const f = await api.getFinanceForecast()
       setForecast(f)
-      setMsg(`已保存 · 月结余 ¥${f.monthlySaving.toLocaleString()}`)
+      const finalBalance = f.points.at(-1)?.balance ?? 0
+      setMsg(
+        `已保存 · 月结余 ¥${f.monthlySaving.toLocaleString()} · 推演年限 ${profile.years} 年，累计总额 ¥${finalBalance.toLocaleString()}`,
+      )
     } catch (e) {
       setError((e as Error).message)
     } finally {
