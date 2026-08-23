@@ -14,6 +14,7 @@ import {
   verifySession,
   publicUser,
 } from '../../auth/service'
+import { LoginLimiter } from '../../auth/loginLimiter'
 
 /** 审计日志：data/audit/YYYY-MM-DD.md，追加式，git 历史即留痕 */
 function auditFile(dataDir: string, d = new Date()): string {
@@ -24,6 +25,18 @@ function auditFile(dataDir: string, d = new Date()): string {
 export function authRouter(dataDir: string, secret: string): Router {
   const users = new UserStore(dataDir)
   const router = Router()
+  const limiter = new LoginLimiter().withPersistence(dataDir)
+
+  /** 锁定中直接拒绝（不消耗密码比对，也不累计次数） */
+  function gate(req: import('express').Request, res: import('express').Response): boolean {
+    const ip = req.ip ?? 'unknown'
+    const verdict = limiter.check(ip)
+    if (!verdict.allowed) {
+      res.status(429).json({ error: 'TOO_MANY_ATTEMPTS', message: verdict.message })
+      return false
+    }
+    return true
+  }
 
   const loginSchema = z.object({
     username: z.string().trim().min(1, '用户名不能为空'),
@@ -33,12 +46,15 @@ export function authRouter(dataDir: string, secret: string): Router {
   // 登录：验证凭据 → 签发 JWT 写 httpOnly cookie
   router.post('/login', async (req, res, next) => {
     try {
+      if (!gate(req, res)) return
       const parsed = loginSchema.parse(req.body)
       const user = await users.get(parsed.username)
       if (!user || !(await verifyPassword(parsed.password, user.password_hash))) {
+        limiter.onFail(req.ip ?? 'unknown')
         res.status(401).json({ error: 'INVALID_CREDENTIALS', message: '用户名或密码错误' })
         return
       }
+      limiter.onSuccess(req.ip ?? 'unknown')
       const token = signSession(
         { username: user.username, name: user.name, family: user.family },
         secret,
@@ -82,6 +98,7 @@ export function authRouter(dataDir: string, secret: string): Router {
   // 家庭互证找回：用另一位家人的密码验证后重置，写审计日志
   router.post('/reset-password', async (req, res, next) => {
     try {
+      if (!gate(req, res)) return
       const parsed = resetSchema.parse(req.body)
       const target = await users.get(parsed.username)
       if (!target) {
@@ -91,13 +108,16 @@ export function authRouter(dataDir: string, secret: string): Router {
       const family = await users.get(parsed.family_username)
       // 目标必须是家庭成员，验证者必须是另一位家庭成员
       if (!target.family || !family?.family || family.username === target.username) {
+        limiter.onFail(req.ip ?? 'unknown')
         res.status(403).json({ error: 'FAMILY_VERIFY_FAILED' })
         return
       }
       if (!(await verifyPassword(parsed.family_password, family.password_hash))) {
+        limiter.onFail(req.ip ?? 'unknown')
         res.status(403).json({ error: 'FAMILY_VERIFY_FAILED' })
         return
       }
+      limiter.onSuccess(req.ip ?? 'unknown')
       await users.upsert({
         ...target,
         password_hash: await hashPassword(parsed.new_password),

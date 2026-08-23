@@ -40,6 +40,8 @@ export function createApp({ dataDir, jwtSecret, aiScorer, reportGenerator }: App
   const scorer = aiScorer ?? createAiScorer()
   const generator = reportGenerator ?? createReportGenerator()
   const app = express()
+  // 部署在 nginx 后：req.ip 取 X-Forwarded-For 的真实客户端 IP（登录限流按它计数）
+  app.set('trust proxy', 1)
   app.use(express.json())
   app.use(cookieParser())
 
