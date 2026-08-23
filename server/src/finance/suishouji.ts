@@ -109,13 +109,22 @@ export class SuishoujiClient {
    * @param month 形如 202608
    */
   async listMonthTransactions(month: string, pageSize = 500): Promise<Record<string, unknown>[]> {
+    return this.listMonthTransactionsRaw(month, pageSize, 0)
+  }
+
+  /** 按月查流水（指定页偏移，聚合分页用） */
+  async listMonthTransactionsRaw(
+    month: string,
+    pageSize: number,
+    pageOffset: number,
+  ): Promise<Record<string, unknown>[]> {
     const body = (await this.call('/cab-query-ws/v2/statistics/transactions', {
       method: 'POST',
       body: JSON.stringify({
         group_filter: { group_key: 'TIME_MONTH', group_id: month },
         query: {},
         sort: { order_by: 'DESC', sort_by: 'ACCOUNT_TIME' },
-        page: { page_offset: 0, page_size: pageSize },
+        page: { page_offset: pageOffset, page_size: pageSize },
       }),
     })) as { data?: Record<string, unknown>[] }
     return body.data ?? []

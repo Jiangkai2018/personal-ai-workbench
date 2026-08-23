@@ -99,6 +99,37 @@ export interface PreviewRow {
   classifiedBy: 'rule' | 'ai' | 'fallback'
 }
 
+/** 财务：月度聚合（图表数据） */
+export interface MonthAggregate {
+  month: string
+  totalIncome: number
+  totalExpense: number
+  net: number
+  byCategory: { name: string; amount: number }[]
+  byMember: { name: string; amount: number }[]
+  byDay: { day: string; amount: number }[]
+  prev: { month: string | null; totalExpense: number | null; deltaPct: number | null }
+  count: number
+}
+
+/** 财务：收支档案 */
+export interface FinanceProfile {
+  incomes: { name: string; amount: number }[]
+  fixedExpenses: { name: string; amount: number }[]
+  variableMonthly: number
+  initialSavings: number
+  annualRatePct: number
+  years: number
+}
+
+/** 财务：推演结果 */
+export interface ForecastResult {
+  monthlySaving: number
+  points: { year: number; balance: number; contributed: number }[]
+  milestones: { target: number; reachedAtYear: number | null }[]
+  effectiveAnnualPct: number
+}
+
 export interface TodayData {
   date: string
   scope: Scope

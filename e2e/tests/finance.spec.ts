@@ -7,8 +7,9 @@ test('财务页：凭证卡片展示，未配置时引导填入 token', async ({
   await page.getByRole('link', { name: '财务' }).click()
 
   await expect(page.getByText('随手记连接')).toBeVisible()
-  await expect(page.getByText('账单导入')).toBeVisible()
-  await expect(page.getByText(/月度报告 · 财务推演/)).toBeVisible()
+  await expect(page.getByRole('tab', { name: '账单导入' })).toBeVisible()
+  await expect(page.getByRole('tab', { name: '月度报告' })).toBeVisible()
+  await expect(page.getByRole('tab', { name: '财务推演' })).toBeVisible()
 
   // e2e 数据目录无 Web 凭证且 .env 无 SSJ token → 未配置态：显示表单，按钮在空输入时禁用
   if (await page.getByText('未配置').isVisible()) {

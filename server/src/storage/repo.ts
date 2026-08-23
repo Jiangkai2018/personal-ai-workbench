@@ -47,10 +47,10 @@ export class EntityStore {
     return path.join(this.entityDir(type), `${id}.md`)
   }
 
-  /** 新建实体：生成 id，写入 .md，返回完整实体（frontmatter + 正文 content） */
+  /** 新建实体：生成 id（可显式指定，如单例档案 finance-profile），写入 .md，返回完整实体 */
   async create(input: NewEntityInput): Promise<Entity> {
     const { type, body = '', ...data } = input
-    const id = `${todayStamp()}-${type}-${shortId()}`
+    const id = typeof data.id === 'string' && data.id ? data.id : `${todayStamp()}-${type}-${shortId()}`
     // data 是宽松的 Record<string, unknown>（来自 YAML 的字段），合并后整表断言为 Entity
     const entity = {
       id,

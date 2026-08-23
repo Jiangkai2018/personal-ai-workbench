@@ -32,10 +32,11 @@ Tomorrow's execution
 - **Nightly review** — daily summary + goal progress update (+10% per completed goal-linked task, idempotent per day+scope), review timeline
 - **Direct promotion** — idea→opportunity and opportunity→goal complete in one tap, no approval queue ([ADR-0003](docs/adr/0003-direct-promotion.md))
 - **Personal / family scopes** — one-tap switch, tagged and isolated data
+- **Finance (SuiShouJi integration)** — WeChat/Alipay bill upload → AI classification → preview → row-by-row import with progress; monthly spending reports (ECharts + AI advice); deterministic compound forecast with milestones
 - **Auth** — JWT httpOnly cookie sessions, CLI-managed accounts (no self sign-up), family-co-signed password recovery
 - **Storage** — Markdown + YAML frontmatter per entity ([ADR-0001](docs/adr/0001-markdown-as-data-source.md)); no database, git-friendly
 - **UI** — "Paper & Ink" design system; responsive from phone dock to desktop side-rail
-- **Tests** — 59 unit tests (vitest) + 23 e2e tests (Playwright, isolated data dir)
+- **Tests** — 73 unit tests (vitest) + 25 e2e tests (Playwright, isolated data dir)
 
 ### On the roadmap
 

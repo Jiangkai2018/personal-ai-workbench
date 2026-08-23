@@ -1,5 +1,5 @@
 // 极简 fetch 封装：统一 JSON、错误解析为 zod 的 issues 第一条信息
-import type { Scope, Track, Idea, Goal, Task, TodayData, SessionUser, Opportunity, Review, Report, PreviewRow } from '../types'
+import type { Scope, Track, Idea, Goal, Task, TodayData, SessionUser, Opportunity, Review, Report, PreviewRow, MonthAggregate, FinanceProfile, ForecastResult } from '../types'
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
@@ -153,4 +153,18 @@ export const api = {
     ),
   getFinanceCategories: () =>
     request<Record<string, { name: string; id: string }[]>>('/api/finance/categories'),
+
+  // 财务：月度报告
+  getFinanceMonthData: (month: string) =>
+    request<MonthAggregate>(`/api/finance/month-data?month=${month}`),
+  createFinanceMonthReport: (month: string) =>
+    request<Report>('/api/finance/month-report', { method: 'POST', body: JSON.stringify({ month }) }),
+
+  // 财务：收支档案与推演
+  getFinanceProfile: () => request<FinanceProfile>('/api/finance/profile'),
+  saveFinanceProfile: (profile: FinanceProfile) =>
+    request<FinanceProfile>('/api/finance/profile', { method: 'PUT', body: JSON.stringify(profile) }),
+  getFinanceForecast: () => request<ForecastResult>('/api/finance/forecast'),
+  explainFinanceForecast: () =>
+    request<Report>('/api/finance/forecast/explain', { method: 'POST' }),
 }
