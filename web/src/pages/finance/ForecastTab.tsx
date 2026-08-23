@@ -14,36 +14,36 @@ const EMPTY: FinanceProfile = {
   years: 10,
 }
 
+interface ProfileVersion {
+  id: string
+  archivedAt: string
+  note: string
+  monthlySaving: number
+  finalBalance: number
+}
+
 export default function ForecastTab() {
   const [profile, setProfile] = useState<FinanceProfile>(EMPTY)
   const [forecast, setForecast] = useState<ForecastResult | null>(null)
   const [report, setReport] = useState<Report | null>(null)
   const [saving, setSaving] = useState(false)
+  const [note, setNote] = useState('')
+  const [versions, setVersions] = useState<ProfileVersion[]>([])
   const [msg, setMsg] = useState('')
   const [error, setError] = useState('')
 
+  /** 只读加载：档案 + 推演 + 版本历史（绝不在此写档案 —— 挂载即保存曾清空过用户数据） */
   async function load() {
     try {
       setProfile({ ...EMPTY, ...(await api.getFinanceProfile()) })
-    } catch {
-      /* 静默 */
-    }
-  }
-  useEffect(() => {
-    load()
-  }, [])
-
-  async function refreshForecast(p: FinanceProfile) {
-    try {
-      await api.saveFinanceProfile(p)
       setForecast(await api.getFinanceForecast())
+      setVersions(await api.getFinanceProfileVersions())
     } catch (e) {
       setError((e as Error).message)
     }
   }
   useEffect(() => {
-    refreshForecast(profile)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    load()
   }, [])
 
   async function save() {
@@ -51,9 +51,11 @@ export default function ForecastTab() {
     setMsg('')
     setError('')
     try {
-      await api.saveFinanceProfile(profile)
+      await api.saveFinanceProfile(note.trim() ? { ...profile, note: note.trim() } : profile)
+      setNote('')
       const f = await api.getFinanceForecast()
       setForecast(f)
+      setVersions(await api.getFinanceProfileVersions())
       const finalBalance = f.points.at(-1)?.balance ?? 0
       setMsg(
         `已保存 · 月结余 ¥${f.monthlySaving.toLocaleString()} · 推演年限 ${profile.years} 年，累计总额 ¥${finalBalance.toLocaleString()}`,
@@ -62,6 +64,17 @@ export default function ForecastTab() {
       setError((e as Error).message)
     } finally {
       setSaving(false)
+    }
+  }
+
+  async function restore(id: string) {
+    setError('')
+    try {
+      await api.restoreFinanceProfile(id)
+      await load()
+      setMsg('已恢复该版本（原档案已自动归档，可再换回）')
+    } catch (e) {
+      setError((e as Error).message)
     }
   }
 
@@ -248,6 +261,13 @@ export default function ForecastTab() {
         </div>
 
         <div className="finance-commit">
+          <input
+            aria-label="版本备注"
+            className="profile-note"
+            placeholder="版本备注（可选，如：涨薪后）"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
           <button type="button" className="btn primary" onClick={save} disabled={saving}>
             {saving ? '保存中…' : '保存并重算'}
           </button>
@@ -258,6 +278,29 @@ export default function ForecastTab() {
         {msg && <p className="ok">{msg}</p>}
         {error && <p className="error">{error}</p>}
       </section>
+
+      {versions.length > 0 && (
+        <section className="card">
+          <h3 className="card-title">版本历史（{versions.length}）</h3>
+          <ul className="plain-list compact">
+            {versions.slice(0, 10).map((v) => (
+              <li key={v.id}>
+                <span className="mono">{v.archivedAt.slice(0, 16).replace('T', ' ')}</span>
+                {v.note ? ` 「${v.note}」` : ''} · 月结余 ¥{v.monthlySaving.toLocaleString()} · 期末 ¥
+                {v.finalBalance.toLocaleString()}
+                <button
+                  type="button"
+                  className="btn ghost"
+                  aria-label={`恢复版本：${v.note || v.archivedAt}`}
+                  onClick={() => restore(v.id)}
+                >
+                  恢复
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {forecast && (
         <section className="card chart-card">

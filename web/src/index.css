@@ -284,11 +284,11 @@ body::after {
 }
 
 .page {
-  animation: page-rise 0.5s var(--ease-out) both;
+  animation: page-rise 0.5s var(--ease-out) backwards;
 }
 
 .page > * {
-  animation: page-rise 0.55s var(--ease-out) both;
+  animation: page-rise 0.55s var(--ease-out) backwards;
 }
 
 .page > *:nth-child(1) { animation-delay: 0.02s; }
@@ -2146,6 +2146,30 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
   margin-left: 0;
   font-family: var(--mono);
   font-size: 11.5px;
+}
+
+/* 推演：版本备注输入 + 版本历史行 */
+.profile-note {
+  flex: 1;
+  min-width: 120px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--card-warm);
+  padding: 9px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  color: var(--ink);
+}
+
+.profile-note:focus {
+  outline: none;
+  border-color: rgba(194, 64, 28, 0.5);
+  box-shadow: 0 0 0 4px rgba(194, 64, 28, 0.08);
+}
+
+.plain-list.compact li .btn.ghost {
+  margin-left: 8px;
+  vertical-align: 0;
 }
 
 .finance-commit {

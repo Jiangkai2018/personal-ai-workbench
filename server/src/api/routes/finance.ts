@@ -457,12 +457,48 @@ export function financeRouter(dataDir: string, store: EntityStore): Router {
     initialSavings: z.number().min(0).default(0),
     annualRatePct: z.number().min(0).max(30).default(3),
     years: z.number().int().min(1).max(50).default(10),
+    /** 本次保存的版本备注（可选） */
+    note: z.string().trim().max(100).optional(),
   })
 
   const PROFILE_ID = 'finance-profile'
+  const VERSION_PREFIX = 'finance-profile-v'
+  const MAX_VERSIONS = 50
+
+  interface ProfileEntity extends FinanceProfile {
+    id: string
+    type?: string
+    content?: string
+    note?: string
+    created_at?: string
+    archived_at?: string
+    archived_note?: string
+  }
+
+  /** 保存前把当前档案归档为版本文件（保底可回滚）；备注属于"被归档的那版"，随档案本身走 */
+  async function archiveCurrent(): Promise<void> {
+    const current = (await store.get('profile', PROFILE_ID)) as ProfileEntity | null
+    if (!current) return
+    const { id, type, created_at, note, ...fields } = current
+    await store.create({
+      type: 'profile',
+      id: `${VERSION_PREFIX}${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+      archived_note: note ?? '',
+      archived_at: new Date().toISOString(),
+      ...fields,
+    })
+    // 版本数量封顶：丢最旧
+    const all = (await store.list('profile')) as unknown as ProfileEntity[]
+    const versions = all
+      .filter((p) => p.id?.startsWith(VERSION_PREFIX))
+      .sort((a, b) => String(a.archived_at ?? '').localeCompare(String(b.archived_at ?? '')))
+    for (const old of versions.slice(0, Math.max(0, versions.length - MAX_VERSIONS))) {
+      await store.remove('profile', old.id)
+    }
+  }
 
   router.get('/profile', async (_req, res) => {
-    const existing = (await store.get('profile', PROFILE_ID)) as (FinanceProfile & { id: string }) | null
+    const existing = (await store.get('profile', PROFILE_ID)) as ProfileEntity | null
     res.json(
       existing ?? {
         id: PROFILE_ID,
@@ -479,11 +515,59 @@ export function financeRouter(dataDir: string, store: EntityStore): Router {
   router.put('/profile', async (req, res, next) => {
     try {
       const parsed = profileSchema.parse(req.body)
+      await archiveCurrent()
       const existing = await store.get('profile', PROFILE_ID)
       const saved = existing
         ? await store.update('profile', PROFILE_ID, parsed as unknown as Record<string, unknown>)
         : await store.create({ type: 'profile', id: PROFILE_ID, ...parsed })
       res.json(saved)
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  /** 版本历史（新的在前），附关键数字便于辨认 */
+  router.get('/profile/versions', async (_req, res) => {
+    const all = (await store.list('profile')) as unknown as ProfileEntity[]
+    const versions = all
+      .filter((p) => p.id?.startsWith(VERSION_PREFIX))
+      .sort((a, b) => String(b.archived_at ?? '').localeCompare(String(a.archived_at ?? '')))
+    res.json(
+      versions.map((v) => {
+        const f = runForecast(v as unknown as FinanceProfile)
+        return {
+          id: v.id,
+          archivedAt: v.archived_at ?? v.created_at ?? '',
+          note: v.archived_note ?? '',
+          monthlySaving: f.monthlySaving,
+          finalBalance: f.points.at(-1)?.balance ?? 0,
+        }
+      }),
+    )
+  })
+
+  /** 恢复版本：当前档案先归档，再把目标版本内容写回主档案 */
+  const restoreSchema = z.object({ id: z.string().min(1) })
+  router.post('/profile/restore', async (req, res, next) => {
+    try {
+      const { id } = restoreSchema.parse(req.body)
+      if (!id.startsWith(VERSION_PREFIX)) {
+        res.status(400).json({ error: 'INVALID_INPUT', message: '不是有效的版本 id' })
+        return
+      }
+      const version = (await store.get('profile', id)) as ProfileEntity | null
+      if (!version) {
+        res.status(404).json({ error: 'NOT_FOUND', message: '版本不存在' })
+        return
+      }
+      const { id: _vid, type: _t, created_at: _c, archived_at: _a, archived_note: _n, ...fields } = version
+      await archiveCurrent()
+      const restored = await store.update(
+        'profile',
+        PROFILE_ID,
+        fields as unknown as Record<string, unknown>,
+      )
+      res.json(restored)
     } catch (err) {
       next(err)
     }

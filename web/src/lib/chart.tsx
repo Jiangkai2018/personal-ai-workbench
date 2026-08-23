@@ -30,9 +30,15 @@ export function Chart({ option, height = 260 }: { option: EChartsCoreOption; hei
   useEffect(() => {
     if (!ref.current) return
     chartRef.current = echarts.init(ref.current)
-    const observer = new ResizeObserver(() => chartRef.current?.resize())
+    // rAF 防抖：直接在回调里 resize 会与布局变化互相触发，元素永远"不稳定"（点击被 Playwright 判定阻塞）
+    let raf = 0
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(() => chartRef.current?.resize())
+    })
     observer.observe(ref.current)
     return () => {
+      cancelAnimationFrame(raf)
       observer.disconnect()
       chartRef.current?.dispose()
       chartRef.current = null

@@ -162,8 +162,14 @@ export const api = {
 
   // 财务：收支档案与推演
   getFinanceProfile: () => request<FinanceProfile>('/api/finance/profile'),
-  saveFinanceProfile: (profile: FinanceProfile) =>
+  saveFinanceProfile: (profile: FinanceProfile & { note?: string }) =>
     request<FinanceProfile>('/api/finance/profile', { method: 'PUT', body: JSON.stringify(profile) }),
+  getFinanceProfileVersions: () =>
+    request<{ id: string; archivedAt: string; note: string; monthlySaving: number; finalBalance: number }[]>(
+      '/api/finance/profile/versions',
+    ),
+  restoreFinanceProfile: (id: string) =>
+    request<FinanceProfile>('/api/finance/profile/restore', { method: 'POST', body: JSON.stringify({ id }) }),
   getFinanceForecast: () => request<ForecastResult>('/api/finance/forecast'),
   explainFinanceForecast: () =>
     request<Report>('/api/finance/forecast/explain', { method: 'POST' }),
