@@ -68,7 +68,7 @@ export default function LoginPage({ onLogin }: { onLogin: (u: SessionUser) => vo
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               autoComplete="username"
-              placeholder="如 jk / family"
+              placeholder="如：jk/lbx"
             />
           </label>
           <label>
@@ -99,7 +99,7 @@ export default function LoginPage({ onLogin }: { onLogin: (u: SessionUser) => vo
               aria-label="要重置的账号"
               value={resetUser}
               onChange={(e) => setResetUser(e.target.value)}
-              placeholder="如 jk"
+              placeholder="如：jk"
             />
           </label>
           <label>
@@ -117,7 +117,7 @@ export default function LoginPage({ onLogin }: { onLogin: (u: SessionUser) => vo
               aria-label="家人账号"
               value={familyUser}
               onChange={(e) => setFamilyUser(e.target.value)}
-              placeholder="如 family"
+              placeholder="如：lbx"
             />
           </label>
           <label>
