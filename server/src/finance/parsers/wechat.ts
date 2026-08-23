@@ -1,14 +1,16 @@
 // 微信支付账单 xlsx 解析：SheetJS 读取，跳过前置说明行，过滤中性交易/未成功。
-// 结构（实测样本）：前 16 行为导出信息（含 微信昵称：[Kai]），表头 11 列。
+// 结构（实测样本）：前 16 行为导出信息（含 微信昵称：[xxx]），表头 11 列。
 import * as XLSX from 'xlsx'
 import type { BillRow } from '../types'
 
 /** 交易状态含这些关键词才认为成功（过滤"已全额退款/未支付/待确认"等） */
 const OK_STATUS = /成功|已收钱|已转账|已还款|提现已到账/
 
+/** 账单主人昵称（微信导出文件前置区的"微信昵称"）→ 由路由层按 env 配置解析成员归属 */
+
 export interface WeChatParseResult {
   rows: BillRow[]
-  /** 导出文件里的微信昵称（决定成员归属：Kai → 本人，其余 → 冰雪） */
+  /** 导出文件里的微信昵称（成员归属由路由层按 env 配置解析） */
   nickname: string
   /** 被过滤掉的行数（中性交易/未成功） */
   skipped: number

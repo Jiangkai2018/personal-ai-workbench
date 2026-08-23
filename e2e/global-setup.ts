@@ -16,8 +16,8 @@ export default async function globalSetup() {
       stdio: 'inherit',
       env: { ...process.env, WORKBENCH_DATA_DIR: dir },
     })
-  addUser('--username jk --password test-password --name 江凯 --family')
-  addUser('--username wife --password test-password --name 妻子 --family')
+  addUser('--username jk --password test-password --name 测试甲 --family')
+  addUser('--username wife --password test-password --name 测试乙 --family')
 
   console.log(`[global-setup] 已初始化 e2e 数据目录（含测试账号 jk/wife）: ${dir}`)
 }

@@ -16,8 +16,9 @@ export interface SsjCredential {
   updatedAt?: string
 }
 
-const ENV_CLIENT_KEY = 'PiVEoJM9OHFS8xFlnD3CuSrJgRgyVLwS'
-const ENV_TRADING_ENTITY = '1060909181480255488'
+// client-key 与账本 id 是账号特定信息：只从环境变量读取，代码与仓库不落任何真实值
+const ENV_CLIENT_KEY = ''
+const ENV_TRADING_ENTITY = ''
 
 /** Web 填入的凭证可覆盖的字段（token 必填，其余可空则用 env/默认） */
 export interface CredentialInput {

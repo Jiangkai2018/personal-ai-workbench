@@ -48,7 +48,7 @@ export function parseAlipayCsv(buffer: Buffer): AlipayParseResult {
   const headerIdx = lines.findIndex((l) => l.startsWith('交易时间,'))
   if (headerIdx < 0) throw new Error('未找到支付宝账单表头（可能不是支付宝的交易明细文件）')
 
-  // 账户主人：姓名：李冰雪
+  // 账户主人：姓名：xxx（导出信息前置区的"姓名："字段）
   let ownerName = ''
   for (const l of lines.slice(0, headerIdx)) {
     const m = l.match(/姓名：?(.+?)(\s|$)/)

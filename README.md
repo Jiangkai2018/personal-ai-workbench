@@ -73,7 +73,7 @@
 npm install
 
 # 建号（无自助注册）
-npm run add-user -w server -- --username jk --password 你的密码 --name 江凯 --family
+npm run add-user -w server -- --username jk --password 你的密码 --name 张三 --family
 
 # 一键启动 后端(3000) + 前端(5173)
 npm run dev

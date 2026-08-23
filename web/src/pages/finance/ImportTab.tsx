@@ -149,7 +149,7 @@ export default function ImportTab() {
         {preview && (
           <div className="finance-preview">
             <p className="finance-preview-summary">
-              {preview.source === 'wechat' ? '微信' : '支付宝'} · 归属 {preview.owner === 'Kai' ? 'Kai' : preview.owner} ·
+              {preview.source === 'wechat' ? '微信' : '支付宝'} · 归属 {preview.owner || '—'} ·
               待导入 <strong>{rows.length}</strong> 笔
               {preview.resurrected ? `（其中 ${preview.resurrected} 笔远端已删除、将重新导入）` : ''} · 重复跳过{' '}
               {dupTotal} 笔（远端已存在 {preview.duplicates.remote} / 本地已导 {preview.duplicates.local} / 批内{' '}

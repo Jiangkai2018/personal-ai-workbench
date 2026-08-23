@@ -9,7 +9,7 @@ describe('月度聚合 aggregateMonth', () => {
     business_type: 'Expense',
     transaction_time: Date.UTC(2026, 7, 15, 6, 0, 0),
     category: { id: '535767612667085055' }, // 食品酒水>伙食费
-    member: { name: '冰雪', id: 'm1' },
+    member: { name: 'userB', id: 'm1' },
     ...over,
   })
 
@@ -29,7 +29,7 @@ describe('月度聚合 aggregateMonth', () => {
     expect(agg.count).toBe(3)
     // 分类名带父级前缀
     expect(agg.byCategory[0]).toEqual({ name: '食品酒水·伙食费', amount: 34.85 })
-    expect(agg.byMember[0]).toEqual({ name: '冰雪', amount: 34.85 })
+    expect(agg.byMember[0]).toEqual({ name: 'userB', amount: 34.85 })
     // 日趋势按日期升序
     expect(agg.byDay.map((d) => d.day)).toEqual(['08-02', '08-15'])
     // 环比：上月支出 100 → 本月 34.85，-65.15%

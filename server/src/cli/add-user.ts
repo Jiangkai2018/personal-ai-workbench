@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// 管理端建号（无自助注册）：npm run add-user -w server -- --username jk --password xxx --name 江凯 --family
+// 管理端建号（无自助注册）：npm run add-user -w server -- --username jk --password xxx --name 张三 --family
 import path from 'node:path'
 import { UserStore } from '../storage/userStore'
 import { hashPassword } from '../auth/service'

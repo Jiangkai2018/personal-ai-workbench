@@ -7,7 +7,7 @@ import path from 'node:path'
 export interface User {
   /** 登录名 */
   username: string
-  /** 显示名（江凯 / 妻子） */
+  /** 显示名（张三 / 家人） */
   name: string
   /** bcrypt 哈希，永不回传前端 */
   password_hash: string

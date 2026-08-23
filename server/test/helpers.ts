@@ -6,13 +6,13 @@ import { UserStore } from '../src/storage/userStore'
 
 export const TEST_PASSWORD = 'test-password'
 
-/** 建两个家庭成员账号（江凯 + 妻子），供登录测试使用 */
+/** 建两个家庭成员账号（测试甲 + 测试乙），供登录测试使用 */
 export async function seedUsers(dataDir: string): Promise<void> {
   const users = new UserStore(dataDir)
   const now = new Date().toISOString()
   await users.upsert({
     username: 'jk',
-    name: '江凯',
+    name: '测试甲',
     password_hash: await bcrypt.hash(TEST_PASSWORD, 4),
     family: true,
     created_at: now,

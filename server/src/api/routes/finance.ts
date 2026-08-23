@@ -18,11 +18,12 @@ import type { EntityStore } from '../../storage/repo'
 import type { Report } from '../../domain/types'
 import type { BillRow, PreviewRow } from '../../finance/types'
 
-/** 微信昵称 Kai 对应随手记成员名；其余（含支付宝）一律归冰雪（随手记资料约定） */
-const MEMBER_KAI = '15737199Xsw'
-const MEMBER_ICE = '冰雪'
-/** 随手记默认资金账户（04.账户接口抓包：微信零钱/支付宝对应的挂账账户） */
-const DEFAULT_ACCOUNT_ID = '535767612671279194'
+/** 成员归属与挂账账户都是账本特定配置：从环境变量读取（.env），代码不落个人信息 */
+const MEMBER_ME = process.env.WORKBENCH_SSJ_MEMBER_ME || 'me'
+const MEMBER_FAMILY = process.env.WORKBENCH_SSJ_MEMBER_FAMILY || 'family'
+/** 账单文件里"我"的标识（微信导出昵称），命中则记到 MEMBER_ME */
+const BILL_OWNER_ME = process.env.WORKBENCH_SSJ_BILL_OWNER_ME || MEMBER_ME
+const DEFAULT_ACCOUNT_ID = process.env.WORKBENCH_SSJ_ACCOUNT_ID || ''
 
 /** 账单文件上传：原始字节流（文件名走 x-file-name 头，避免 multipart 依赖） */
 const rawUpload = express.raw({ type: '*/*', limit: '30mb' })
@@ -133,12 +134,12 @@ export function financeRouter(dataDir: string, store: EntityStore): Router {
     }
   })
 
-  /** 按账单归属解析随手记成员 id（Kai → 本人，其余 → 冰雪） */
+  /** 按账单归属解析随手记成员 id（账单主人 → 本人成员，其余 → 家庭成员） */
   async function resolveMemberId(owner: string): Promise<string | null> {
     const members = await cachedMembers()
-    const kaiId = members.find((m) => m.name === MEMBER_KAI)?.id
-    const iceId = members.find((m) => m.name === MEMBER_ICE)?.id
-    return (owner === 'Kai' ? kaiId : iceId) ?? null
+    const meId = members.find((m) => m.name === MEMBER_ME)?.id
+    const familyId = members.find((m) => m.name === MEMBER_FAMILY)?.id
+    return (owner === BILL_OWNER_ME ? meId : familyId) ?? null
   }
 
   // ---- 账单上传 → 预览 ----

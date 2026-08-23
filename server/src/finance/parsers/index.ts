@@ -23,7 +23,8 @@ export function parseBillFile(filename: string, buffer: Buffer): ParseResult {
   }
   if (isCsv) {
     const r = parseAlipayCsv(buffer)
-    return { rows: r.rows, owner: r.ownerName || '冰雪', source: 'alipay', skipped: r.skipped }
+    // owner = 账户主人姓名，由路由层按 env 的成员映射解析归属
+    return { rows: r.rows, owner: r.ownerName || 'family', source: 'alipay', skipped: r.skipped }
   }
   throw new Error('不支持的账单文件：请上传微信 xlsx 或支付宝 csv')
 }

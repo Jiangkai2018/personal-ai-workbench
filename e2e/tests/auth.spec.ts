@@ -15,7 +15,7 @@ test('未登录的写请求被拒（API 401）', async ({ page }) => {
 test('登录成功 → 进入首页，顶栏显示用户名', async ({ page }) => {
   await login(page)
   await expect(page.getByText(/今日要做的/)).toBeVisible()
-  await expect(page.getByText('江凯')).toBeVisible()
+  await expect(page.getByText('测试甲')).toBeVisible()
 })
 
 test('密码错误 → 提示用户名或密码错误', async ({ page }) => {
