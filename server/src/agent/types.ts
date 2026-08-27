@@ -15,8 +15,17 @@ export interface ProviderConfig {
 export interface AgentConfig {
   providers: ProviderConfig[]
   defaultModel: { providerId: string; model: string }
-  /** 联网搜索降级链，M3 启用；M1 仅落字段占位 */
-  webSearch?: { order: string[]; searxngBaseURL?: string }
+  /** 联网搜索（bug082702-6 起接入 bigmodel 搜索 MCP） */
+  webSearch?: {
+    order: string[]
+    searxngBaseURL?: string
+    mcpUrl?: string
+    mcpApiKey?: string
+  }
+  /** 知识库文件工具（0827-03）：敏感目录黑名单（相对 knowledge 根，正斜杠），缺省用内置默认 */
+  fileTools?: {
+    deny?: string[]
+  }
 }
 
 /** 对话线程 = data/agent/threads/<id>.json（ADR-0004：会话定向豁免「一切皆 md」） */

@@ -104,6 +104,13 @@
 }
 .ag-reasoning summary:hover { color: var(--ink-2); }
 
+/* 思考正文限高：约 6 行即可滚动，避免长思考流把整屏占满（bug082702-3） */
+.ag-reasoning .ag-reasoning-body {
+  max-height: 8.5rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
 /* 「思考中」呼吸圆点 */
 .ag-think-dot {
   display: inline-block;

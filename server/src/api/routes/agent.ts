@@ -1,11 +1,20 @@
 // Agent 板块路由：会话 CRUD + /chat 流式对话（AI SDK UI Message Stream over SSE）
 import { Router } from 'express'
-import { convertToModelMessages, createUIMessageStream, pipeUIMessageStreamToResponse, streamText } from 'ai'
+import {
+  convertToModelMessages,
+  createUIMessageStream,
+  pipeUIMessageStreamToResponse,
+  stepCountIs,
+  streamText,
+} from 'ai'
 import type { UIMessage } from 'ai'
+import path from 'node:path'
 import { z } from 'zod'
 import { ThreadStore } from '../../agent/threadStore'
 import type { AgentModelResolver } from '../../agent/modelResolver'
 import { maskProviders, loadAgentConfig } from '../../agent/providerConfig'
+import { getWebSearchTools } from '../../agent/webSearch'
+import { buildKbSystemPrompt, createKbToolset, DEFAULT_KB_DENY } from '../../agent/kbTools'
 import type { AgentThread, ModelSelection } from '../../agent/types'
 
 // 消息结构宽松校验：parts 内部由 AI SDK 自行解析，落盘原样保留
@@ -123,12 +132,46 @@ export function agentRouter(deps: { threads: ThreadStore; resolveModel: AgentMod
 
     const messages = parsed.messages as unknown as UIMessage[]
     const controller = new AbortController()
-    req.on('close', () => controller.abort())
+    // 客户端异常断开才中止：Node ≥16 的 req 'close' 在响应正常结束后也会触发，
+    // 无条件 abort 会在流收尾瞬间打断 createUIMessageStream 的合并与落盘（bug082702-4 家族）。
+    // 判据：响应尚未 writableEnded 却收到 close = 连接被对端提前切断。
+    req.on('close', () => {
+      if (!res.writableEnded) {
+        console.warn(`[agent] 客户端断开，中止会话流: ${parsed.id}`)
+        controller.abort()
+      }
+    })
+
+    // 输出配额必须显式给足（bug082702-4）：@ai-sdk/anthropic 对未知模型名钳默认 4096，
+    // GLM 这类思考型模型的 thinking 会把配额烧光 → finishReason=length、正文零字落盘，
+    // 前端表现为永远「思考中」。可用 WORKBENCH_AGENT_MAX_TOKENS 覆盖。
+    const maxOutputTokens = Number(process.env.WORKBENCH_AGENT_MAX_TOKENS || 32768)
+
+    // 工具集（0827-03）：知识库文件工具（读写改/查找/目录树/网页抓取）+ 联网搜索 MCP。
+    // kb 工具本地执行零依赖；搜索拿不到（未配 Key/关闭/连接失败）时返回空对象，等价于现状不阻塞。
+    const agentConfig = await loadAgentConfig(deps.dataDir).catch(() => null)
+    const kbRoot = path.join(deps.dataDir, 'knowledge')
+    const kbTools = createKbToolset({
+      root: kbRoot,
+      deny: agentConfig?.fileTools?.deny ?? DEFAULT_KB_DENY,
+    })
+    const searchTools = await getWebSearchTools(deps.dataDir, () => loadAgentConfig(deps.dataDir))
+    const tools = { ...searchTools, ...kbTools }
+
+    // 归位规则注入：README.md（目录地图/铁律）+ CLAUDE.md（归位规则）随 system 下发；
+    // 文件缺失（如 e2e 临时库）时对应段落自动省略，不阻塞对话。
+    const system = await buildKbSystemPrompt(kbRoot)
 
     const result = streamText({
       model: resolvedModel,
+      system,
       messages: await convertToModelMessages(messages),
       abortSignal: controller.signal,
+      maxOutputTokens,
+      tools,
+      // 工具调用后允许模型继续生成最终回答（无工具轮次该参数零影响）；
+      // 「调研→整合→落盘」全链路约 7-9 步，上限放宽到 20（WORKBENCH_AGENT_MAX_STEPS 可覆盖）。
+      stopWhen: stepCountIs(Number(process.env.WORKBENCH_AGENT_MAX_STEPS || 20)),
     })
 
     const uiStream = createUIMessageStream({

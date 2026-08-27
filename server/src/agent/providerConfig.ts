@@ -20,6 +20,15 @@ const configSchema = z.object({
     .object({
       order: z.array(z.string()).default(['bigmodel-mcp', 'minimax-mcp', 'searxng']),
       searxngBaseURL: z.string().optional(),
+      /** 搜索 MCP（bigmodel web_search_prime）端点与专项 Key；缺省回退环境变量 */
+      mcpUrl: z.string().optional(),
+      mcpApiKey: z.string().optional(),
+    })
+    .optional(),
+  /** 知识库文件工具（0827-03）：敏感目录黑名单，相对 knowledge 根 */
+  fileTools: z
+    .object({
+      deny: z.array(z.string()).optional(),
     })
     .optional(),
 })
@@ -55,7 +64,6 @@ export function envFallbackProvider(): ProviderConfig | null {
   const apiKey = process.env.WORKBENCH_AI_API_KEY
   if (!apiKey) return null
   const baseURL = process.env.WORKBENCH_AI_BASE_URL || 'https://open.bigmodel.cn/api/anthropic'
-  const model = process.env.WORKBENCH_AI_MODEL || 'glm-5.3'
   const kind = baseURL.includes('/anthropic') ? 'anthropic' : 'openai-compatible'
   return { id: 'env-default', label: '默认（环境变量）', kind, baseURL, apiKey }
 }

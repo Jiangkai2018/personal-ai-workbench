@@ -115,7 +115,26 @@ function ThreadView() {
               placeholder="问点什么…（Enter 发送，Shift+Enter 换行）"
               className="max-h-40 flex-1 resize-none bg-transparent px-2 py-1.5 text-[0.95rem] text-ink outline-none placeholder:text-muted"
             />
-            <ComposerPrimitive.Send data-testid="ag-send" className="rounded-full bg-accent px-4 py-1.5 text-sm text-white transition hover:bg-accent-deep disabled:opacity-35" />
+            <ComposerPrimitive.Send
+              data-testid="ag-send"
+              className="flex shrink-0 items-center gap-1 rounded-full bg-accent px-4 py-1.5 text-sm text-white transition hover:bg-accent-deep disabled:opacity-35"
+            >
+              {/* bug082703：Send 原先无 children 渲染成空胶囊不可见，补箭头图标 + 文案 */}
+              <svg
+                viewBox="0 0 24 24"
+                className="h-4 w-4"
+                aria-hidden
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 19V5" />
+                <path d="M5 12l7-7 7 7" />
+              </svg>
+              发送
+            </ComposerPrimitive.Send>
           </ComposerPrimitive.Root>
           <p className="mt-1.5 text-center text-xs text-muted">
             内容也会保存到本地会话记录 · 政策类问题可要求注明权威信源
