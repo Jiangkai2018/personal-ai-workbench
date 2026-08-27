@@ -9,11 +9,18 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ai-sdk/react": "^4.0.86",
+    "@assistant-ui/ai-sdk": "^0.0.2",
+    "@assistant-ui/react": "^0.15.16",
+    "@assistant-ui/react-markdown": "^0.14.12",
     "@fontsource/ibm-plex-mono": "^5.3.0",
     "@fontsource/noto-serif-sc": "^5.2.8",
+    "@tailwindcss/vite": "^4.3.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.30.6"
+    "react-router-dom": "^6.30.6",
+    "remark-gfm": "^4.0.1",
+    "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
     "@types/react": "^18.3.18",

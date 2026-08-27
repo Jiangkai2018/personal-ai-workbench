@@ -75,11 +75,11 @@ npm install
 # 建号（无自助注册）
 npm run add-user -w server -- --username jk --password 你的密码 --name 张三 --family
 
-# 一键启动 后端(3000) + 前端(5173)
+# 一键启动 后端(5233) + 前端(5277)
 npm run dev
 ```
 
-浏览器访问 **http://localhost:5173**。
+浏览器访问 **http://localhost:5277**。
 
 更多操作（密码找回、生产构建、备份）见 [docs/使用手册.md](docs/使用手册.md)。
 
@@ -120,7 +120,7 @@ personal-ai-workbench/
 | `PORT` | `3000` | 后端端口 |
 | `WORKBENCH_DATA_DIR` | `<仓库根>/data` | 数据目录 |
 | `WORKBENCH_JWT_SECRET` | `dev-secret-change-me` | JWT 密钥，对外部署务必修改 |
-| `WORKBENCH_API` | `http://localhost:3000` | 前端 dev 代理目标 |
+| `WORKBENCH_API` | `http://localhost:5233` | 前端 dev 代理目标 |
 | `WORKBENCH_AI_API_KEY` | 空 | AI 初评密钥（Anthropic 兼容接口，如智谱 BigModel），见 `.env.example` |
 | `WORKBENCH_AI_BASE_URL` / `WORKBENCH_AI_MODEL` | BigModel / `glm-5.3` | AI 接口地址与模型 |
 

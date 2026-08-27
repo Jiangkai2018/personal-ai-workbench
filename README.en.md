@@ -54,7 +54,7 @@ npm install
 # Create an account (no self sign-up)
 npm run add-user -w server -- --username you --password yourpass --name You --family
 
-# Start backend(3000) + frontend(5173)
+# Start backend(5233) + frontend(5277)
 npm run dev
 ```
 
@@ -87,7 +87,7 @@ docs/     docs (user manual, ADRs)
 | `PORT` | `3000` | backend port |
 | `WORKBENCH_DATA_DIR` | `<repo>/data` | data directory |
 | `WORKBENCH_JWT_SECRET` | dev default | **change it before exposing to a network** |
-| `WORKBENCH_API` | `http://localhost:3000` | dev proxy target |
+| `WORKBENCH_API` | `http://localhost:5233` | dev proxy target |
 | `WORKBENCH_AI_API_KEY` | empty | AI scoring key (Anthropic-compatible endpoint); see `.env.example` |
 
 ## Design principles

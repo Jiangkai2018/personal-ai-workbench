@@ -1,5 +1,6 @@
 import express from 'express'
 import cookieParser from 'cookie-parser'
+import path from 'node:path'
 import type { Express } from 'express'
 import { ZodError } from 'zod'
 import { EntityStore } from '../storage/repo'
@@ -14,6 +15,9 @@ import { opportunityRouter } from './routes/opportunities'
 import { reviewRouter } from './routes/reviews'
 import { reportRouter } from './routes/reports'
 import { financeRouter } from './routes/finance'
+import { agentRouter } from './routes/agent'
+import { ThreadStore } from '../agent/threadStore'
+import { createAgentModelResolver, type AgentModelResolver } from '../agent/modelResolver'
 import { AiError, createAiScorer, type AiScorer } from '../ai/scoreClient'
 import { createReportGenerator, type ReportGenerator } from '../ai/reportClient'
 
@@ -23,12 +27,16 @@ export interface AppOptions {
   /** 可注入假实现供测试；默认读环境变量创建真实客户端 */
   aiScorer?: AiScorer
   reportGenerator?: ReportGenerator
+  /** Agent 模型解析器（测试可注入 fake）；默认读 config + 环境变量 */
+  agentModelResolver?: AgentModelResolver
 }
 
 const DEFAULT_JWT_SECRET = 'dev-secret-change-me'
 
-export function createApp({ dataDir, jwtSecret, aiScorer, reportGenerator }: AppOptions): Express {
-  const secret = jwtSecret ?? process.env.WORKBENCH_JWT_SECRET ?? DEFAULT_JWT_SECRET
+export function createApp({ dataDir, jwtSecret, aiScorer, reportGenerator, agentModelResolver }: AppOptions): Express {
+  // 空字符串视同未设置（防止 .env 里 KEY= 空值把 '' 一路带进 jwt.sign 直接 500）
+  const envSecret = process.env.WORKBENCH_JWT_SECRET?.trim() || undefined
+  const secret = jwtSecret ?? envSecret ?? DEFAULT_JWT_SECRET
   if (secret === DEFAULT_JWT_SECRET && process.env.NODE_ENV !== 'test') {
     // 开源默认值兜底：带默认密钥对外部署是真实风险，启动时大声提醒
     console.warn(
@@ -60,6 +68,15 @@ export function createApp({ dataDir, jwtSecret, aiScorer, reportGenerator }: App
   app.use('/api/today', requireAuth(secret), todayRouter(store))
   app.use('/api/reviews', requireAuth(secret), reviewRouter(store, reviewStore))
   app.use('/api/finance', requireAuth(secret), financeRouter(dataDir, store))
+  // Agent 板块：会话 JSON 持久化 + SSE 流式对话；请求体放宽（长文档消息可达数百 KB）
+  const threads = new ThreadStore(path.join(dataDir, 'agent', 'threads'))
+  const resolveModel = agentModelResolver ?? createAgentModelResolver(dataDir)
+  app.use(
+    '/api/agent',
+    express.json({ limit: '8mb' }),
+    requireAuth(secret),
+    agentRouter({ threads, resolveModel, dataDir }),
+  )
 
   // 统一错误处理：zod 校验失败 → 400，AI 不可用 → 503，其余 → 500
   app.use((err: unknown, _req: express.Request, res: express.Response, _next: express.NextFunction) => {

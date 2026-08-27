@@ -154,7 +154,9 @@ body::after {
 .app {
   position: relative;
   z-index: 1;
-  max-width: 640px;
+  /* 内容列宽档：单一变量供 .app 与 Dock 定位共用（.app--wide 在 ≥1024 时切换宽档） */
+  --app-max: 640px;
+  max-width: var(--app-max);
   margin: 0 auto;
   min-height: 100dvh;
   display: flex;
@@ -271,6 +273,17 @@ body::after {
 
 .scope-btn.family.active {
   color: var(--family);
+}
+
+/* Agent 入口（首页顶栏「个人/家庭」右侧，V1.1） */
+.agent-btn {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+.agent-btn:hover {
+  background: var(--accent-deep);
+  border-color: var(--accent-deep);
 }
 
 /* ------------------------------------------------------------
@@ -1694,7 +1707,8 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
 /* 平板：内容列加宽，纸面书页感 */
 @media (min-width: 700px) {
   .app {
-    max-width: 680px;
+    --app-max: 680px;
+    max-width: var(--app-max);
     border-left: 1px solid rgba(33, 31, 27, 0.07);
     border-right: 1px solid rgba(33, 31, 27, 0.07);
     box-shadow: 0 0 80px rgba(46, 40, 28, 0.06);
@@ -1715,7 +1729,13 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
    Dock 变为紧贴内容列右侧的竖排导航轨 */
 @media (min-width: 1024px) {
   .app {
-    max-width: clamp(760px, 62vw, 1600px);
+    --app-max: clamp(760px, 62vw, 1600px);
+    max-width: var(--app-max);
+  }
+
+  /* Agent 三栏全宽舞台（Q1 决议：仅 /agent 路由加宽，其余页面窄列不受影响） */
+  .app.app--wide {
+    --app-max: clamp(1180px, 94vw, 1840px);
   }
 
   .app-main {
@@ -1725,7 +1745,7 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
   .bottom-nav {
     top: 50%;
     bottom: auto;
-    left: calc(50% + clamp(760px, 62vw, 1600px) / 2 + 28px);
+    left: calc(50% + var(--app-max) / 2 + 28px);
     transform: translateY(-50%);
     width: 78px;
     flex-direction: column;

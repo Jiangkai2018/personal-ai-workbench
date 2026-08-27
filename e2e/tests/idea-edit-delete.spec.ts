@@ -41,9 +41,9 @@ test('已转正的想法不能删除（守卫提示）', async ({ page }) => {
   await page.getByRole('button', { name: '记下' }).click()
   await page.getByRole('link', { name: '想法' }).click()
 
-  // 一键直达转正（e2e 屏蔽了 AI，以 0 分创建）
+  // 一键直达转正（基线变更为真实模型：评分真调 GLM，约 5~15s，断言超时同步放宽）
   await page.getByRole('button', { name: '转正：E2E 转正后不可删' }).click()
-  await expect(page.getByText(/已转正为机会/)).toBeVisible()
+  await expect(page.getByText(/已转正为机会/)).toBeVisible({ timeout: 30_000 })
 
   // 按钮变成"已转正"标签，没有删除入口
   const item = page.getByRole('listitem', { hasText: 'E2E 转正后不可删' })

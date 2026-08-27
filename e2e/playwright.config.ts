@@ -33,8 +33,8 @@ export default defineConfig({
       env: {
         PORT: String(E2E_SERVER_PORT),
         WORKBENCH_DATA_DIR: path.join(import.meta.dirname, '.tmp-data'),
-        // e2e 不调真实 AI：空串屏蔽 .env 里的配置（loadEnvFile 不覆盖已设变量）
-        WORKBENCH_AI_API_KEY: '',
+        // Agent 用例走真实模型：不设 WORKBENCH_AI_*，由 server 的 loadEnvFile 读仓库根 .env；
+        // 如需离线回归，可临时在此加 WORKBENCH_AGENT_FAKE: '1' 强制确定性假模型。
       },
     },
     {

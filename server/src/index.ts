@@ -13,7 +13,8 @@ try {
 const dataDir =
   process.env.WORKBENCH_DATA_DIR ||
   path.resolve(import.meta.dirname, '..', '..', 'data')
-const port = Number(process.env.PORT || 3000)
+// 永久约定：后端 5233 / 前端 5277（可用 PORT 覆盖）
+const port = Number(process.env.PORT || 5233)
 
 const app = createApp({ dataDir })
 app.listen(port, () => {

@@ -9,7 +9,7 @@
 
 ```bash
 npm install          # 一次装好 server / web / e2e 三个 workspace
-npm run dev          # 启动后端(3000) + 前端(5173)
+npm run dev          # 启动后端(5233) + 前端(5277)
 ```
 
 ## 常用命令

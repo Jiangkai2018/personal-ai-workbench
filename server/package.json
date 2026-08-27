@@ -13,6 +13,11 @@
     "reset-password": "tsx src/cli/reset-password.ts"
   },
   "dependencies": {
+    "@ai-sdk/anthropic": "^4.0.44",
+    "@ai-sdk/deepseek": "^3.0.35",
+    "@ai-sdk/openai": "^4.0.50",
+    "@ai-sdk/openai-compatible": "^3.0.39",
+    "ai": "^7.0.83",
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",
     "express": "^4.21.2",
