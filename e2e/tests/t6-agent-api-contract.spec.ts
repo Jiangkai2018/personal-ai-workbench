@@ -145,7 +145,7 @@ test.describe('T6 API 契约', () => {
     // 无配置文件 → 空清单兜底
     await rm(path.join(TMP, 'config'), { recursive: true, force: true })
     const empty = await (await req.get('/api/agent/models')).json()
-    expect(empty).toEqual({ providers: [], defaultModel: null })
+    expect(empty).toEqual({ providers: [], defaultModel: null, notifyEnabled: false })
 
     // 写入最小厂商配置 → 打码返回，原文件不被改写
     await mkdir(path.join(TMP, 'config'), { recursive: true })

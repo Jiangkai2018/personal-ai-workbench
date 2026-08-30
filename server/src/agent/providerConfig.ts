@@ -31,6 +31,23 @@ const configSchema = z.object({
       deny: z.array(z.string()).optional(),
     })
     .optional(),
+  /** 视觉模型（0828-01）：上传解析的扫描件/图片转写用；未配置则拒收 */
+  visionModel: z
+    .object({ providerId: z.string(), model: z.string() })
+    .optional(),
+  /** 完成推送（0828-01 §3.3）：钉钉群自定义机器人 */
+  notify: z
+    .object({
+      dingtalk: z
+        .object({
+          enabled: z.boolean().default(false),
+          webhook: z.string().optional(),
+          secret: z.string().optional(),
+          baseUrl: z.string().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
 })
 
 function configPath(dataDir: string): string {

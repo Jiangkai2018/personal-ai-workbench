@@ -12,8 +12,8 @@ import type { ToolSet } from 'ai'
 /** 默认敏感目录黑名单（相对 knowledge 根，正斜杠）：家庭账单为 gitignore 的财务敏感数据 */
 export const DEFAULT_KB_DENY = ['04.生活事务/03.家庭账单']
 
-/** 允许读取的文本扩展名（图片/PDF/notebook 不在本轮 Read 能力内） */
-const TEXT_EXTS = new Set(['.md', '.markdown', '.txt', '.json', '.csv', '.yml', '.yaml', '.html'])
+/** 允许读取的文本扩展名（图片/PDF/notebook 不在本轮 Read 能力内）；知识库页面同款判定复用 */
+export const TEXT_EXTS = new Set(['.md', '.markdown', '.txt', '.json', '.csv', '.yml', '.yaml', '.html'])
 
 const READ_FILE_MAX_BYTES = 256 * 1024
 const WRITE_CONTENT_MAX_BYTES = 512 * 1024
@@ -47,12 +47,22 @@ export function isDenied(rel: string, deny: string[]): boolean {
 }
 
 /**
+ * 顶级 `_` 前缀 = 系统目录（_attachments/_trash 等，0828-01 §1.4）：对 Agent 全向拉黑。
+ * 只拦顶级——子目录里的 `_` 前缀是普通命名，不受影响。
+ */
+export function isSystemPath(rel: string): boolean {
+  const first = rel.replaceAll('\\', '/').split('/')[0]
+  return first.startsWith('_')
+}
+
+/**
  * 解析到根内绝对路径并做三重防护：
  * 1) normalizeRel 拒绝绝对路径/穿越；2) relative 复核；3) realpath 逐级复核软链逃逸。
  */
 export async function resolveInRoot(root: string, input: string, deny: string[]): Promise<string> {
   const rel = normalizeRel(input)
   if (isDenied(rel, deny)) throw new KbSandboxError(`「${rel}」位于敏感目录黑名单，拒绝访问`)
+  if (isSystemPath(rel)) throw new KbSandboxError(`「${rel}」位于「_」开头系统目录，Agent 不可访问`)
   const abs = path.resolve(root, rel)
   const back = path.relative(root, abs)
   if (back.startsWith('..') || path.isAbsolute(back)) throw new KbSandboxError(`路径越出知识库根：${input}`)
@@ -124,7 +134,7 @@ async function walk(root: string, subRel: string, deny: string[]): Promise<WalkE
     }
     for (const it of items) {
       const childRel = dirRel ? `${dirRel}/${it.name}` : it.name
-      if (isDenied(childRel, deny)) continue
+      if (isDenied(childRel, deny) || isSystemPath(childRel)) continue
       const childAbs = path.join(dirAbs, it.name)
       if (it.isDirectory()) {
         out.push({ rel: childRel + '/', abs: childAbs, mtimeMs: 0, size: 0, isDir: true })
@@ -363,6 +373,7 @@ export function createKbToolset(deps: KbToolsetDeps): ToolSet {
       execute: async ({ path: sub, depth = 3 }) => {
         const subRel = sub ? normalizeRel(sub) : ''
         if (subRel && isDenied(subRel, deny)) throw new KbSandboxError(`「${subRel}」位于敏感目录黑名单，拒绝访问`)
+        if (subRel && isSystemPath(subRel)) throw new KbSandboxError(`「${subRel}」位于「_」开头系统目录，Agent 不可访问`)
         const entries = await walk(root, subRel, deny)
         const lines: string[] = [`${subRel || '知识库'}/`]
         let count = 0

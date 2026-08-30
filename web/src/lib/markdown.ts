@@ -1,4 +1,5 @@
-// 迷你 markdown → HTML：只支持报告用到的子集（标题/加粗/斜体/列表/引用/分隔线）。
+// 迷你 markdown → HTML：支持报告/知识文件用到的子集
+// （标题/加粗/斜体/列表/引用/分隔线/GFM 表格/围栏代码块，0828-01 决策 #13 补齐后两项）。
 // 刻意不引渲染库（CONTRIBUTING：不轻易加运行时依赖）；先全量转义再逐行组装。
 
 function escapeHtml(s: string): string {
@@ -17,7 +18,29 @@ function inline(s: string): string {
     .replace(/\*([^*]+)\*/g, '<em>$1</em>')
 }
 
-export function renderMarkdown(md: string): string {
+/** 剥离文档头部的 YAML frontmatter（知识文件元信息不渲染进正文） */
+function stripFrontmatter(md: string): string {
+  if (!md.startsWith('---')) return md
+  // 从第 4 字符起找关闭围栏，避免命中开头那道 ---
+  const rest = md.slice(3)
+  const m = rest.match(/^[ \t]*---[ \t]*\r?$/m)
+  if (!m || m.index === undefined) return md
+  return rest.slice(m.index + m[0].length).replace(/^\r?\n/, '')
+}
+
+/** 表格分隔行：| --- | :--: | 形态（GFM 允许 ≥1 个连字符），且列数与表头一致才算 */
+function isTableSeparator(line: string, columns: number): boolean {
+  const cells = line.trim().replace(/^\||\|$/g, '').split('|')
+  if (cells.length !== columns) return false
+  return cells.every((c) => /^\s*:?-+:?\s*$/.test(c))
+}
+
+function splitRow(line: string): string[] {
+  return line.trim().replace(/^\||\|$/g, '').split('|').map((c) => c.trim())
+}
+
+export function renderMarkdown(input: string): string {
+  const md = stripFrontmatter(input)
   const lines = md.split(/\r?\n/)
   const out: string[] = []
   let listOpen: 'ul' | 'ol' | null = null
@@ -29,11 +52,53 @@ export function renderMarkdown(md: string): string {
     }
   }
 
-  for (const raw of lines) {
-    const line = raw.trimEnd()
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trimEnd()
+
+    // 围栏代码块：``` 开关，内部只转义不渲染；未闭合到文末都算
+    if (/^```/.test(line.trim())) {
+      closeList()
+      const lang = line.trim().slice(3).trim()
+      const code: string[] = []
+      i++
+      while (i < lines.length && !/^```\s*$/.test(lines[i].trim())) {
+        code.push(lines[i])
+        i++
+      }
+      const cls = lang ? ` class="language-${escapeHtml(lang)}"` : ''
+      out.push(`<pre><code${cls}>${escapeHtml(code.join('\n'))}</code></pre>`)
+      continue
+    }
 
     if (!line.trim()) {
       closeList()
+      continue
+    }
+
+    // GFM 表格：当前行是 |…| 且下一行是列数一致的分隔行
+    if (/^\s*\|.*\|\s*$/.test(line) && i + 1 < lines.length && isTableSeparator(lines[i + 1], splitRow(line).length)) {
+      closeList()
+      const header = splitRow(line)
+      i += 2 // 跳过表头与分隔行
+      const body: string[] = []
+      while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) {
+        const cells = splitRow(lines[i])
+        body.push('<tr>' + header.map((_, ci) => `<td>${inline(cells[ci] ?? '')}</td>`).join('') + '</tr>')
+        i++
+      }
+      i--
+      out.push(
+        [
+          '<table>',
+          '<thead>',
+          '<tr>' + header.map((h) => `<th>${inline(h)}</th>`).join('') + '</tr>',
+          '</thead>',
+          '<tbody>',
+          ...body,
+          '</tbody>',
+          '</table>',
+        ].join('\n'),
+      )
       continue
     }
 

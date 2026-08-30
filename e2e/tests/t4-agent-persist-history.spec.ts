@@ -110,8 +110,11 @@ test.describe('T4 持久化与历史', () => {
     await sendAndWaitSettled(page, longQ)
 
     const expected = longQ.slice(0, 24) // 「…政策风向并给出要点和」
+    // 思考型模型正文长停顿≠回合结束：等 composer 恢复可输入（回合真正收尾的 UI 信号）再轮询落盘
+    await expect(page.getByTestId('ag-composer-input')).toBeEnabled({ timeout: 180_000 })
+    // 思考型模型（GLM 5.3）对政策题的思考+工具轮次可远超 1 分钟，落盘在回合真正收尾后
     await expect
-      .poll(async () => (await readAllThreads()).find((t) => t.title === expected)?.id ?? null, { timeout: 20_000 })
+      .poll(async () => (await readAllThreads()).find((t) => t.title === expected)?.id ?? null, { timeout: 240_000, intervals: [2_000] })
       .toBeTruthy()
     const threadId = (await readAllThreads()).find((t) => t.title === expected)!.id
 

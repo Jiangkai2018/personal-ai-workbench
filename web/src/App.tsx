@@ -9,6 +9,7 @@ import ReviewsPage from './pages/ReviewsPage'
 import FinancePage from './pages/FinancePage'
 import ReportViewPage from './pages/ReportViewPage'
 import AgentPage from './pages/AgentPage'
+import KnowledgePage from './pages/KnowledgePage'
 import LoginPage from './pages/LoginPage'
 import { api } from './api/client'
 import type { Scope, SessionUser } from './types'
@@ -101,9 +102,9 @@ export default function App() {
     api.me().then((u) => setUser(u))
   }, [])
 
-  // Agent 三栏需要全宽舞台：/agent 路由挂 wide 修饰，.app 走 --app-max 宽档（见 index.css）
+  // Agent 三栏 / 知识库双栏需要全宽舞台：挂 wide 修饰，.app 走 --app-max 宽档（见 index.css）
   const { pathname } = useLocation()
-  const isAgentRoute = pathname.startsWith('/agent')
+  const isWideRoute = pathname.startsWith('/agent') || pathname.startsWith('/knowledge')
 
   if (user === undefined) {
     return <div className="page loading-page">加载中…</div>
@@ -114,7 +115,7 @@ export default function App() {
 
   return (
     <ScopeCtx.Provider value={{ scope, setScope }}>
-      <div className={`app${isAgentRoute ? ' app--wide' : ''}`}>
+      <div className={`app${isWideRoute ? ' app--wide' : ''}`}>
         <header className="app-header">
           <div className="brand">
             <span className="seal" aria-hidden="true">
@@ -143,7 +144,11 @@ export default function App() {
             </button>
             {/* Agent 入口：任务书要求放在「个人/家庭」右边 */}
             <Link to="/agent" className="scope-btn agent-btn" aria-label="进入 AI Agent">
-              ✦ Agent
+              ✦ <span className="entry-text">Agent</span>
+            </Link>
+            {/* 知识库入口（0828-01）：与 Agent 并列 */}
+            <Link to="/knowledge" className="scope-btn agent-btn" aria-label="进入知识库">
+              ☰ <span className="entry-text">知识库</span>
             </Link>
           </div>
           <div className="header-right">
@@ -172,6 +177,7 @@ export default function App() {
             <Route path="/reviews" element={<ReviewsPage />} />
             <Route path="/finance" element={<FinancePage />} />
             <Route path="/agent" element={<AgentPage />} />
+            <Route path="/knowledge" element={<KnowledgePage />} />
             <Route path="/reports/:id" element={<ReportViewPage />} />
           </Routes>
         </main>

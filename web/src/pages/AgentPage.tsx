@@ -1,6 +1,8 @@
 // AI Agent 主页面（M1）：左 = 会话列表；中 = 流式对话；右 = 产物预览位（M2 启用）
 // 自管会话列表：切换/新建通过 remount runtime 恢复历史（历史消息由服务端 JSON 落盘，见 ADR-0004）
+// 0828-01 §3：深链 ?thread= 打开会话；推送开关；「运行中」标记 + status 轮询 + 结束自动拉全文
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import '../styles/agent.css'
 import {
   AssistantRuntimeProvider,
@@ -57,7 +59,7 @@ function RuntimeGate({
   return <AssistantRuntimeProvider runtime={runtime}>{children}</AssistantRuntimeProvider>
 }
 
-function ThreadView() {
+function ThreadView({ threadId }: { threadId: string }) {
   const [showBackBottom, setShowBackBottom] = useState(false)
 
   // 贴底监测：滚动与内容增长（ResizeObserver）都要看；「跟随」本身交给 Viewport 的 autoScroll
@@ -108,6 +110,20 @@ function ThreadView() {
       <div className="border-t border-line bg-card-warm px-4 py-3 sm:px-8">
         <div className="mx-auto max-w-4xl">
           <ComposerPrimitive.Root className="flex items-end gap-2 rounded-[var(--radius-ag)] border border-line bg-card p-2 shadow-sm focus-within:border-line-strong">
+            {/* 手动停止走服务端 stop 端点（0828-01 §3.1）：打标 manual-stop，跑完不推送。
+                与 Composer 自带的取消（仅断开本地流）语义不同——后者断连反而会续跑+推送。 */}
+            <ThreadPrimitive.If running>
+              <button
+                type="button"
+                data-testid="ag-stop"
+                onClick={() => {
+                  void fetch(`/api/agent/threads/${encodeURIComponent(threadId)}/stop`, { method: 'POST' })
+                }}
+                className="shrink-0 self-center rounded-full border border-danger px-3 py-1 text-xs text-danger transition hover:bg-danger-soft"
+              >
+                停止
+              </button>
+            </ThreadPrimitive.If>
             <ComposerPrimitive.Input
               autoFocus
               rows={1}
@@ -149,6 +165,13 @@ export default function AgentPage() {
   const [threads, setThreads] = useState<agentApi.ThreadMeta[]>([])
   const [active, setActive] = useState<Active | null>(null)
   const [error, setError] = useState('')
+  // ── 0828-01 §3：深链 / 推送开关 / 运行中标记 ──
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [notifyEnabled, setNotifyEnabled] = useState(false)
+  const [pushOn, setPushOn] = useState(false)
+  const [running, setRunning] = useState(false)
+  const deepLinkDone = useRef('')
+  const pendingDeepLink = useRef('')
   // 产物预览面板：默认收起，右缘把手展开；localStorage 记忆（沙箱环境 try/catch 兜底）
   const [previewOpen, setPreviewOpen] = useState(() => {
     try {
@@ -174,6 +197,49 @@ export default function AgentPage() {
   }, [])
   useEffect(refreshThreads, [refreshThreads])
 
+  // 推送可用性（未配置 → 开关置灰，提示去配置）
+  useEffect(() => {
+    agentApi.getNotifyEnabled().then(setNotifyEnabled).catch(() => setNotifyEnabled(false))
+  }, [])
+
+  // 深链 ?thread=<id>：先把待打开 id 记下（此时 handleOpen 尚未声明），参数立刻清掉
+  useEffect(() => {
+    const tid = searchParams.get('thread')
+    if (tid && tid !== deepLinkDone.current) {
+      deepLinkDone.current = tid
+      pendingDeepLink.current = tid
+      setSearchParams({}, { replace: true })
+    }
+  }, [searchParams, setSearchParams])
+
+  // 运行中轮询：active 会话每 4s 查一次；运行 → 结束的沿上自动拉全文刷新视图
+  useEffect(() => {
+    if (!active) {
+      setRunning(false)
+      return
+    }
+    const id = active.id
+    let wasRunning = false
+    const poll = async () => {
+      try {
+        const s = await agentApi.getRunStatus(id)
+        setRunning(s.running)
+        if (wasRunning && !s.running) {
+          // 后台跑完了：拉全文重挂载视图
+          const full = await agentApi.getThread(id)
+          setActive((cur) => (cur?.id === id ? { id, initialMessages: full?.messages ?? [] } : cur))
+          refreshThreads()
+        }
+        wasRunning = s.running
+      } catch {
+        /* 忽略轮询错误 */
+      }
+    }
+    void poll()
+    const timer = setInterval(poll, 4000)
+    return () => clearInterval(timer)
+  }, [active?.id, refreshThreads])
+
   const handleNew = useCallback(async () => {
     try {
       const t = await agentApi.createThread()
@@ -190,9 +256,31 @@ export default function AgentPage() {
       try {
         const full = await agentApi.getThread(id)
         setActive({ id, initialMessages: full?.messages ?? [] })
+        setPushOn(!!full?.pushOnCompletion)
       } catch (e) {
         setError((e as Error).message)
       }
+    },
+    [active],
+  )
+  // handleOpen 就绪后处理待打开的深链（deepLinkDone 保证只处理一次）
+  useEffect(() => {
+    const tid = pendingDeepLink.current
+    if (tid) {
+      pendingDeepLink.current = ''
+      void handleOpen(tid)
+    }
+  })
+
+  // 推送开关：写会话 JSON（/chat 时服务端读取）；未配置钉钉时置灰
+  const togglePush = useCallback(
+    (next: boolean) => {
+      if (!active) return
+      setPushOn(next)
+      agentApi.patchThread(active.id, { pushOnCompletion: next }).catch((e) => {
+        setPushOn(!next)
+        setError((e as Error).message)
+      })
     },
     [active],
   )
@@ -282,9 +370,35 @@ export default function AgentPage() {
         )}
 
         {active ? (
-          <RuntimeGate key={active.id} id={active.id} initialMessages={active.initialMessages} onTurnEnd={refreshThreads}>
-            <ThreadView />
-          </RuntimeGate>
+          <>
+            {/* 推送开关 + 运行中标记（0828-01 §3.1/§3.2） */}
+            <div className="flex items-center justify-between border-b border-line bg-card px-4 py-1.5" data-testid="ag-push-bar">
+              <span className="text-xs text-muted">{active.id}</span>
+              <div className="flex items-center gap-3">
+                {running && (
+                  <span data-testid="ag-running" className="text-xs text-accent-deep">
+                    ⏳ 运行中（断开也会跑完并推送）
+                  </span>
+                )}
+                <label
+                  className={`flex items-center gap-1.5 text-xs ${notifyEnabled ? 'text-ink' : 'text-muted'}`}
+                  title={notifyEnabled ? '开启后：跑完（或关页断网）会把结果推送到钉钉群' : '未配置钉钉群机器人：请在 data/config/ai-providers.json 配置 notify.dingtalk'}
+                >
+                  <input
+                    type="checkbox"
+                    data-testid="ag-push-toggle"
+                    checked={pushOn}
+                    disabled={!notifyEnabled || running}
+                    onChange={(e) => togglePush(e.target.checked)}
+                  />
+                  完成后钉钉推送{notifyEnabled ? '' : '（未配置）'}
+                </label>
+              </div>
+            </div>
+            <RuntimeGate key={active.id} id={active.id} initialMessages={active.initialMessages} onTurnEnd={refreshThreads}>
+              <ThreadView threadId={active.id} />
+            </RuntimeGate>
+          </>
         ) : (
           <div className="flex flex-1 items-center justify-center">
             <button

@@ -47,9 +47,23 @@ async function fakeModel(modelId: string): Promise<LanguageModel> {
     provider: 'workbench-fake',
     modelId,
     doStream: async () => ({
-      stream: simulateReadableStream({ initialDelayInMs: 120, chunkDelayInMs: 18, chunks: [...chunks] }),
+      // 节奏可配：e2e 断连/停止用例需要拉长流窗口（WORKBENCH_AGENT_FAKE_INITIAL_DELAY_MS / _CHUNK_DELAY_MS）
+      stream: simulateReadableStream({
+        initialDelayInMs: Number(process.env.WORKBENCH_AGENT_FAKE_INITIAL_DELAY_MS || 120),
+        chunkDelayInMs: Number(process.env.WORKBENCH_AGENT_FAKE_CHUNK_DELAY_MS || 18),
+        chunks: [...chunks],
+      }),
     }),
   }) as unknown as LanguageModel
+}
+
+/**
+ * 按厂商配置实例化 LanguageModel（含 fake 档）。
+ * 模型解析主链路之外，视觉模型（knowledge/vision）等旁路功能共用此入口。
+ */
+export async function instantiateProviderModel(provider: ProviderConfig, model: string): Promise<LanguageModel> {
+  if (provider.kind === 'fake') return fakeModel(model)
+  return instantiate(provider, model)
 }
 
 /** 按厂商形态实例化真正的 LanguageModel */

@@ -26,6 +26,17 @@ export interface AgentConfig {
   fileTools?: {
     deny?: string[]
   }
+  /** 视觉模型（0828-01）：上传解析的扫描件/图片转写用；未配置则拒收 */
+  visionModel?: { providerId: string; model: string }
+  /** 完成推送（0828-01 §3.3）：钉钉群自定义机器人（加签） */
+  notify?: {
+    dingtalk?: {
+      enabled: boolean
+      webhook?: string
+      secret?: string
+      baseUrl?: string
+    }
+  }
 }
 
 /** 对话线程 = data/agent/threads/<id>.json（ADR-0004：会话定向豁免「一切皆 md」） */
@@ -35,6 +46,8 @@ export interface AgentThread {
   created_at: string
   updated_at: string
   archived?: boolean
+  /** 会话级「完成后钉钉推送」开关（0828-01 §3.1），新会话默认关 */
+  pushOnCompletion?: boolean
   model?: { providerId: string; model: string }
   usage?: unknown
   messages: UIMessage[]

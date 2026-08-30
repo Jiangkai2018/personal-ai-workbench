@@ -1,9 +1,10 @@
 // Agent 板块路由：会话 CRUD + /chat 流式对话（AI SDK UI Message Stream over SSE）
+// 0828-01 §3（ADR-0008 会话即长任务）：开启推送的运行断连不中止，跑完落盘后发钉钉推送。
 import { Router } from 'express'
 import {
   convertToModelMessages,
   createUIMessageStream,
-  pipeUIMessageStreamToResponse,
+  JsonToSseTransformStream,
   stepCountIs,
   streamText,
 } from 'ai'
@@ -15,7 +16,12 @@ import type { AgentModelResolver } from '../../agent/modelResolver'
 import { maskProviders, loadAgentConfig } from '../../agent/providerConfig'
 import { getWebSearchTools } from '../../agent/webSearch'
 import { buildKbSystemPrompt, createKbToolset, DEFAULT_KB_DENY } from '../../agent/kbTools'
+import { RunRegistry } from '../../agent/runRegistry'
+import { buildCompletionMessage, sendDingtalk } from '../../agent/notify'
 import type { AgentThread, ModelSelection } from '../../agent/types'
+
+/** 全局后台运行上限（§3.2）：开启推送的提交超限直接拒绝 */
+const BG_RUN_LIMIT = 3
 
 // 消息结构宽松校验：parts 内部由 AI SDK 自行解析，落盘原样保留
 const uiMessageSchema = z
@@ -48,6 +54,10 @@ function deriveTitle(thread: AgentThread): string {
 
 export function agentRouter(deps: { threads: ThreadStore; resolveModel: AgentModelResolver; dataDir: string }): Router {
   const router = Router()
+  // 内存运行表：会话互斥 + 全局后台名额 + 手动停止打标（进程重启即清空，v1 接受）
+  const registry = new RunRegistry(BG_RUN_LIMIT)
+  /** threadId → 本轮 AbortController（stop 端点用） */
+  const stateControllers = new Map<string, AbortController>()
 
   // ── 会话列表（元信息） ──────────────────────────────
   router.get('/threads', async (_req, res, next) => {
@@ -78,13 +88,39 @@ export function agentRouter(deps: { threads: ThreadStore; resolveModel: AgentMod
     }
   })
 
-  // 改标题 / 归档（侧栏重命名用）
+  // 改标题 / 归档 / 完成推送开关（侧栏与输入区用）
   router.patch('/threads/:id', async (req, res, next) => {
     try {
-      const patch = z.object({ title: z.string().min(1).max(60), archived: z.boolean() }).partial().parse(req.body)
+      const patch = z
+        .object({ title: z.string().min(1).max(60), archived: z.boolean(), pushOnCompletion: z.boolean() })
+        .partial()
+        .parse(req.body)
       const thread = await deps.threads.get(req.params.id)
       if (!thread) return void res.status(404).json({ error: 'NOT_FOUND', message: '会话不存在' })
       await deps.threads.save({ ...thread, ...patch })
+      res.json({ ok: true })
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  // ── 运行状态 / 手动停止（0828-01 §3.1–3.2） ────────
+  router.get('/threads/:id/status', async (req, res, next) => {
+    try {
+      const state = registry.state(req.params.id)
+      res.json(state ? { running: true, startedAt: new Date(state.startedAt).toISOString(), push: state.push } : { running: false })
+    } catch (err) {
+      next(err)
+    }
+  })
+
+  router.post('/threads/:id/stop', async (req, res, next) => {
+    try {
+      const state = registry.state(req.params.id)
+      if (!state) return void res.status(404).json({ error: 'NOT_RUNNING', message: '该会话没有正在后台运行的任务' })
+      const controller = stateControllers.get(req.params.id)
+      state.manualStop = true
+      controller?.abort()
       res.json({ ok: true })
     } catch (err) {
       next(err)
@@ -108,6 +144,8 @@ export function agentRouter(deps: { threads: ThreadStore; resolveModel: AgentMod
       res.json({
         providers: config ? maskProviders(config.providers) : [],
         defaultModel: config?.defaultModel ?? null,
+        // 钉钉推送是否可用（只给布尔，webhook/secret 不出配置文件 §3.3）
+        notifyEnabled: !!(config?.notify?.dingtalk?.enabled && config.notify.dingtalk.webhook),
       })
     } catch (err) {
       next(err)
@@ -116,30 +154,52 @@ export function agentRouter(deps: { threads: ThreadStore; resolveModel: AgentMod
 
   // ── 流式对话主体 ───────────────────────────────────
   router.post('/chat', async (req, res, next) => {
-    let parsed: z.infer<typeof chatSchema>
+    let parsed: z.infer<typeof chatSchema> | undefined
     let thread: AgentThread | null
     let resolvedModel: Awaited<ReturnType<AgentModelResolver>>
+    let pushEnabled = false
     try {
       parsed = chatSchema.parse(req.body)
       thread = await deps.threads.get(parsed.id)
       if (!thread) thread = await deps.threads.create(parsed.id)
+      pushEnabled = !!thread.pushOnCompletion
+
+      // 运行占位：同会话互斥 / 后台名额（0828-01 §3.2）；失败在解析模型之前拒绝（省成本）
+      const started = registry.start(parsed.id, pushEnabled)
+      if (started === 'busy') {
+        return void res.status(409).json({ error: 'RUNNING', message: '上一轮还在后台运行，请稍候或先停止' })
+      }
+      if (started === 'limit') {
+        return void res.status(429).json({ error: 'BG_LIMIT', message: `后台运行已达上限（${BG_RUN_LIMIT} 个），请稍后再试` })
+      }
 
       // 解析模型放在流启动之前：错误还能走全局 JSON 错误处理（503）
       resolvedModel = await deps.resolveModel(parsed.selectedModel as ModelSelection | undefined)
     } catch (err) {
+      if (parsed?.id) registry.finish(parsed.id)
       return next(err)
     }
 
     const messages = parsed.messages as unknown as UIMessage[]
     const controller = new AbortController()
+    stateControllers.set(parsed.id, controller)
+    let clientGone = false
     // 客户端异常断开才中止：Node ≥16 的 req 'close' 在响应正常结束后也会触发，
     // 无条件 abort 会在流收尾瞬间打断 createUIMessageStream 的合并与落盘（bug082702-4 家族）。
     // 判据：响应尚未 writableEnded 却收到 close = 连接被对端提前切断。
-    req.on('close', () => {
-      if (!res.writableEnded) {
-        console.warn(`[agent] 客户端断开，中止会话流: ${parsed.id}`)
-        controller.abort()
+    // 开了「完成后推送」的运行例外：断连不中止，服务端继续跑完 → 落盘 → 推送（ADR-0008）。
+    // 挂在 res 上（而非 req）：res 'close' = 响应完成或底层连接提前终止（req 'close' 只表意请求体完成，
+    // 客户端在读响应阶段断开时它不触发 —— 单测实测踩坑）。
+    res.on('close', () => {
+      if (res.writableEnded) return
+      clientGone = true
+      if (pushEnabled) {
+        console.warn(`[agent] 客户端断开，转入后台续跑: ${parsed.id}`)
+        res.on('error', () => {}) // 后续写死连接的错误吞掉，不致崩进程
+        return
       }
+      console.warn(`[agent] 客户端断开，中止会话流: ${parsed.id}`)
+      controller.abort()
     })
 
     // 输出配额必须显式给足（bug082702-4）：@ai-sdk/anthropic 对未知模型名钳默认 4096，
@@ -179,25 +239,94 @@ export function agentRouter(deps: { threads: ThreadStore; resolveModel: AgentMod
       onError: (error) => (error instanceof Error ? error.message : String(error)),
       execute: ({ writer }) => writer.merge(result.toUIMessageStream()),
       onEnd: async ({ messages: merged }) => {
-        const current = await deps.threads.get(parsed.id)
-        if (!current) return
-        current.messages = merged
-        current.title = deriveTitle(current)
-        current.model =
-          parsed.selectedModel?.providerId && parsed.selectedModel?.model
-            ? { providerId: parsed.selectedModel.providerId, model: parsed.selectedModel.model }
-            : undefined
         try {
-          current.usage = await result.totalUsage
-        } catch {
-          // 中断时拿不到用量，不影响落盘
+          // 现状语义保留（§3.1）：未开开关 + 客户端已断开 → 与旧行为一致，不落盘
+          if (!pushEnabled && clientGone) return
+          const current = await deps.threads.get(parsed.id)
+          if (current) {
+            current.messages = merged
+            current.title = deriveTitle(current)
+            current.model =
+              parsed.selectedModel?.providerId && parsed.selectedModel?.model
+                ? { providerId: parsed.selectedModel.providerId, model: parsed.selectedModel.model }
+                : undefined
+            try {
+              current.usage = await result.totalUsage
+            } catch {
+              // 中断时拿不到用量，不影响落盘
+            }
+            await deps.threads.save(current)
+
+            // 完成推送（§3.3/§3.4）：开启开关且非手动停止才推；推送失败不影响会话落盘
+            const state = registry.state(parsed.id)
+            if (state?.push && !state.manualStop) {
+              await fireCompletionPush(parsed.id, current, state.startedAt, merged)
+            }
+          }
+        } finally {
+          registry.finish(parsed.id)
+          stateControllers.delete(parsed.id)
         }
-        await deps.threads.save(current)
       },
     })
 
-    pipeUIMessageStreamToResponse({ response: res, stream: uiStream })
+    // SSE 泵送：手动从 UI 流读块写响应。不用 pipeUIMessageStreamToResponse 的原因（ADR-0008）：
+    // 它在连接死亡时会 abort/cancel 整条 UI 流 → onEnd 不执行 → 落盘与推送全部丢失。
+    // 手动泵送让流的存活与连接解耦：断连后服务端照常跑完 → 落盘 → 推送。
+    res.writeHead(200, {
+      'content-type': 'text/event-stream',
+      'cache-control': 'no-cache, no-transform',
+      connection: 'keep-alive',
+      'x-accel-buffering': 'no',
+    })
+    const sse = uiStream.pipeThrough(new JsonToSseTransformStream())
+    void (async () => {
+      const reader = sse.getReader()
+      try {
+        for (;;) {
+          const { done, value } = await reader.read()
+          if (done) break
+          if (!res.destroyed && !res.writableEnded) res.write(value)
+        }
+      } catch {
+        // 模型/流异常：onEnd 仍会执行（错误以 error part 进流）
+      } finally {
+        if (!res.destroyed && !res.writableEnded) res.end()
+      }
+    })()
   })
 
   return router
+
+  /** 组装并发送完成推送；只记日志不抛错（§3.4 推送失败重试后放弃，不阻塞不回滚） */
+  async function fireCompletionPush(threadId: string, thread: AgentThread, startedAt: number, merged: UIMessage[]) {
+    const config = await loadAgentConfig(deps.dataDir).catch(() => null)
+    const ding = config?.notify?.dingtalk
+    if (!ding?.enabled || !ding.webhook) return
+
+    // 失败判定：本轮消息里有 error part（模型/工具错误会以 error part 落入流）
+    const last = merged[merged.length - 1]
+    const errorPart = last?.parts?.find((p) => (p as { type?: string }).type === 'error') as { errorText?: string } | undefined
+    const failed = !!errorPart
+    const summary = (last?.parts ?? [])
+      .filter((p) => (p as { type?: string }).type === 'text')
+      .map((p) => (p as { text?: string }).text ?? '')
+      .join('')
+
+    const message = buildCompletionMessage({
+      title: thread.title,
+      durationMs: Date.now() - startedAt,
+      model: thread.model?.model ?? '未知模型',
+      summary,
+      threadId,
+      baseUrl: ding.baseUrl,
+      failed,
+      error: errorPart?.errorText,
+    })
+    const result = await sendDingtalk(
+      { enabled: true, webhook: ding.webhook, secret: ding.secret, baseUrl: ding.baseUrl },
+      message,
+    )
+    if (!result.ok) console.warn(`[agent] 钉钉推送失败（不影响会话）: ${result.error}`)
+  }
 }

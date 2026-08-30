@@ -7,6 +7,8 @@ export interface ThreadMeta {
   created_at: string
   updated_at: string
   archived?: boolean
+  /** 会话级「完成后钉钉推送」开关（0828-01 §3.1） */
+  pushOnCompletion?: boolean
   model?: { providerId: string; model: string } | null
   usage?: unknown
 }
@@ -60,4 +62,31 @@ export function deleteThread(id: string): Promise<void> {
   return fetch(`/api/agent/threads/${encodeURIComponent(id)}`, { method: 'DELETE' }).then((r) => {
     if (!r.ok) throw new Error('删除失败')
   })
+}
+
+/** 改会话级设置（标题 / 归档 / 完成推送开关） */
+export function patchThread(id: string, patch: Partial<{ title: string; archived: boolean; pushOnCompletion: boolean }>): Promise<void> {
+  return fetch(`/api/agent/threads/${encodeURIComponent(id)}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(patch),
+  }).then((r) => {
+    if (!r.ok) throw new Error('保存设置失败')
+  })
+}
+
+/** 运行状态（0828-01 §3.2）：轮询用 */
+export interface RunStatus {
+  running: boolean
+  startedAt?: string
+  push?: boolean
+}
+
+export function getRunStatus(id: string): Promise<RunStatus> {
+  return json<RunStatus>(`/api/agent/threads/${encodeURIComponent(id)}/status`)
+}
+
+/** 钉钉推送是否已配置（secret 不出配置文件，这里只给布尔） */
+export function getNotifyEnabled(): Promise<boolean> {
+  return json<{ notifyEnabled: boolean }>('/api/agent/models').then((r) => r.notifyEnabled)
 }

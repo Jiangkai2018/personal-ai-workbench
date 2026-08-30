@@ -18,9 +18,12 @@ beforeAll(async () => {
   root = await mkdtemp(path.join(tmpdir(), 'kb-sandbox-'))
   await mkdir(path.join(root, 'sub'), { recursive: true })
   await mkdir(path.join(root, '04.生活事务', '03.家庭账单'), { recursive: true })
+  await mkdir(path.join(root, '_attachments', '20260829'), { recursive: true })
   await writeFile(path.join(root, 'a.md'), '# A\n\n第一段 old 内容，old 重复出现\n', 'utf8')
   await writeFile(path.join(root, 'sub', 'b.md'), 'hello b', 'utf8')
   await writeFile(path.join(root, '04.生活事务', '03.家庭账单', 'secret.md'), '机密', 'utf8')
+  await writeFile(path.join(root, '_attachments', '20260829', '原件.pdf'), '%PDF-fake', 'utf8')
+  await writeFile(path.join(root, '_system-note.md'), '系统残留', 'utf8')
   tools = createKbToolset({ root })
   exec = (name, args) => execOf(tools, name)(args)
 })
@@ -118,6 +121,33 @@ describe('查找类工具', () => {
 
   it('kb_tree/kb_grep 直接指定黑名单子目录被拒', async () => {
     await expect(exec('kb_tree', { path: '04.生活事务/03.家庭账单' })).rejects.toThrow(/黑名单/)
+  })
+})
+
+describe('顶级 `_` 系统目录全向拉黑（0828-01 §1.4）', () => {
+  it('kb_read/kb_write/kb_edit 拒绝 `_` 开头顶级路径', async () => {
+    await expect(exec('kb_read', { path: '_attachments/20260829/原件.pdf' })).rejects.toThrow(/系统目录/)
+    await expect(exec('kb_write', { path: '_trash/x.md', content: 'x' })).rejects.toThrow(/系统目录/)
+    await expect(exec('kb_edit', { path: '_system-note.md', old_string: 'a', new_string: 'b' })).rejects.toThrow(/系统目录/)
+  })
+
+  it('子目录下同名 `_` 前缀不受影响（仅顶级拉黑）', async () => {
+    await mkdir(path.join(root, 'sub', '_drafts'), { recursive: true })
+    await writeFile(path.join(root, 'sub', '_drafts', 'n.md'), '普通笔记', 'utf8')
+    const r = (await exec('kb_read', { path: 'sub/_drafts/n.md' })) as string
+    expect(r).toContain('普通笔记')
+  })
+
+  it('查找与树不泄露 `_` 目录内容，直接指定也被拒', async () => {
+    const glob = (await exec('kb_glob', { pattern: '**/*' })) as string
+    expect(glob).not.toContain('原件.pdf')
+    expect(glob).not.toContain('_attachments')
+    const grep = (await exec('kb_grep', { pattern: '系统残留' })) as string
+    expect(grep).toBe('命中 0 处')
+    await expect(exec('kb_tree', { path: '_attachments' })).rejects.toThrow(/系统目录/)
+    const tree = (await exec('kb_tree', {})) as string
+    expect(tree).not.toContain('_attachments')
+    expect(tree).not.toContain('_system-note.md')
   })
 })
 

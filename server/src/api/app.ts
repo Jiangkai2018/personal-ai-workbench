@@ -15,6 +15,7 @@ import { opportunityRouter } from './routes/opportunities'
 import { reviewRouter } from './routes/reviews'
 import { reportRouter } from './routes/reports'
 import { financeRouter } from './routes/finance'
+import { knowledgeRouter } from './routes/knowledge'
 import { agentRouter } from './routes/agent'
 import { ThreadStore } from '../agent/threadStore'
 import { createAgentModelResolver, type AgentModelResolver } from '../agent/modelResolver'
@@ -68,6 +69,8 @@ export function createApp({ dataDir, jwtSecret, aiScorer, reportGenerator, agent
   app.use('/api/today', requireAuth(secret), todayRouter(store))
   app.use('/api/reviews', requireAuth(secret), reviewRouter(store, reviewStore))
   app.use('/api/finance', requireAuth(secret), financeRouter(dataDir, store))
+  // 知识库页面（0828-01）：全家庭共享一棵树，登录即可读写（决策 #4）
+  app.use('/api/knowledge', requireAuth(secret), knowledgeRouter(dataDir))
   // Agent 板块：会话 JSON 持久化 + SSE 流式对话；请求体放宽（长文档消息可达数百 KB）
   const threads = new ThreadStore(path.join(dataDir, 'agent', 'threads'))
   const resolveModel = agentModelResolver ?? createAgentModelResolver(dataDir)

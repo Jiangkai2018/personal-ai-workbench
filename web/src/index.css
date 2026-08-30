@@ -2254,3 +2254,75 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
     scroll-behavior: auto !important;
   }
 }
+
+/* ── 知识库页面（0828-01）────────────────────────── */
+
+/* GFM 表格：解析稿（Excel/CSV）与调研文档的主要形态 */
+.md-body table {
+  border-collapse: collapse;
+  margin: 14px 0;
+  width: 100%;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+.md-body th,
+.md-body td {
+  border: 1px solid var(--line-strong);
+  padding: 5px 9px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.md-body th {
+  background: var(--paper-deep);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.md-body tbody tr:nth-child(even) {
+  background: color-mix(in srgb, var(--paper-deep) 45%, transparent);
+}
+
+/* 围栏代码块 */
+.md-body pre {
+  background: var(--paper-deep);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  margin: 14px 0;
+  overflow-x: auto;
+  padding: 12px 14px;
+}
+
+.md-body pre code {
+  background: none;
+  padding: 0;
+  font-size: 12.5px;
+  line-height: 1.65;
+  white-space: pre;
+}
+
+/* 知识库壳与拖拽高亮 */
+.kb-shell {
+  position: relative;
+}
+
+.kb-shell.kb-drag-over {
+  outline: 2px dashed var(--accent);
+  outline-offset: -4px;
+}
+
+.kb-scroll {
+  scrollbar-width: thin;
+}
+
+/* 窄屏（≤430px）：顶栏四按钮放不下——Agent/知识库入口只留图形符号，文字收进 aria-label */
+@media (max-width: 430px) {
+  .agent-btn .entry-text {
+    display: none;
+  }
+
+  .scope-btn {
+    padding: 6px 10px;
+  }
+}

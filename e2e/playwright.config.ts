@@ -34,7 +34,9 @@ export default defineConfig({
         PORT: String(E2E_SERVER_PORT),
         WORKBENCH_DATA_DIR: path.join(import.meta.dirname, '.tmp-data'),
         // Agent 用例走真实模型：不设 WORKBENCH_AI_*，由 server 的 loadEnvFile 读仓库根 .env；
-        // 如需离线回归，可临时在此加 WORKBENCH_AGENT_FAKE: '1' 强制确定性假模型。
+        // fake 模型在配置 kind:'fake' 时启用。断连/停止用例需要拉长流窗口（0828-01）：
+        WORKBENCH_AGENT_FAKE_INITIAL_DELAY_MS: '1500',
+        WORKBENCH_AGENT_FAKE_CHUNK_DELAY_MS: '60',
       },
     },
     {

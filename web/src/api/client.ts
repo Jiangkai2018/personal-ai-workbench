@@ -1,6 +1,43 @@
 // 极简 fetch 封装：统一 JSON、错误解析为 zod 的 issues 第一条信息
 import type { Scope, Track, Idea, Goal, Task, TodayData, SessionUser, Opportunity, Review, Report, PreviewRow, MonthAggregate, FinanceProfile, ForecastResult } from '../types'
 
+// ── 知识库页面类型（0828-01）──
+export interface KbEntry {
+  path: string
+  name: string
+  type: 'dir' | 'file'
+  size: number
+  mtime: number
+  binary: boolean
+}
+export interface KbFileData {
+  path: string
+  binary?: boolean
+  content?: string
+  mtime?: number
+  size?: number
+}
+export interface KbTrashItem {
+  path: string
+  originalPath: string
+  name: string
+  size: number
+  mtime: number
+}
+export interface KbAttachment {
+  path: string
+  name: string
+  size: number
+  mtime: number
+}
+export interface KbUploadResult {
+  name: string
+  ok: boolean
+  draftPath?: string
+  attachmentPath?: string
+  error?: string
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     headers: { 'Content-Type': 'application/json' },
@@ -173,4 +210,36 @@ export const api = {
   getFinanceForecast: () => request<ForecastResult>('/api/finance/forecast'),
   explainFinanceForecast: () =>
     request<Report>('/api/finance/forecast/explain', { method: 'POST' }),
+
+  // ── 知识库页面（0828-01）──
+  kbTree: () => request<{ entries: KbEntry[] }>('/api/knowledge/tree'),
+  kbFile: (path: string) => request<KbFileData>(`/api/knowledge/file?path=${encodeURIComponent(path)}`),
+  kbSave: (path: string, content: string, expectedMtime?: number) =>
+    request<{ ok: boolean; mtime: number }>('/api/knowledge/file', {
+      method: 'PUT',
+      body: JSON.stringify({ path, content, expectedMtime }),
+    }),
+  kbMkdir: (path: string) => request<{ ok: boolean }>('/api/knowledge/mkdir', { method: 'POST', body: JSON.stringify({ path }) }),
+  kbRename: (from: string, to: string) =>
+    request<{ ok: boolean }>('/api/knowledge/rename', { method: 'POST', body: JSON.stringify({ from, to }) }),
+  kbDelete: (path: string) =>
+    request<{ ok: boolean; trashedTo: string }>('/api/knowledge/delete', { method: 'POST', body: JSON.stringify({ path }) }),
+  kbTrash: () => request<{ items: KbTrashItem[] }>('/api/knowledge/trash'),
+  kbRestore: (path: string) =>
+    request<{ ok: boolean; restoredTo: string }>('/api/knowledge/restore', { method: 'POST', body: JSON.stringify({ path }) }),
+  kbPurge: (path: string) => request<{ ok: boolean }>(`/api/knowledge/purge?path=${encodeURIComponent(path)}`, { method: 'DELETE' }),
+  kbAttachments: () => request<{ items: KbAttachment[] }>('/api/knowledge/attachments'),
+  kbDeleteAttachment: (path: string) =>
+    request<{ ok: boolean; references: number }>(`/api/knowledge/attachment?path=${encodeURIComponent(path)}`, { method: 'DELETE' }),
+  kbUpload: async (dir: string, files: File[]) => {
+    const form = new FormData()
+    if (dir) form.append('path', dir)
+    for (const f of files) form.append('files', f)
+    const res = await fetch('/api/knowledge/upload', { method: 'POST', body: form })
+    if (!res.ok) {
+      const body = (await res.json().catch(() => null)) as { message?: string; error?: string } | null
+      throw new Error(body?.message || body?.error || `HTTP ${res.status}`)
+    }
+    return res.json() as Promise<{ ok: boolean; results: KbUploadResult[] }>
+  },
 }

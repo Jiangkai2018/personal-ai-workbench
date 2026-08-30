@@ -14,13 +14,13 @@ test.describe('T2 桌面骨架', () => {
     await expect(agentLink).toBeVisible()
     await expect(agentLink).toHaveAttribute('href', /\/agent$/)
 
-    // DOM 顺序：「个人」「家庭」「✦ Agent」相邻且 Agent 在家庭右侧
+    // DOM 顺序：「个人」「家庭」「✦ Agent」「☰ 知识库」（0828-01 新增知识库入口，与 Agent 并列）
     const order = await page.evaluate(() => {
       const wrap = document.querySelector('.scope-toggle')
       if (!wrap) return []
       return [...wrap.querySelectorAll<HTMLElement>('button, a')].map((el) => el.textContent?.trim())
     })
-    expect(order.slice(-3)).toEqual(['个人', '家庭', '✦ Agent'])
+    expect(order.slice(-4)).toEqual(['个人', '家庭', '✦ Agent', '☰ 知识库'])
 
     await agentLink.click()
     await expect(page).toHaveURL(/\/agent$/)
