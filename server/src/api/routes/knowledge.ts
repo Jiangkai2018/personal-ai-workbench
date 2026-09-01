@@ -7,7 +7,7 @@ import { mkdir, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/p
 import path from 'node:path'
 import { z } from 'zod'
 import multer from 'multer'
-import { KbSandboxError, normalizeRel, resolveInRoot, TEXT_EXTS } from '../../agent/kbTools'
+import { KB_HIDDEN_AT_ROOT, KbSandboxError, normalizeRel, resolveInRoot, TEXT_EXTS } from '../../agent/kbTools'
 import { ParseError, VisionRequiredError, UPLOAD_EXTS, buildDraftMarkdown, parseToMarkdown } from '../../knowledge/parse'
 import { makeVisionTranscribe } from '../../knowledge/vision'
 
@@ -142,6 +142,8 @@ async function listTree(root: string, subRel: string, depth: number): Promise<Tr
       const childRel = dirRel ? `${dirRel}/${it.name}` : it.name
       // 顶级 `_` 系统目录不混进普通树（附件区/回收站走专用端点）
       if (!dirRel && it.name.startsWith('_')) continue
+      // 根目录 git 仓库元数据不显形（0830-01；与 Agent 侧 walk() 同一规则，双端一致）
+      if (!dirRel && KB_HIDDEN_AT_ROOT.has(it.name)) continue
       if (it.isDirectory()) {
         out.push({ path: childRel + '/', name: it.name, type: 'dir', size: 0, mtime: 0, binary: false })
         if (level < depth) await visit(path.join(dirAbs, it.name), childRel, level + 1)

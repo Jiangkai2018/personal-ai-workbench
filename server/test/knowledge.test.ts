@@ -164,4 +164,20 @@ describe('知识库 API', () => {
   it('sanity: kbRoot 存在', async () => {
     expect((await stat(kbRoot)).isDirectory()).toBe(true)
   })
+
+  it('tree 隐藏根目录 git 仓库元数据，子目录同名文件不受影响（0830-01 §1）', async () => {
+    await mkdir(path.join(kbRoot, '.git'), { recursive: true })
+    await writeFile(path.join(kbRoot, '.git', 'HEAD'), 'ref: refs/heads/main\n', 'utf8')
+    await writeFile(path.join(kbRoot, '.gitignore'), 'data/\n', 'utf8')
+    await writeFile(path.join(kbRoot, 'CLAUDE.md'), '# 归位规则\n', 'utf8')
+    await writeFile(path.join(kbRoot, 'README.md'), '# 目录地图\n', 'utf8')
+    await mkdir(path.join(kbRoot, '调研笔记'), { recursive: true })
+    await writeFile(path.join(kbRoot, '调研笔记', 'README.md'), '# 子目录笔记\n', 'utf8')
+
+    const res = await agent.get('/api/knowledge/tree').expect(200)
+    const entries = res.body.entries as Array<{ path: string }>
+    const hidden = ['.git/', '.gitignore', 'CLAUDE.md', 'README.md']
+    for (const h of hidden) expect(entries.some((e) => e.path === h), h).toBe(false)
+    expect(entries.some((e) => e.path === '调研笔记/README.md')).toBe(true)
+  })
 })

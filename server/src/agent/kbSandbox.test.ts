@@ -151,6 +151,37 @@ describe('顶级 `_` 系统目录全向拉黑（0828-01 §1.4）', () => {
   })
 })
 
+describe('根目录 git 仓库元数据隐藏（0830-01 §1）', () => {
+  beforeAll(async () => {
+    await mkdir(path.join(root, '.git', 'objects'), { recursive: true })
+    await writeFile(path.join(root, '.git', 'HEAD'), 'ref: refs/heads/main\n', 'utf8')
+    await writeFile(path.join(root, '.gitignore'), 'data/\n', 'utf8')
+    await writeFile(path.join(root, 'CLAUDE.md'), '# 归位规则\n', 'utf8')
+    await writeFile(path.join(root, 'README.md'), '# 目录地图\n', 'utf8')
+    await mkdir(path.join(root, '调研笔记'), { recursive: true })
+    await writeFile(path.join(root, '调研笔记', 'README.md'), '# 子目录笔记\n', 'utf8')
+  })
+
+  it('kb_tree 根目录不显形四个元数据名，子目录同名文件不受影响', async () => {
+    const tree = (await exec('kb_tree', {})) as string
+    // .git 与 .gitignore 共用前缀，一并断言
+    expect(tree).not.toMatch(/\.git/)
+    expect(tree).not.toContain('CLAUDE.md')
+    // 只拦根级：子目录 README.md（2 空格缩进 = 第 2 层）必须照常出现
+    expect(tree).not.toMatch(/(?:^|\n)📄 README\.md/)
+    expect(tree).toMatch(/(?:^|\n) {2}📄 README\.md/)
+    expect(tree).toContain('调研笔记')
+  })
+
+  it('kb_glob 不命中根元数据（与 kb_tree 同一 walk），子目录命中正常', async () => {
+    const r = (await exec('kb_glob', { pattern: '**/README.md' })) as string
+    expect(r).toContain('调研笔记/README.md')
+    expect(r).not.toMatch(/(?:^|\n)- README\.md/)
+    const rootMd = (await exec('kb_glob', { pattern: 'CLAUDE.md' })) as string
+    expect(rootMd).toBe('命中 0 个文件')
+  })
+})
+
 describe('SSRF 主机判定', () => {
   it('isPrivateHost 拦内网、放公网', () => {
     for (const h of ['localhost', '127.0.0.1', '10.1.2.3', '192.168.1.1', '172.16.0.1', '172.31.255.255', '169.254.1.1', '[::1]', 'fe80::1', 'fc00::1', 'fd12:3456::1', 'a.local', 'b.internal']) {

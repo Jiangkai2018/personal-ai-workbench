@@ -12,6 +12,13 @@ import type { ToolSet } from 'ai'
 /** 默认敏感目录黑名单（相对 knowledge 根，正斜杠）：家庭账单为 gitignore 的财务敏感数据 */
 export const DEFAULT_KB_DENY = ['04.生活事务/03.家庭账单']
 
+/**
+ * KB 根目录需要隐藏的仓库元数据名（0830-01）：用户 KB 是独立 git 仓库，
+ * 元数据物理保留但树里不显形；子目录同名文件不受影响。读路径（kb_read 直读）不拦——
+ * buildKbSystemPrompt 需要读根 CLAUDE.md/README.md 注入系统提示。
+ */
+export const KB_HIDDEN_AT_ROOT = new Set(['.git', '.gitignore', 'CLAUDE.md', 'README.md'])
+
 /** 允许读取的文本扩展名（图片/PDF/notebook 不在本轮 Read 能力内）；知识库页面同款判定复用 */
 export const TEXT_EXTS = new Set(['.md', '.markdown', '.txt', '.json', '.csv', '.yml', '.yaml', '.html'])
 
@@ -135,6 +142,7 @@ async function walk(root: string, subRel: string, deny: string[]): Promise<WalkE
     for (const it of items) {
       const childRel = dirRel ? `${dirRel}/${it.name}` : it.name
       if (isDenied(childRel, deny) || isSystemPath(childRel)) continue
+      if (!dirRel && KB_HIDDEN_AT_ROOT.has(it.name)) continue
       const childAbs = path.join(dirAbs, it.name)
       if (it.isDirectory()) {
         out.push({ rel: childRel + '/', abs: childAbs, mtimeMs: 0, size: 0, isDir: true })
