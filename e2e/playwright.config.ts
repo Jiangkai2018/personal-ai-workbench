@@ -26,9 +26,10 @@ export default defineConfig({
   webServer: [
     {
       command: 'npm run dev -w server',
-      url: `http://localhost:${E2E_SERVER_PORT}/api/ideas`,
+      // 探活必须用免鉴权端点：/api/ideas 未登录返回 401，Playwright 只认 2xx 会永远超时
+      url: `http://localhost:${E2E_SERVER_PORT}/api/health`,
       reuseExistingServer: !process.env.CI,
-      timeout: 20_000,
+      timeout: 40_000,
       cwd: root,
       env: {
         PORT: String(E2E_SERVER_PORT),

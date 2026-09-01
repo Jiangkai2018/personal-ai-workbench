@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>精华帖汇编 · V2EX 副业节点</title>
+<style>
+:root{
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --hairline:#e1e0d9; --baseline:#c3c2b7; --accent:#2a78d6; --accent-deep:#1c5cab;
+  --good:#006300; --warn-bg:#fdf6e8; --ring:rgba(11,11,11,.10);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --page:#0d0d0d; --surface:#1a1a19; --ink:#fff; --ink-2:#c3c2b7; --muted:#898781;
+    --hairline:#2c2c2a; --baseline:#383835; --accent:#3987e5; --accent-deep:#86b6ef;
+    --good:#0ca30c; --warn-bg:#2b2416; --ring:rgba(255,255,255,.10);
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--page);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  line-height:1.75;font-size:15px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ---------- 顶部 ---------- */
+.hero{background:var(--surface);border-bottom:1px solid var(--hairline);padding:44px 24px 30px}
+.hero-inner{max-width:980px;margin:0 auto}
+.crumb{font-size:13px;color:var(--muted);margin-bottom:14px}
+.crumb a{color:var(--muted)}
+.hero h1{font-size:30px;font-weight:750;letter-spacing:.5px}
+.hero h1 .mark{color:var(--accent)}
+.hero .sub{color:var(--ink-2);margin-top:10px;font-size:14.5px;max-width:760px}
+.hero .stats{display:flex;flex-wrap:wrap;gap:10px 26px;margin-top:18px;font-size:13px;color:var(--ink-2)}
+.hero .stats b{font-size:17px;color:var(--ink);font-weight:700;margin-right:4px}
+
+/* ---------- 目录 ---------- */
+.toc-wrap{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--page) 88%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--hairline);padding:10px 24px}
+.toc{max-width:980px;margin:0 auto;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.toc::-webkit-scrollbar{display:none}
+.toc-item{flex:none;border:1px solid var(--hairline);background:var(--surface);border-radius:9px;
+  padding:6px 12px;font-size:12.5px;color:var(--ink-2);display:flex;gap:8px;align-items:center}
+.toc-item b{color:var(--ink);font-weight:650}
+.toc-item span{color:var(--muted)}
+.toc-item:hover{border-color:var(--accent);text-decoration:none}
+
+/* ---------- 正文 ---------- */
+main{max-width:980px;margin:0 auto;padding:34px 24px 80px}
+.cat{margin-bottom:46px}
+.cat-head{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:20px;flex-wrap:wrap}
+.cat-cn{font-size:13px;color:var(--accent);font-weight:700;letter-spacing:2px}
+.cat-head h2{font-size:22px;font-weight:750}
+.cat-desc{flex-basis:100%;color:var(--ink-2);font-size:13.5px;margin-top:-2px}
+
+.post{background:var(--surface);border:1px solid var(--ring);border-radius:14px;
+  padding:26px 28px 22px;margin-bottom:22px;scroll-margin-top:86px;
+  transition:border-color .3s}
+.post:target{border-color:var(--accent);animation:flash 2.6s ease 1}
+@keyframes flash{0%{box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 22%,transparent)}
+  70%{box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 10%,transparent)}100%{box-shadow:0 0 0 0 transparent}}
+
+.post-head{display:flex;gap:16px;align-items:flex-start}
+.post-idx{font-size:22px;font-weight:800;color:var(--accent);opacity:.85;font-variant-numeric:tabular-nums;
+  border-right:1px solid var(--hairline);padding-right:14px;line-height:1.3;min-width:44px}
+.post-title{font-size:18.5px;font-weight:720;line-height:1.45}
+.post-meta{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:12.5px;color:var(--muted);margin-top:6px}
+.meta-member{color:var(--ink-2);font-weight:600}
+.meta-link{color:var(--accent)}
+
+.num-row{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 12px}
+.num-chip{background:color-mix(in srgb,var(--accent) 10%,var(--surface));color:var(--accent-deep);
+  border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-radius:999px;
+  padding:3px 12px;font-size:12.5px;font-weight:650}
+
+.why{font-size:13.5px;color:var(--ink-2);background:color-mix(in srgb,var(--accent) 5%,var(--surface));
+  border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:10px 14px;margin-bottom:16px}
+.why-tag{font-weight:700;color:var(--accent);margin-right:8px}
+
+.content{white-space:pre-wrap;word-break:break-word;font-size:14.5px;color:var(--ink);
+  border-top:1px dashed var(--hairline);padding-top:16px}
+.subtle{white-space:pre-wrap;word-break:break-word;font-size:13.5px;color:var(--ink-2);
+  background:var(--warn-bg);border-radius:8px;padding:10px 14px;margin-top:14px}
+.subtle-tag{font-weight:700;margin-right:8px}
+
+.replies{margin-top:18px;border-top:1px dashed var(--hairline);padding-top:14px}
+.replies-title{font-size:12.5px;font-weight:700;color:var(--muted);letter-spacing:1px;margin-bottom:10px}
+.reply{border-left:2px solid var(--baseline);padding:2px 0 2px 14px;margin-bottom:14px}
+.reply:last-child{margin-bottom:2px}
+.reply-head{display:flex;gap:10px;align-items:center;font-size:12px;margin-bottom:3px}
+.reply-no{color:var(--muted);font-variant-numeric:tabular-nums}
+.reply-member{color:var(--ink-2);font-weight:650}
+.thx{color:var(--good);font-size:11.5px}
+.thx.zero{color:var(--muted);opacity:.6}
+.reply-text{white-space:pre-wrap;word-break:break-word;font-size:13.5px;color:var(--ink-2)}
+
+footer{border-top:1px solid var(--hairline);background:var(--surface);padding:26px 24px;
+  font-size:12.5px;color:var(--muted);text-align:center}
+footer .back{display:inline-block;margin-bottom:8px;font-size:13.5px}
+@media (max-width:640px){
+  .post{padding:20px 18px 16px}
+  .hero h1{font-size:24px}
+  .post-head{gap:10px}.post-idx{min-width:34px;padding-right:10px}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-inner">
+    <div class="crumb"><a href="report.html">← 返回调研报告 report.html</a> · 数据源：<a href="https://www.v2ex.com/go/sidehustle" target="_blank" rel="noopener">V2EX /go/sidehustle</a>（采集于 2026-08-31）</div>
+    <h1>精华帖汇编<span class="mark">·</span>副业节点实录</h1>
+    <p class="sub">从 138 个帖子、1,652 条回复中精选的 23 篇高价值一手分享。每一篇都有可核验的数字、完整的原始正文与高价值回复。点击报告中的引用链接可直达对应帖子。</p>
+    <div class="stats">
+      <span><b>23</b>篇精华</span><span><b>7</b>个类别</span><span><b>1652</b>条回复总池</span><span><b>444</b>条模式记录</span>
+    </div>
+  </div>
+</header>
+
+<nav class="toc-wrap"><div class="toc"><a class="toc-item" href="#cat-A"><b>壹 · 主业技能溢出</b><span>6 篇</span></a><a class="toc-item" href="#cat-B"><b>贰 · 独立开发与产品</b><span>3 篇</span></a><a class="toc-item" href="#cat-C"><b>叁 · 内容与自媒体</b><span>4 篇</span></a><a class="toc-item" href="#cat-D"><b>肆 · 线下重资产</b><span>4 篇</span></a><a class="toc-item" href="#cat-E"><b>伍 · 劝退实录</b><span>3 篇</span></a><a class="toc-item" href="#cat-F"><b>陆 · 灰色地带</b><span>2 篇</span></a><a class="toc-item" href="#cat-G"><b>柒 · 节点元帖</b><span>1 篇</span></a></div></nav>
+
+<main>
+<section class="cat" id="cat-A"><div class="cat-head"><span class="cat-cn">壹</span><h2>主业技能溢出</h2><p class="cat-desc">确定性最高的路径：接单、咨询、私教，卖的是主业攒下的手艺</p></div><article class="post" id="post-1186058">
+  <div class="post-head">
+    <div class="post-idx">01</div>
+    <div class="post-head-main">
+      <h3 class="post-title">关于副业，倒是可以分享一下我的经历</h3>
+      <div class="post-meta">
+        <span class="meta-member">@chason0806</span>
+        <span>回复 1</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1186058" target="_blank" rel="noopener">原文 t/1186058 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">脚本外包 ≈9万</span><span class="num-chip">桌面软件流水 37万</span><span class="num-chip">自得 10万+</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>一位安卓工程师 8 年副业全记录：从灰色小工具、无障碍脚本、技术私教，到长期外包与个人付费软件的完整跃迁，是节点内最完整的「技能变现进化史」。</div>
+  <div class="content">简单自我介绍
+普通本科毕业，2016 年开始从事安卓开发。
+主业是安卓工程师，这些年也陆陆续续做过不少副业和项目，踩过坑，也赚过钱。
+一、副业启蒙：给亲戚做小工具（约 3k ）
+副业是帮亲戚做的一个小工具，那一年我刚工作 2 年，那时亲戚做催收，需要一个手机生成通讯录的软件，做了一个自动批量生成手机号码的工具，写入手机系统，然后这个工具就能作为联系人，在支付宝添加联系人，然后通过这种方式可以间接查询对方的真实信息，后面又通过 Xposed ，hook 某宝的一个小程序的接口，进行快速查询相关号码的实名信息，这个工具在他们同事中出售使用，赚了大概 3k 多，后面因为风控，接口失效了，工具废了
+二、基于安卓无障碍服务做的自动化工具（约 7k ～ 8k ）
+2018 年是安卓的无障碍服务盛行，在一个自动化的群里，看到有人要做一个微信清粉工具，然后就帮他做，然后走闲鱼赚了 2k ，后面陆陆续续在群里，接了几点，有要自动给某头条点赞，某音自动加好友的，应该也是赚了 6k 左右
+三、技术变现：教学 + 定制软件（约 15k ）
+自己在吾爱破解发布了一些文章，有一些找到我，有个人想学习 hook 技术，然后给他上课，一节课 1 小时 200 块吧，后面又给他做了个英语背单词的软件转了我 5k ，这块应该赚了有 15k 左右吧
+四、长期兼职合作：脚本开发（约 9W+）
+吾爱破解有一天有个人加我，需要一个长期合作的兼职，那时候帮他做脚本，大概每周 1k 这样，合作有 2 年多这样，后面我主动不做了，因为我发现自己做的软件开始赚钱了
+五、个人产品：桌面客户端软件（约 10W+）
+自己做的桌面客户端软件，应该是 21 年末开始做的，目前迭代了几十个版本了，最高一天 2k 多，看了下目前总流水在 37 万吧，当然扣掉成本没那么多，再分给合伙人，自己应该赚 10 多万吧，现在软件以及过了风口了，收益也越来越差了。当时自己做这个软件自学 Python 、后台，经常搞到凌晨 2 、3 点，为了解 bug ，那时候还没有 AI ，花了不少时间
+发一下图片吧，表示一下真实性
+现在自己的产品变现能力越来越差了，目前继续寻找新的领域。分享出来，有想法多去尝试吧，当然很多也靠运气，也要靠自己时刻准备好，抓住机会的，平时的技术积累，说不定哪天就用上了</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#1</span><span class="reply-member">xixiv5</span><span class="thx">♥ 1</span></div><div class="reply-text">好家伙 都是可刑可拷的项目</div></div></div>
+</article><article class="post" id="post-1185052">
+  <div class="post-head">
+    <div class="post-idx">02</div>
+    <div class="post-head-main">
+      <h3 class="post-title">一天半时间赚了 5 万元的经历</h3>
+      <div class="post-meta">
+        <span class="meta-member">@pc10201</span>
+        <span>回复 13</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1185052" target="_blank" rel="noopener">原文 t/1185052 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">单笔 5万 / 1.5天</span><span class="num-chip">客户年省 10万+</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>全节点单位时间收益的天花板样本：FinOps 云成本优化咨询，靠的是多年运维积累 + 150 项优化规则 + 熟人转介。楼主自己补了一句大实话：这种单子比较吃关系。</div>
+  <div class="content">之前在某中部城市头部游戏公司担任运维负责人
+然后一直对 finops(云财务管理和费用优化)有深入研究
+工作期间帮公司累计节省了 3000 万人民币
+提炼出了 150 多项费用优化规则
+经朋友介绍，接了一个云费用优化培训和服务的单子
+培训花了半天时间，讲 ppt 都讲了四个小时，嗓子都讲疼了
+然后账号诊断又花了半天时间，第二天时间又花了半天赶时间出具了报告
+一共收了 5 万元，不过对方也不吃亏，每年节省了 10 万元以上，半年就回本了
+不过这种单子不太好接，比较吃关系</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#2</span><span class="reply-member">timespy</span><span class="thx zero">♥ 0</span></div><div class="reply-text">同楼主接过类似的活，确实只能口口相传，拿着锤子找钉子基本无门路
+谢谢分享，楼主没开通钱包，打赏不了</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#9</span><span class="reply-member">EvanTop</span><span class="thx">♥ 1</span></div><div class="reply-text">提炼出了 150 多项费用优化规则，这个就是课程。可以整体优化一下，分类什么的。。设置 10 项免费，后面付费。。。
+在小红书和微信视频号，可以上架。。愿意出镜可以讲一讲，不愿意出镜可以图文。。
+对了，如果可以最好自己弄一个产品的官网，可以做为另外一个流量入口，同时开公众号，做私域。。。。巴拉巴拉。。。。。。。</div></div></div>
+</article><article class="post" id="post-1184767">
+  <div class="post-head">
+    <div class="post-idx">03</div>
+    <div class="post-head-main">
+      <h3 class="post-title">[副业]聊聊我的 2025 年做过的副业以及收入</h3>
+      <div class="post-meta">
+        <span class="meta-member">@anson2017</span>
+        <span>回复 17</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1184767" target="_blank" rel="noopener">原文 t/1184767 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">接单 5万</span><span class="num-chip">卖课 3万</span><span class="num-chip">流量主 0.5万</span><span class="num-chip">远程零工 7-8万</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>裁员之年靠「组合拳」撑起全年收入的真实账本；对卖课行业「难的不是课程质量而是营销」的一手坦白，含金量高于多数卖课帖。</div>
+  <div class="content">回顾 2025 年经经历过一次裁员，幸好我再此之前尝试做过一些副业，再加上失业后领了一些失业金，日子过得也还算舒坦，2025 年做过的副业大概可以分为三类：
+软件接单
+卖课
+微信公众号+微信小程序的流量主
+软件接单
+这个应该算是大头吧，属于本质工作的延申，有几个稳定的合作伙伴，工作不忙的时候偶尔去跑跑客户，本质上和打工也差不多，但是好在灵活，不过最近行情很差，一个是失业导致的接单人数暴增，市场极度内卷，一个是 AI 编程带来的影响。
+总收入为：5 万左右（还有一些尾款没收完）
+卖课
+这个就不能展开说了，哈哈，上半年还好干一些，最近没咋宣传就一直没出单，而且我的课程内容也没咋更新了，其实卖课的利润很大，但是难点不在于课程的质量，而在于 [营销] ，懂行得都知道我在说什么，这里我常用的营销方式主要是输出内容+KOL 分成的方式。
+总收入为：3 万左右
+流量主
+我也偶尔写点公众号，也会有一些收益（大概几百块），收益不是重点，我文章里会推荐自己的课程以及一些广告，并不是全部依赖流量主。
+最近一段时间开发了小程序，加了广告之后会有一些收益，总之也不稳定，我觉得小程序的难点在于如何让别人 [看见] ，除了在抖音和小红书做宣传之外，还需要优化小程序是 [搜索] 和 [分享] 功能。
+总收入为：5000 左右
+总结
+除此之位还做了一段时间远程工作，按天算，一天一千，和打工差不多，有个七八万的收入、以及每个月 2681 的失业金，领了 5 个月，大概一万多。
+总体来说投入的时间和精力不如打工，但是好处是可以锻炼自己的商业思维，理解商业社会的运行规则，拥有自己独立赚钱的能力，毕竟谁能保证自己不会失业？
+欢迎大家评论区讨论留言~</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#11</span><span class="reply-member">qiaobeier</span><span class="thx zero">♥ 0</span></div><div class="reply-text">@
+Emptyh
+因为 ai ，我去年少了很多私活，尤其有 2 个合作了十多年的老客户。。。唉</div></div></div>
+</article><article class="post" id="post-1233430">
+  <div class="post-head">
+    <div class="post-idx">04</div>
+    <div class="post-head-main">
+      <h3 class="post-title">分享一下这 4 年来的接单记录</h3>
+      <div class="post-meta">
+        <span class="meta-member">@NightsReimu</span>
+        <span>回复 2</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1233430" target="_blank" rel="noopener">原文 t/1233430 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">2023 月入 1w+</span><span class="num-chip">2024 峰值月 2w</span><span class="num-chip">2025 月入 2-4w</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>大学生用 GPT / Cursor / Augment 接单四年的完整流水账：渠道从闲鱼到小红书双号矩阵的演化，结论「客户资源永远比技术重要」。</div>
+  <div class="content">先说一下吧，本人这四年其实客户群体基本没变，就是学生群体吧，但是由于 AI 的发展，这玩意儿有利也有弊，先从 2022 年说起
+2022 年
+我依稀记得年底 GPT 刚出来，那个时候我上大二，刚好听学长说他在闲鱼上面接单，我最开始觉得这个应该需要自己先学会很多东西才行，后来我听了他的一些说法，然后直接去闲鱼上面挂程序接单，很快就有人来了，基本上都是学生，而且都是机器学习相关的，那段时间接了差不多 3 单，一共也就赚了 600 ，对于当时的我来说，数目不小。
+2023 年
+2022 年接了那三单后就半年没接单了，这半年 GPT 在发展，我也把 GPT 玩的越来越熟练。23 年 6 月，我开始重新闲鱼接单，我这时候正式开始用 AI 去接单，那个时候很多人对 AI 还不太了解，所以那段时间还是能比较轻松的赚，而且那段时间我接了一个讲课的单子，给他讲了半年，只收了 2w ，现在想起来感觉有点亏，因为课时费我只收了 120 。
+23 年 9 月，那学期课变少了，然后闲鱼上我就自己用 Photoshop 设计的宣传图和自己写的文案，突然莫名其妙就有一个帖子爆火了，一天能来 50 个人咨询，但成单并不多，可能那个时候我比较收敛，依稀记得那个月赚了 5000 左右。到了 23 年 11 月和 12 月，那两个月每个月都有 1w 以上。
+2024 年
+24 年上半年的时候，我记得 1 月很差，基本没什么客资，而且就算有，基本也是牛魔。2 月的时候，有海外学生来找我，随后基本上每个月都能到 1w ，3 月，4 月和 5 月每个月能到 2w ，那个时候，其实毕设是最多的，基本上吧，本科毕设你个人接一单可能 2k-3k ，用 cursor 挺快的当时。
+24 年 6 ，7 ，8 月去实习了没咋接，而且本身也没啥客户，9 月的时候接了一个留学毕设，开了 1w ，用 augment （当时有 augment 羊毛）非常快就搞定了，那个时候我开始了解到海外留学有那种检测，遂开始研究这种检测。
+9 月底开始，我闲鱼基本上没什么流量了，我也没咋做闲鱼了，后面我开始做小红书了，小红书开了两个号，一个号分享一些环境配置的教程（里面有一个帖子是接作业），一个号是分享留学接单。小红书的流量就感觉比较精准，环境配置那个号，源源不断的流量，基本上一个帖子能有几万个眼睛，然后那个接作业的帖子也是非常多人咨询，主要就是国内，但预算极低，我基本不接。另一个号质量就很高，甚至我一致认为来的客户比闲鱼质量高，那个号的成单率能到 90%，并且不怎么会砍价，这一点我感觉比闲鱼好 那段时间基本上每个月也是两三万，一直到年底。
+2025 年
+25 年上半年的时候，小红书开始打击留学行业了，我那个做留学相关的账号也活不下去了，遂注销，然后新开了一个号，用了一些拐弯抹角的宣传手段，不过流量没之前高，然后我就回到闲鱼重新运营了一下，2 月份让闲鱼重新复活，随着毕设的一波热度，每个月也能 2-4w 直到 6 月底。在 3-6 月的时候，我也尝试过以中介的形式，通过各种渠道如中介群，其他闲鱼，闲鱼返佣等然后压价等形式去派单给别人接，那 3 个月做中介利润也有个 2w 左右，后面我发现，很多写手实在过于逆天，还不如我自己用 AI 搞，就放弃了。
+2025 年下半年到现在，闲鱼偶尔会使用超级曝光，自然流量已经不行了，必须得充钱才能维持流量，一天 50 的预算能来 10 个人，但能不能承担是个问题，至于没有自然流量，可能是我也没管闲鱼了，因为后面我都是和一些各种中介合作了。最开始比较排斥中介，后面发现其实一个好的中介比自己运营更舒服，至于找中介的方法有很多，我就不赘述了。
+总结
+其实看了上面的说法，我基本上都是做学生单，企业或者别的单挺少的，学生单是一个性价比不高的选择，尤其是国内，虽然看我做海外学生单似乎能赚挺多，但里面涉及到的门道其实也不少，你要会排除 AI 的影响，AI 味道的去除等等，还有各种话术，性价比也没有企业单那么高，对于 AI 接受度没有企业单那么高。
+至于以后，我想了一下，接单本身还是主动劳动的一种赚钱方式，始终不是一份长久之计。但我觉得 不管是在以前还是在现在的 AI 时代，客户资源永远比技术重要。接下来我会尝试一下其他的方向，</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#1</span><span class="reply-member">wKong753900</span><span class="thx zero">♥ 0</span></div><div class="reply-text">厉害
+请教下学生单主要是做程序吗？还是做什么？</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#2</span><span class="reply-member">NightsReimu</span><span class="thx zero">♥ 0</span></div><div class="reply-text">@
+wKong753900
+最开始是做程序吧，后面因为业务扩展其他专业也做，实际上都是 AI 干的</div></div></div>
+</article><article class="post" id="post-1186092">
+  <div class="post-head">
+    <div class="post-idx">05</div>
+    <div class="post-head-main">
+      <h3 class="post-title">一天半时间赚了 3000 元的经历</h3>
+      <div class="post-meta">
+        <span class="meta-member">@imaple</span>
+        <span>回复 32</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1186092" target="_blank" rel="noopener">原文 t/1186092 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">楼主 3000 / 1.5天</span><span class="num-chip">插件 1万/个</span><span class="num-chip">订阅站 月入2万</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>楼主的一天半 3000 元只是引子，真正的宝藏在评论区：企业级插件 1 万/个长尾售卖、30 个客户的付费订阅网站月入 2 万——全节点「评论区含金量」最高的帖子之一。</div>
+  <div class="content">主业某垂直行业开发, 有一定技术和人脉鸡肋。
+有次有朋友找说对接一个垂直的 api ， 业务门栏较高，技术基本通用,我一看经验符合可行.实际开发加和对方联调花费不到一个周末, 算一天半吧。收入 3000, 算是我目前单笔收入最多的一次经历</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#1</span><span class="reply-member">Lowlife</span><span class="thx zero">♥ 0</span></div><div class="reply-text">我也有过类似的赚生活费经历，好多年前，腾讯和联通推出大王卡，那可是市面上第一次出现的鸡巴腾讯系大流量卡。当时唯一注册入口就是腾讯视频 APP ，很多人鸡巴都不知道，我就趁机在网上卖，在淘宝上😂帮人下单，一个人收 30 块，千牛上面弹窗提示声鸡巴一直猛响，我都忙不过来了，赚了大概 2000 多，然后淘宝就不给卖了。</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#2</span><span class="reply-member">mryaocom</span><span class="thx zero">♥ 0</span></div><div class="reply-text">开发了一个插件 一个一万块钱 一年稳定卖出去几个， 两三年了， 很稳定。
+正在开发新的插件 加油</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#24</span><span class="reply-member">jimages</span><span class="thx zero">♥ 0</span></div><div class="reply-text">开发了一个网站，一个月能赚 2w ，稳定了 3 个月了，30 个客户，慢慢还在增长，一般晚上周末回去捣鼓一下，回复点邮件，升级点功能啥的。</div></div></div>
+</article><article class="post" id="post-1185170">
+  <div class="post-head">
+    <div class="post-idx">06</div>
+    <div class="post-head-main">
+      <h3 class="post-title">回顾近 10 年，除薪资以外的收入</h3>
+      <div class="post-meta">
+        <span class="meta-member">@KING754</span>
+        <span>回复 2</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1185170" target="_blank" rel="noopener">原文 t/1185170 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">10年外包累计 20万</span><span class="num-chip">年均仅 2万</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>十年长周期视角的冷静复盘：外包熬夜通宵换来年均 2 万，楼主自评「都没有做好做大」。适合给幻想中的接单生意降温。</div>
+  <div class="content">14 年左右，要开始家里开支变大。
+开始想些办法,陆续搞过：
+1.阿里云大使
+累积收入，应该在 2W 左右。有一年，双十二活动，参加推广活动中过 1212 的大活动。不过在 18 年左右之后，基本没有收入了。
+2.写乱七八遭的东西
+提现大概 180 吧（百度 120 ，头条 60 多），
+3.大头，贩卖劳力：外包
+14 年开始吧，开始接活。累积大概 20W ，平均一年也就 2W 左右。但是为了，给客户服务好，和赶进度，付出还是多些。由于兼职，所以搞到 2 ，3 点是常事。有些通宵也有。
+到现在这年岁，回头一看，都没有做好做大。
+当然，主要是自己从来没有想清楚吧，太短视了，眼光不够。</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#1</span><span class="reply-member">nifan</span><span class="thx zero">♥ 0</span></div><div class="reply-text">呆呆一个视频火了，三天入账 400 多万</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#2</span><span class="reply-member">KING754</span><span class="thx zero">♥ 0</span></div><div class="reply-text">@
+nifan
+学不会的。</div></div></div>
+</article></section><section class="cat" id="cat-B"><div class="cat-head"><span class="cat-cn">贰</span><h2>独立开发与产品</h2><p class="cat-desc">节点信仰与真实数据的落差：跑通者凤毛麟角，但打法可复制</p></div><article class="post" id="post-1184914">
+  <div class="post-head">
+    <div class="post-idx">07</div>
+    <div class="post-head-main">
+      <h3 class="post-title">做副业的两年：我的项目 NextTerminal 拿到了 300+ 付费用户，但赚钱却很难</h3>
+      <div class="post-meta">
+        <span class="meta-member">@dushixiang</span>
+        <span>回复 36</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1184914" target="_blank" rel="noopener">原文 t/1184914 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">2年 300+ 付费用户</span><span class="num-chip">流水 6万</span><span class="num-chip">月均 &lt;2500</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>开源项目商业化的标准样本：GitHub 5000+ Star、300+ 付费用户，月均却「不如工资零头」。定价困境、信任困境与评论区 ToB 破局共识，都在这一帖。</div>
+  <div class="content">起因：一次“义无反顾”的裸辞
+2024 年刚过完年，我正忙着装修新房。按照常理，这应该是人生的高光时刻，但我的工作状态却糟透了。每天早上醒来，想到要去公司就感到窒息。成都冬日的早晨，迎着惨淡的日光和冷风，给人一种特别压抑的感觉。就像被困在一个无法逃脱的循环里，每一天都在重复，直到让我开始怀疑：这样下去，我会被彻底耗尽。
+终于，某个周五的上午，我做了一个或许并不理智的决定——
+裸辞
+。
+我没有找到下家，甚至连详细的计划都没有，连房贷都还在还。但是，我知道，如果不做出改变，我可能会在这种压抑中把自己拖垮。
+离职后的第一周，我过得有些迷茫。每天都在问自己：接下来应该做什么？是继续找工作，还是勇敢地试试别的可能性？
+就在这个时候，我突然想到
+NextTerminal
+—— 这个我一直在业余时间维护的开源项目。它是一个堡垒机系统，已经积累了一些用户。虽然一直是免费开源，但偶尔有企业用户问是否有商业版本或技术支持服务。
+“也许，这就是机会？”我在心里默默想着。
+决定了就行动。我决定尝试将 NextTerminal 商业化，看看能不能靠它养活自己。定价策略也很简单：
+499 元，授权 5 个用户，支持无限制的资产数量，首发立减 100 ，只要 399 元
+。这个价格不会吓跑小企业，也足够覆盖我的基本开发成本。
+结果，第一个月居然卖出了 50 份授权。大多数购买者是那些一直关注这个项目的朋友和用户，他们的支持让我看到了希望。那一刻，我的心情复杂极了，也许，这个决定并没有那么疯狂。
+然而，好景不长。
+第二个月，销售额暴跌。热情过去后，现实给了我狠狠的一巴掌。我开始明白，靠一个开源项目养活自己，远比我想象中的困难。
+这时，恰巧，我收到了业内某安全公司的安全开发 Offer 。面对不断下降的收入和眼前稳定的工作机会，我做出了选择：继续工作。
+但我没有放弃 NextTerminal 。过去两年，我一直在业余时间维护和发展这个项目，尝试不同的商业化策略，探索个人开源项目的盈利可能性。
+现状：看似不错的数据，背后的困境
+快两年过去了，尽管白天在公司忙于写代码，我依然没有放弃对 NextTerminal 的投入。每个晚上和周末，我都在修复 Bug 、迭代功能、回复用户反馈。
+来看看这两年我在业余时间“折腾”出来的一些“硬核”数据：
+GitHub Star 数：5000+
+这个数字让我感到自豪，说明项目确实解决了一些人的痛点。
+付费用户数：300+
+两年来，累计 300 多个付费客户，平均每月新增 10 多个。
+总收入：约 6 万元
+听起来还不错，但这只是流水而已。
+乍一看，这些数字似乎还行。一个个人开源项目，能够获得 5k Star 和 300+ 付费用户，应该算是小有成就吧？
+但现实是：
+我仍然没有实现财务自给。
+6 万元的流水，平均分摊到两年，每月不到 2500 元。扣除服务器成本、域名费用、各种工具订阅，偶尔购买的第三方服务，实际到手的收入甚至不如我现在的工资零头。
+更重要的是，增长曲线已经开始平缓。转化率在不断下降，流量虽有，但真正愿意付费的用户越来越少。
+这就是我目前面临的“盈利困境”：
+有用户、有关注度、有口碑，但就是赚不到足够的钱。
+反思：为什么转化率这么低？
+这两年，我一直在复盘：为什么 NextTerminal 的转化率始终无法突破？我从几个方面拆解了一下，发现了一些很有意思的悖论。
+1. 定价：是太贵了，还是便宜得让人不敢买？
+最初的定价：399 元，5 用户，听起来其实挺便宜的。尤其是与市面上同类商业产品相比，这个价格无疑非常有吸引力。但问题来了：
+定价太便宜，反而让一些企业用户产生了疑虑
+。在他们眼里，便宜的东西未必有好货，尤其是在安全领域，企业用户往往会更看重产品的品牌和背后的保障。
+于是，我调整了定价策略，推出了三个套餐：
+个人版
+：¥28/年 或 ¥99 永久
+团队版
+：¥140/年 或 ¥498 永久
+团队 Plus 版
+：¥280/年 或 ¥998 永久
+新的定价体系不仅降低了购买门槛，也引入了年付模式。但即便如此，转化率依旧没有明显提升。或许，
+定价只是表面问题，根源在于其他地方
+。
+2. 推广渠道：GitHub 之外的用户在哪里？
+我采用的推广方式很传统：GitHub 项目主页、偶尔发一些文章、靠用户口碑。可惜，这些渠道带来的用户大多数习惯了“免费”，让他们为授权掏钱，门槛太高。我也尝试过推广返佣（ Affiliate ），但技术类产品的定价本身就不高，推广者的佣金很低，很难吸引到有影响力的推手。
+3. 身份尴尬：个人开发者真的能搞定“企业级”安全吗？
+堡垒机是典型的企业级安全产品。企业在选择这种工具时，总是格外谨慎。
+“
+一个个人开发者维护的项目，能放心交给他吗？
+” 这是我一直无法避免的问题。即便我在安全公司工作，代码写得再好，
+“个人”
+这两个字在很多企业眼中，依旧是一张“红牌”。大企业宁愿选择有品牌保障的产品，小企业虽然预算有限，也害怕突然“弃坑”。
+每次去宣传，都会有人问：“为什么不用 JumpServer 呢？”
+说实话，
+我没用过 JumpServer
+。
+这听起来可能有些不专业，甚至像是在“闭门造车”。作为同行，我当然知道它是这个赛道的领头羊，功能全、背书强、社区大。但我之所以一直没去深入研究它，是因为我从一开始就没想过要做一个“更好的 JumpServer”，甚至很多用户让我直接去抄 JumpServer 的功能我也拒绝了。
+同时我也根据真实用户的需求，开发了 Web 资产、安全网关等创新功能。
+但我必须承认，“个人”身份依然是一道鸿沟。
+企业买产品不仅看代码，更看重“出事了有人背锅”的安全感。在很多 HR 或采购眼里，“个人开发”本身就是风险。
+这种尴尬让我看清了现实：我没必要去挑战巨头。我只需要服务好那些讨厌臃肿、崇尚效率的小众群体。即便身份是弱点，但“能直接跟开发者对线”也是大厂给不了的温度。
+写在最后：一点心里话
+说到这里，我也没有找到完美的答案。
+两年间，我做副业学到了很多，踩过不少坑。6 万元的总收入对于一个业余项目来说算不上什么，但距离“躺赚”还有很长的路要走。
+不过，我并不后悔。白天在公司做安全开发，稳定的收入让我有了保障；晚上和周末折腾 NextTerminal ，让我拥有了自己的产品和一群信任我的用户，甚至我的一些同事也成了我的付费客户。这种“稳定”和“折腾”并存的生活，反而让我觉得充实。
+靠自己的产品赚钱，是可行的，只是很难。
+如果你也是一名正在“折腾”的开发者，或者有类似工具的购买经历，我很想听听你的看法：
+作为用户，你会因为什么理由拒绝一个个人维护的工具？而作为同行，你觉得个人项目要打破这种盈利困境，下一步该怎么做？
+欢迎在评论区留言，或者在 GitHub 上找我聊天。每一条真实的反馈，对我来说比 6 万元的流水更重要。
+我会继续折腾下去。也许有一天，NextTerminal 能真正养活我；也许它永远只是一个业余项目。但这段经历已经证明：只要敢于尝试，普通开发者也能做出有人愿意付费的产品。
+这本身，就是一种成功。
+我在 V 站也创建了专属 NextTerminal 的节点
+https://v2ex.com/go/next-terminal
+欢迎交流。</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#15</span><span class="reply-member">opengps</span><span class="thx">♥ 1</span></div><div class="reply-text">说到定价：
+其实能付费的贵一点也可以接受付费；
+但不想付费的，价格再低也顶多体验性付费一次；
+这里面并不是定价作为第一因素驱动的付费转化，而是需求本身</div></div></div>
+</article><article class="post" id="post-1185219">
+  <div class="post-head">
+    <div class="post-idx">08</div>
+    <div class="post-head-main">
+      <h3 class="post-title">之前做的插件，没想到今年成为了我的副业，大半年收入 4w</h3>
+      <div class="post-meta">
+        <span class="meta-member">@Chatterleys</span>
+        <span>回复 25</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1185219" target="_blank" rel="noopener">原文 t/1185219 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">大半年 4万</span><span class="num-chip">稳定 4000+/月</span><span class="num-chip">定价 25元/月 vs 竞品69</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>从第一次售卖惨败，到「免费一个月换传播再转付费」的教科书级打法；用极简定价对打竞品，把获客难题坦诚交给社区讨论。</div>
+  <div class="content">图在最后
+之前和不少
+电商 / 本地生活运营
+打过交道，发现一个共同点：
+他们每天干的活，非常非常重复。
+重复到什么程度？
+一场直播反复回答同样的问题
+「怎么领券」「在哪买」「能用到什么时候」
+要记得发券、发福袋、改库存、弹商品卡
+👉 有的甚至
+一分钟点一次
+一直盯着直播间，生怕错过评论或进房用户
+而我自己本身
+比较擅长做浏览器插件
+，看多了之后就产生了一个很朴素的想法：
+这些事情，真的一定要人一直盯着做吗？
+插件是怎么来的
+于是我做了一个
+直播自动化中控插件
+，目标很明确：
+把直播中“规则明确、重复度极高的操作自动化掉”。
+最早版本其实很简单，只有几个核心能力：
+自动回复
+自动发券
+自动弹窗
+能用，但谈不上成熟，更多是“先解决问题”。
+第一次卖：失败了
+插件做完之后，我其实
+卖过一次
+。
+结果也很现实：
+几乎没效果。
+没传播、没反馈、没成交，我也就没太当回事，放着继续干别的事情了。
+今年年初：再试一次，但换了策略
+到了今年年初，我决定
+再试一次
+，但这次我换了个思路：
+👉
+直接免费开放一个月。
+结果反而开始有了一点传播：
+有人用完之后主动推荐给同行
+有运营来问能不能加功能、能不能适配更多场景
+插件也在这个过程中被不断打磨，稳定性和实用性都上来了。
+4 月开始收费 &amp; 收入情况
+到
+4 月
+，我把插件改成了付费模式，收入变化大概是这样：
+第一阶段：
+1000+
+后面一段时间：
+6000+
+目前相对稳定在：
+4000+ 左右
+不算多，但至少验证了一件事：
+确实有人愿意为“直播自动化省心”这件事付费。
+插件适用的真实场景
+插件目前
+只专注一个场景
+：
+抖音本地生活团购直播
+只要是：
+抖音买券
+到店核销
+团购类直播
+都属于它的使用范围。
+目前核心功能
+插件不是黑科技，基本都是直播间的
+高频刚需
+：
+自动弹窗
+自动发券
+自动发福袋
+库存自动管理
+自动回复评论（支持模糊匹配）
+用户进直播间自动引导
+核心目标只有一个：
+减少人工盯直播的成本，降低出错率，让直播更稳定。
+简单说下竞品 &amp; 定价
+目前市面上使用比较多的是
+光圈
+（杭州美登，他们家各平台都有）：
+单店铺
+69 / 月
+绑定 1 个店铺
+我这边的方案是：
+25 / 月
+绑定微信，不限制店铺数量
+但
+同一时间只能在线一个
+如果需要多开，同时在线多个，需要额外购买
+功能层面两者整体差不多，主要差异在
+价格和使用方式
+。
+现在遇到的最大问题：获新客难
+目前最头疼的问题只有一个：
+新用户增长非常慢。
+从目前数据看：
+抛开白嫖用户，
+付费转化还算可以
+老用户留存也还行
+但新客主要靠自然传播，非常不稳定
+我现在在考虑几个方向：
+找
+地推类的人
+，直接去做直播的商家门店推广
+投广告（但我对投放并不算擅长）
+说实话，
+地推靠不靠谱我自己也没底
+，
+也想看看有没有类似经历的人能给点建议。
+一个不太激进的计划
+我给自己定了一个还算克制的计划：
+把 2025 年插件赚到的所有钱，用来做 2026 年的推广和广告。
+不想着一口气做多大，
+但希望 2026 年能在用户规模上有一个真正的突破。
+写在最后
+有在做
+抖音团购 / 本地生活直播
+的朋友，如果你这边有推广资源或渠道，可以联系我，
+收益五五分
+。
+插件是
+依赖注入
+的方式，
+打开抖音团购后台会自动弹出。
+图放在下面 👇</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#1</span><span class="reply-member">meetthebest</span><span class="thx zero">♥ 0</span></div><div class="reply-text">很强</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#2</span><span class="reply-member">putaozhenhaochi</span><span class="thx zero">♥ 0</span></div><div class="reply-text">niu</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#3</span><span class="reply-member">Litchi824</span><span class="thx zero">♥ 0</span></div><div class="reply-text">感谢分享</div></div></div>
+</article><article class="post" id="post-1185251">
+  <div class="post-head">
+    <div class="post-idx">09</div>
+    <div class="post-head-main">
+      <h3 class="post-title">[副业] 我的 2025 独立开发副业</h3>
+      <div class="post-meta">
+        <span class="meta-member">@Selenium39</span>
+        <span>回复 2</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1185251" target="_blank" rel="noopener">原文 t/1185251 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">全年 $219.34</span><span class="num-chip">回本但未盈利</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>四个出海工具站一整年只赚 219 美元，楼主原话「真实情况往往比别人说的月入万刀残酷得多」——独立开发叙事的一手解毒剂。</div>
+  <div class="content">2025 年开始尝试做出海网站，一句话总结：
+回本了，但也没真正赚到钱
+。
+也是给大家一个
+方向参考
+，真实情况往往比“别人说的月入万刀”要残酷的多。
+不藏着，直接列收入（
+非利润
+）：
+临时邮箱网站
+：$108.34
+导航站
+：$10
+文档网站（ Google AdSense ）
+：$64
+游戏站（国内商单）
+：¥900
+OCR 网站
+：$37</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#1</span><span class="reply-member">timespy</span><span class="thx zero">♥ 0</span></div><div class="reply-text">谢谢分享，如果有更细节的描述就更好了</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#2</span><span class="reply-member">Selenium39</span><span class="thx zero">♥ 0</span></div><div class="reply-text">@
+timespy
+说一个有趣的细节，游戏站是我偶尔看到一个很大的 ip chiikawa 即将上线一个手游 chiikawa pocket ，我立马做了一个 chiikawa pocket 游戏攻略站，并且发了小红书，一下子就爆了，受爆的小红书影响，网站上线第 2 天，UU 加速器的商单就来了，在网站上挂 3 个月 uu 加速器广告。但是最搞的是 chiikawa pocket 这个手游太拉跨了，完全收割粉丝的，还不如一般的微信小游戏，游戏很快凉了......，也是今年独立开发最大的意外之喜</div></div></div>
+</article></section><section class="cat" id="cat-C"><div class="cat-head"><span class="cat-cn">叁</span><h2>内容与自媒体</h2><p class="cat-desc">头部吃肉、腰部吃灰、底部惨烈：同一批帖里的天壤之别</p></div><article class="post" id="post-1188665">
+  <div class="post-head">
+    <div class="post-idx">10</div>
+    <div class="post-head-main">
+      <h3 class="post-title">做自媒体一个月从 0 到爆火 20w 粉丝有感</h3>
+      <div class="post-meta">
+        <span class="meta-member">@q2677855779</span>
+        <span>回复 135</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1188665" target="_blank" rel="noopener">原文 t/1188665 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">单月 1.2w+</span><span class="num-chip">B站 20w 粉</span><span class="num-chip">3天一更</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>节点头部自媒体样本：科普方向一个月从 0 到 20w 粉，附完整 AI 工作流；评论区「不发账号就是要卖课」的信任博弈，是社区生态的缩影。</div>
+  <div class="content">上个月中旬开始做自媒体，主要是科普方向，差不多也是 12 月 24 号左右爆火，抖+b 连着几期都是几百万播放，粉丝开始暴涨，目前 b 站 20w 粉丝、抖音 12w 、小红书 5w 。
+30 号入抖音伙伴计划，开始产生收益，目前一个月下来，接广+视频播放收益，大概 1.2w+，如果不接广告，纯视频收益的话，抖+b 站估计不到 1w 。
+总结下来，我这个粉丝量级的，有稳定的视频产出（ 3 天一更），那么一个月至少还是有个 1-2w 左右，b 站也接了三次广告（吹风机、得物、转转），b 站现在不接广告，收益是非常低的。抖音的伙伴计划收益还算 ok ，但不好接广，可能我目前没找到渠道。小红书粉丝多，但也不好接广。
+再接再厉吧，我也没想到我在年底随便一做自媒体，只是想着做点自己感兴趣的，结果就爆火了，之前学习的各种技能都算是用上了，没有浪费，也算是吃上了互联网这口饭吧。</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#25</span><span class="reply-member">jackygu331</span><span class="thx">♥ 11</span></div><div class="reply-text">不发账号就是要卖课了</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#35</span><span class="reply-member">v4annnn</span><span class="thx">♥ 8</span></div><div class="reply-text">名字就是 qq 号，然后账号不发出来。
+一看就是引流卖课噶韭菜。</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#73</span><span class="reply-member">q2677855779</span><span class="thx">♥ 5</span></div><div class="reply-text">@
+freezebreze
+谷歌 gemini：文案+润色+封面；
+找个克隆的网站配音，一般是国外的，很多的；
+剪辑就用剪映，方便快捷。</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#88</span><span class="reply-member">dododada</span><span class="thx zero">♥ 0</span></div><div class="reply-text">科普不太好变现，朋友的头条 21 年失业开始的干，那时候还要搞什么高质量文章考评之类的，干了 2 年干到 150W 粉丝，但是到现在还是这么多，而且科普类的粉丝除了留言扯淡也不怎么买东西，都是无效粉丝；偶尔接点广告，广告还不多；现在卖农产品，倒是不知道卖的怎么样；
+当然 150W 粉丝吃饭是够了</div></div></div>
+</article><article class="post" id="post-1186314">
+  <div class="post-head">
+    <div class="post-idx">11</div>
+    <div class="post-head-main">
+      <h3 class="post-title">搬运海外视频-1 年收入 14000 元</h3>
+      <div class="post-meta">
+        <span class="meta-member">@lwl2045</span>
+        <span>回复 17</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1186314" target="_blank" rel="noopener">原文 t/1186314 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">1年充电 1.4万</span><span class="num-chip">AI成本仅 200</span><span class="num-chip">月投入约4小时</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>B 站搬运 + AI 字幕自动化的性价比极限样本，附三条高质量反思：垂直是蠢招、该放大时没放大、订阅续费被严重低估。</div>
+  <div class="content">简单说下这个副业的经历，也许对想做副业的朋友有帮助
+24 年 12 月我发现 B 站的一些 UP 主充电人数挺多，大多是 30 元档位的。
+思路：
+有了兴趣就先要获取详细的资料，我就开始寻找 B 站数据分析的网站，先确定下哪些 up 充电人数最高。再分析哪些 up 主的视频适合自己制作。
+市面上 B 站分析的网站，找到了飞瓜，但是月费天价。我闲鱼找了一个兄弟，花几十元帮我导了一份 24 年 11 月的充电排行榜。发现一个账号专门搬运油管的各类英文视频，当月新增充电人数非常高，充电榜人数也是前 100 名。
+我算了下收入不错，就开干了。
+因为我比较懒，不喜欢重复的工作。当时也玩了 AI 很久，就找了一个开源翻译的程序再改一改，功能是批量输入油管视频链接可以下载并自动翻译成带中文字幕的视频。
+每月工作：花 4 小时手动找油管视频，自动化做视频，每月 2 次手动定时发布 B 站视频。
+后来我嫌找油管视频麻烦，就用 n8n 做了流程，找视频的工作也省了。
+账号发了 1 年，2w+粉丝，充电收入 14000 元（ AI 成本大概 200 元这样）
+现在流量已经很少了，每月收入 800 元左右
+用户充电 30 元，非 ios 我能拿 17 元，ios 我能拿 10 元
+反思：
+1 、自作聪明分析并选了一个垂直领域，认为垂直领域转化率高，也能避开跟对标账号的竞争。
+-简直愚蠢，垂直领域虽然转化率不错，但面向的人群大大减少。作为新人直接模仿成功的模式才是王道
+2 、当时一直没花大精力，只是定期发发视频。25 年初有一段非常好的给流量时期，没有把握住，后面自动化搬运账号越来越多，流量红利已经没了。
+-认准了这个生意，一但收益跑通，逻辑没问题，就应该大搞特搞。如果当时直接上多个号，或者大量增加每天的发布视频数量，收入翻个几倍问题不大。
+3 、当时感觉每月充电人数就算上百，自己到手也就这么点（ 10-17 元），动力不强。
+-大错特错，很多人会一直订阅（可能是忘记关了），续费率是非常高的。一但前期积累了大量充电用户，后面的收入会相当可观。</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#17</span><span class="reply-member">ooxiaoming</span><span class="thx zero">♥ 0</span></div><div class="reply-text">现在已经晚了，很多这种了</div></div></div>
+</article><article class="post" id="post-1224995">
+  <div class="post-head">
+    <div class="post-idx">12</div>
+    <div class="post-head-main">
+      <h3 class="post-title">微信视频号 59 条原创能带来多少收入？</h3>
+      <div class="post-meta">
+        <span class="meta-member">@JohnXu20151211</span>
+        <span>回复 7</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1224995" target="_blank" rel="noopener">原文 t/1224995 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">59条原创</span><span class="num-chip">总收入 22.35元</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>尾部一手数据：成本近乎为零、59 条 AI 视频总收入 22.35 元，还被封号一个月。黑色幽默级的对照样本。</div>
+  <div class="content">做了微信视频号有一段时间了，今天带你们就带你们看下做一个微信视频号到底能带来多少的收入。
+话不多说，先上结论，直到目前为止，我的总收入是 22.35 。至于投入的成本，如果抛去时间那基本上为 0 。
+我选的赛道是老年人赛道，通过设计剧情来产出提示词，最后在通过根据提示词生成视频。一开始我想的是做成连续剧的形式，通过刻画男女主角的形式来持续围绕他们讲故事，但后来发现这种有一定难度，就算可行也有一定的成本。而且考虑到视频号这种本身就是一种短视频的平台，所以索性直接按每个场景直接出视频。实话说一开始的时候视频流量是相当好的，甚至可以说每条视频基本都能上一万以上的播放，而且也是能持续涨粉的。但是后来后面平台提示违规导致视频号被封一个月，虽说粉丝没有受影响，但是解封之后的视频流量效果就大不如从前了，基本很难上万播了。当然也有爆款的，有一个播放量快到 3 万，而且还在持续增长。
+总体算下来，最高的一个视频的收入是 8.87 ,
+单日最高的两笔收入分别是 11.42 和 12.71, 其他剩下的基本上都是分分毛毛了。
+其实视频号的整体制作过程并不复杂，只是收益实在不可观，好在还会做一些其他方向。
+贴一下我的视频号,感兴趣的欢迎围观，记得给播三连。
+最后，分享一下最新想做的一个副业，就是做一个工具站。
+https://chat-exchange.online/
+打算后面在上面分享资源、软件、文章等等。你们怎么看？或者对视频号有问题也可以提出来</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#1</span><span class="reply-member">ggabc</span><span class="thx zero">♥ 0</span></div><div class="reply-text">这两天啥播放量？</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#2</span><span class="reply-member">JohnXu20151211</span><span class="thx zero">♥ 0</span></div><div class="reply-text">@
+ggabc
+很低</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#3</span><span class="reply-member">CatGo</span><span class="thx zero">♥ 0</span></div><div class="reply-text">视频怎么来的，ai 吗，还是手动，ai 的话成本高吗</div></div></div>
+</article><article class="post" id="post-1232613">
+  <div class="post-head">
+    <div class="post-idx">13</div>
+    <div class="post-head-main">
+      <h3 class="post-title">副业在做小红书，做了 11 天收益 14.5，只有 12 个粉丝，比我想象中的好～</h3>
+      <div class="post-meta">
+        <span class="meta-member">@pubing</span>
+        <span>回复 33</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1232613" target="_blank" rel="noopener">原文 t/1232613 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">11天 14.5元</span><span class="num-chip">当月 500+</span><span class="num-chip">教程 39.9元 被群嘲下架</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>最小可行副业的完整心路：从 12 粉 14.5 元到当月 500+，再到挂 39.9 元教程被全场质疑后下架——变现先于成绩的信任课。</div>
+  <div class="content">在做小红书，做了 11 天收益 14.5 ，只有 12 个粉丝，比我想象中的好～
+https://www.iwali.cn/experiment</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#2</span><span class="reply-member">Orchestr</span><span class="thx zero">♥ 0</span></div><div class="reply-text">教人赚钱比真的赚钱还是简单的</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#24</span><span class="reply-member">xyooyx</span><span class="thx zero">♥ 0</span></div><div class="reply-text">https://imgchr.com/i/pm7sYX8
+纯内容输出，不卖课，写了一段时间 8 粉</div></div></div>
+</article></section><section class="cat" id="cat-D"><div class="cat-head"><span class="cat-cn">肆</span><h2>线下重资产</h2><p class="cat-desc">收入数字最大的一类，投入、琐碎与风险也同样最大</p></div><article class="post" id="post-1184755">
+  <div class="post-head">
+    <div class="post-idx">14</div>
+    <div class="post-head-main">
+      <h3 class="post-title">自助洗车店副业后续（又开了一家）</h3>
+      <div class="post-meta">
+        <span class="meta-member">@ghwolf007</span>
+        <span>回复 283</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1184755" target="_blank" rel="noopener">原文 t/1184755 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">单店月利润 1w+</span><span class="num-chip">投资 20万</span><span class="num-chip">回本约1年</span><span class="num-chip">283回复</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>全节点第一热帖（283 回复）：自助洗车店经验值密度最高的一帖——工位产能、客单价、成本估算公式、场地判断方法全公开，评论区还有对流水的公开质疑。</div>
+  <div class="content">0. 不说废话，只分享干货。
+1. 前情提要
+https://www.v2ex.com/t/1149991
+2. 第一家店是 2025.8.3 开业。
+第二家店是 2025.12.28 开业。均定位中高端自助洗车。
+3. 第一家店目前月流水在 2w 多，第二家店半个月目前 1w 多，单店月利润在 1w 多，单店投资 20 左右，回本时间预    计在 1 年左右。
+4. 目前还在全职上班中，当然工作不忙，不加班，每个店雇兼职保洁月成本 1k 。
+5. 目前店里还需要自己做的就是：接电话、定期补充药剂、维护设备。
+6. 未来计划：再复制几家店，雇全职管理所有店。
+7. 行业优势：风险小，新能源车火爆导致洗车服务供不应求，回本周期还算比较短，投资相对不高，人力成本低可以做副业，门槛低。
+8. 行业劣势：严重依赖场地，面向的顾客群体五花八门，琐碎事情多，有人真的会半夜打电话，收入不算暴利，需要跟各色人打交道，门槛低但想做好不容易。
+9. 加盟还是自己搞品牌：加盟最快但是要擦亮眼睛，割韭菜的太多太多，我目前加盟的品牌算是比较良心，没有加盟费只有小程序订阅费，不抽点，用户付款直接到自己账户，不干预后期经营，当然缺点就是没啥服务（服务的人力成本太高了）；自己搞品牌，可以省点钱，但是设备稳定性和小程序需要自己慢慢踩坑，小程序做个简单的不难，好用也不容易。
+10. 行业核心在于好的场地，场地决定了生死，拿场地很多时候需要关系或者票子疏通。怎么简单判断一个场地的地段能不能干，去找附近的同行，蹲门口计数或者通过小程序统计一天的车流量。
+11. 如何估算成本和收益：我这里提供一些经验值供大家参考。1 个工位白天洗车拉满的情况下撑死也就是洗 20 来辆车，过节可能还会多一些，但是也多不哪里去，1 个车平均在 30-60 分钟，客单价在 20 左右。我 1 店周内在 30 左右，周末在 50 辆左右，1 个月目前 1k 多辆。成本 1 辆车按照 0.1 吨水，1 度电来估算，药剂耗材几乎可以忽略不计。
+12. 花那么多钱自己洗车为什么不去京东途虎养车 9.9 洗车呢：首先要明确一个事，外面的三四十普洗都是不够成本的。为什么还会有低价洗车？无非两种，一是低价引流然后推销高端项目，二是办卡才能享受。这就导致外面那些要么排队要么跑路。还有两个原因，低价洗车或者 4s 店免费洗车都比较糙，不仅洗不干净还容易把车漆洗化，另外一个原因就是自己洗车比较解压能提供情绪价值。
+13. 感悟：真正从打工贩卖时间来赚钱到利用生产资料来换钱，完全是两码事，上班认识的人大部分都是上班的，等你开始做生意了，认识的老板会越来越多，等你生意做的好了就自然会有老板愿意来投资你，你拥有了输入钱就可以输出更多钱的能力，这个时候你的人脉会越来越广，这个能力确实很多时候比写一段牛逼的代码对老板更有用。从上班的角度来看，程序员依然是众多行业的顶流，不用操太多心，工资高，环境好，周围人的素质相对高很多。做生意以后才能体会到，老板的时间就是金钱这句话。
+14. 我可以为大家提供的价值：我也是跌跌撞撞干了半年才算对这个行业比较熟悉了，踩了很多坑，现在大部分场地我看一眼就知道能不能干，大家可以发场地照片我帮忙判断能否做，给大家一点经验（选场地+运营）。无偿的，但是希望大家真的想干了再来问我，最近忙着找场地扩店，我的精力也是有限的，建议先自己网上多看看再来跟我交流，不要问一些太小白的问题，时间就是金钱啊。啥？你连我的微信都找不到？那还是先干好本职工作吧。</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#3</span><span class="reply-member">ghwolf007</span><span class="thx">♥ 22</span></div><div class="reply-text">@
+yvyvyv
+#2 西安汽车保有量 500w 左右 我一个月也才只能洗 1k 多次 程序员这个群体更是非常稀少 所以如果什么事都从程序员的角度出发思考  很多事情都做不成😂</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#52</span><span class="reply-member">ghwolf007</span><span class="thx">♥ 2</span></div><div class="reply-text">@
+czhen
+#47 以我这二线城市参考，设备+装修按照单工位 3-4w 去估算，租金按照单工位不超过 1k/月估算</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#162</span><span class="reply-member">ghwolf007</span><span class="thx">♥ 3</span></div><div class="reply-text">@
+isb
+#129 男人只有去洗车的时候  可以不用关心工作   不用关心家庭  你说去自己洗车省钱  没有人会说你不误正业  媳妇也不会说你   这个时间你什么都不用想 只需要洗车。把车洗干净的那一瞬间简直太爽了。人到中年恐怕只有这点时间是只属于自己的了吧。</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#215</span><span class="reply-member">felixlong</span><span class="thx zero">♥ 0</span></div><div class="reply-text">@
+ghwolf007
+大家讨论的热火朝天的。OP 你能解释一下你贴的流水吗? 你贴的流水一张图显示一个月总共洗了 1101 次，总收入只有 8077 元。另一张只有 268 次，总收入只有可怜的 2284 元。都亏到姥姥家去了。</div></div></div>
+</article><article class="post" id="post-1216096">
+  <div class="post-head">
+    <div class="post-idx">15</div>
+    <div class="post-head-main">
+      <h3 class="post-title">跟风开了一个自助洗车店</h3>
+      <div class="post-meta">
+        <span class="meta-member">@hydyy</span>
+        <span>回复 122</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1216096" target="_blank" rel="noopener">原文 t/1216096 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">投入 30万+</span><span class="num-chip">5工位9车位</span><span class="num-chip">122回复</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>与上一帖互为对照的跟风实录：以为是个安稳副业，结果是「公司一堆事、店里一堆事」；评论区点破行业靠预充值沉淀资金的暗面。</div>
+  <div class="content">去年看西安哥们开了之后就动心思了，行动了一波，以为可以做个安稳副业，结果，事巨多，公司一堆事，店里一堆事，还好老婆给力，帮我撑住了。
+总算都弄利索了，在回龙观 Long 街，在回龙观的小伙伴欢迎来体验啊！！别的不说，回龙观自助洗车体验绝对第一
+免停，毛巾，有专人定时清理卫生，洗毛巾！保证大家过来用到的都是干净的！
+迪太欧 Long 街店</div>
+  <div class="subtle"><span class="subtle-tag">楼主补充</span>Supplement 1  ·
+May 28
+我这是北京这边的店，在回龙观 Long 街！欢迎来玩啊！</div><div class="subtle"><span class="subtle-tag">楼主补充</span>Supplement 2  ·
+May 28
+aHpoeWR5eQ==
+有想问的可以+微信，挺忙的，尽量不要问没营养的话！
+在回龙观附近的朋友可以加我来体验体验！也欢迎来聊天！
+最近周末我都会在店里</div><div class="subtle"><span class="subtle-tag">楼主补充</span>Supplement 1  ·
+May 28
+我这是北京这边的店，在回龙观 Long 街！欢迎来玩啊！</div><div class="subtle"><span class="subtle-tag">楼主补充</span>Supplement 2  ·
+May 28
+aHpoeWR5eQ==
+有想问的可以+微信，挺忙的，尽量不要问没营养的话！
+在回龙观附近的朋友可以加我来体验体验！也欢迎来聊天！
+最近周末我都会在店里</div>
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#1</span><span class="reply-member">oppoic</span><span class="thx">♥ 4</span></div><div class="reply-text">恭喜当老板，解锁人生新体验！</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#33</span><span class="reply-member">Chichele</span><span class="thx">♥ 1</span></div><div class="reply-text">感觉很难在 5 年内回本？</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#37</span><span class="reply-member">Y25tIGxpdmlk</span><span class="thx">♥ 1</span></div><div class="reply-text">@
+hydyy
+#9 不充值，我感觉你太乐观了。就我的使用经验，这个行业好像都是吃预充值的沉淀资金的。
+单单靠洗车一次的流水应该赚不到多少。</div></div></div>
+</article><article class="post" id="post-1185070">
+  <div class="post-head">
+    <div class="post-idx">16</div>
+    <div class="post-head-main">
+      <h3 class="post-title">正好记录下自己的赚钱经历</h3>
+      <div class="post-meta">
+        <span class="meta-member">@wr516516</span>
+        <span>回复 6</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1185070" target="_blank" rel="noopener">原文 t/1185070 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">装修 7-8万</span><span class="num-chip">月净约1万</span><span class="num-chip">1年半转让</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>「顺着人性选品」方法论帖：放弃健身房奶茶等反人性品类，选自助棋牌室；附完整开店筹备文档，最后因心累转让——进场早赚到了钱，也诚实记录了退出。</div>
+  <div class="content">1.2013 年大学时候，做过挺长时间的网课代做。那时候管的也不严，好多网络远程教育需要上网课考试之类的，就替别人做题做作业。一个人收个一二百的，家里是做继续教育的，所以有很多生源，不愁没客户做，就是做起来太累了。研究过自动化脚本，不过年纪太小也没搞明白，就还是自己做和低价外包出去。每年能赚个万八千的，算是额外生活费了。
+2.后面除了正式打工，就是离职期间开了个自助棋牌室。前几年挺火的，我是 2024 年初开的，算是最早的一批。装修下来七八万，开了一年半左右吧，每个月能赚个万八千的，转出去转给朋友了。开店太心累了，和人打交道就很累。我这还是把接电话的活都交给我媳妇了，我还是正经上班。
+https://telegraph-image-92x.pages.dev/file/50339b6f071ae181d40d5-5531035a768c7a62f3.jpg
+https://telegraph-image-92x.pages.devundefined
+https://telegraph-image-92x.pages.dev/file/78ae49cecfe5dd8c46f71-baeafadc9fed54d3d6.jpg
+以前开业记得文档：
+棋牌室开业
+筹备一个多余的棋牌室终于开业了.
+欢迎大家来玩呀,刚开业全场三折!
+五小时不到 20 块!hhh
+地址: 中原万达 A 座 834,835
+起因:
+想法:
+一直也有想过做些投资,不过当下受限于疫情和渠道经验,也没什么太好的选品,盲目投资不如花钱滑雪.
+后端研发是我安身立命之本,技术也是我永远不会丢的东西.所以只能找些不太占用时间的副业来做,正好家人都退休了也比较闲.
+选择:
+之前有个老大给我说过,赚钱的生意应该是顺着人性的.
+怠惰 贪婪 暴食 色欲
+看看街边到处都是炸鸡和奶茶也就知道了,更多的人愿意为之付费的还是当下的快乐
+最终我就放弃了类似于健身房,读书,健身餐等一些品类了,考虑到奶茶店惨无人道的竞争程度,也不是很适合我这种零经验的小白来去参与,毕竟我这趟也是有踩坑攒经验的意思.
+结果
+在一筹莫展不知道做什么的时候,好巧不巧被朋友喊去打麻将,碰上了一个自助棋牌室.
+正好符合我的期望,投入少,成本低,事情少,娱乐行业不反人性,自己平常也能去玩.离家近平常家人去看一下就行了.
+筹划
+考察
+首先面对的问题就是完全不了解这个行业,说白了我除了打过麻将,对于怎么开一个棋牌室是一点都不懂
+所以我的第一反应就是找加盟,直接一个电话就给上次打麻将那个老板打过去了.约时间聊一下.
+这应该是最快的获取信息的方法了,之后货比三家,网上搜索了解也是必要的.
+选址
+除了要确定加盟还是自营,选址的重要程度自然也是不言而喻了.
+我们也没有相关经验,也不知道有没有什么专业渠道可以知道哪个地方更好.
+最终借鉴的也就是:
+百度的热力图
+天天看加盟商的小程序每个店铺
+主要是看上桌的情况.毕竟不能全信人家的后台得流水.统计一下所有区域的工作日和高峰期的情况,
+装修
+装修的是真的很麻烦,之前我对装修也是一窍不通.
+没办法也是闲鱼上咨询
+上小红书之类的搜一下别人家都是怎么做装修的
+问问邻居问问中介
+看看家里人有没有相关的
+最后还是莫名其妙的水电木瓦油都分开做了,自己找工人自己设计自己买料.期间辛苦和费心是我之前没有料到的.重中之重还有消防,主要是对于以上这些完全没有接触过,但是又必须在短时间内选择好做完.获取信息和比较就是一件非常痛苦和困难的事情了.毕竟怕被宰太多.
+设备
+如果走加盟这些事情都不要操心了,但是当时还没有决定好.就都到处了解一下.
+设备主要也是分为:
+麻将机
+抽烟灯
+预约系统,门控电控
+空调
+麻将椅
+自动售货机
+美团充电宝
+茶吧机
+这些东西其实不是很麻烦,只是要去多找几家供应商多比较一下,看看哪个更适合自己.
+我在做之前的想法就是,轻硬装重软装.所有的设备,所有如果倒闭之后还能拉走的东西,都要上好的.
+毕竟自己以后也准备常来玩.
+推广
+早早开始办理营业执照,开始了解需要准备哪些东西!
+很多东西不是说办不下来,只是需要的东西太多,时间都浪费一次又一次的来回奔波和审核上了.
+在装修期间就要开始办营业执照了,之后要对接:
+美团商户
+美团北极星
+微信小程序
+微信公众号
+微信商户号
+微信服务号
+抖音小店
+地图标注
+······
+这些事情不是办不下来,讨厌的是审核都需要 3-7 天.对于开业来说的话,时间就是金钱,而且有一些都是需要前置条件的,如果不能很好的规划以后并行办理,可能缺一个都要卡你 1-2 星期.
+申请完成之后就是开始花钱运营,想办法推广了,毕竟是开在写字楼里,只能吃线上流量了.不得不说,美团的费用是真不低.
+花费
+花费肯定是只多不少的 后期一些慢慢购置的东西还没再补上去
+总结
+其实现在小店也是刚刚开始营业.
+在经过了昨天有第一桌客人上桌以后,现在已经淡定了许多了.
+我一直说这个小店只要能 cover 住房租水电,我可以一直开下去,不赚钱也行.
+最后,很感谢这几天在帮忙刷单好评的各位,小店能迎来客人离不开各位的帮助!
+开业大吉啦!!!</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#1</span><span class="reply-member">timespy</span><span class="thx zero">♥ 0</span></div><div class="reply-text">内容应该是很丰富的，如果楼主能用 AI 整理一下时间线和排版，会是一个不错的帖子，另外那几个链接也访问不了。
+还是感谢分享</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#2</span><span class="reply-member">wr516516</span><span class="thx zero">♥ 0</span></div><div class="reply-text">https://test.fukit.cn/autoupload/fr/ua0mECwyV8O2XG6MnMNsJXu8_QP2Q3P82EEvStHnoN-yl5f0KlZfm6UsKj-HyTuv/20260114/uaUv/4481X1838/441b020906ca9a43bb06ce960adc9fbb.jpg
+成本链接</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#3</span><span class="reply-member">wangxiaoer33</span><span class="thx zero">♥ 0</span></div><div class="reply-text">是郑州么？我朋友去年也打算开来着，后面听说是办证之类的很麻烦，现在回老家开了</div></div></div>
+</article><article class="post" id="post-1184814">
+  <div class="post-head">
+    <div class="post-idx">17</div>
+    <div class="post-head-main">
+      <h3 class="post-title">分享汽车美容店的经历</h3>
+      <div class="post-meta">
+        <span class="meta-member">@som3one</span>
+        <span>回复 7</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1184814" target="_blank" rel="noopener">原文 t/1184814 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">投入 15万</span><span class="num-chip">春节两月盈利 10万</span><span class="num-chip">平时入不敷出</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>县城汽车美容店的真实季节性：平时惨淡、年底两个月赚回全年。重资产线下店「选址与时段决定生死」的又一实证。</div>
+  <div class="content">看到有老哥分享的自助洗车的副业，我来分享下我去年折腾的汽车美容店的经历。
+2024 年 12 月折腾的一个店。
+成本：15w
+坐标：福建某县城
+方式：雇佣店员、远程管理
+因为是和朋友一起开的店，朋友有修车的背景，所以是我出资，他主要负责技术。股份一家一半。
+成本 15w ，租金一年是 5w ；买设备，还有店内的各种装修，然后进货，15w 就花的差不多了。
+生意主要是年底的时候会非常好，因为回老家过年的人多，南方过年的时候物价会坐地起价，洗车也会由平时的 30 块普洗涨到甚至 80 块钱。年底两个月差不多能盈利 10w 左右。但是平时会比较惨淡，有时候甚至入不敷出。
+现在经济形势不好，有个洗车店朋友算是有份营生，整体来说，不算踩坑的一次尝试</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#1</span><span class="reply-member">Sezxy</span><span class="thx zero">♥ 0</span></div><div class="reply-text">你们比较友好，我这边过年前几天洗车都涨到 120</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#2</span><span class="reply-member">som3one</span><span class="thx zero">♥ 0</span></div><div class="reply-text">@
+Sezxy
+都差不多，年底前几天基本也放假了。有生意也不接了。</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#3</span><span class="reply-member">timespy</span><span class="thx zero">♥ 0</span></div><div class="reply-text">感谢分享。
+楼主你未开通$v2ex 钱包，开通可以给我说一下</div></div></div>
+</article></section><section class="cat" id="cat-E"><div class="cat-head"><span class="cat-cn">伍</span><h2>劝退实录</h2><p class="cat-desc">一手数据打脸幻想：时薪、蚊子腿与十连卒</p></div><article class="post" id="post-1226988">
+  <div class="post-head">
+    <div class="post-idx">18</div>
+    <div class="post-head-main">
+      <h3 class="post-title">副业尝试之下班兼职跑众包</h3>
+      <div class="post-meta">
+        <span class="meta-member">@Aimozar</span>
+        <span>回复 15</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1226988" target="_blank" rel="noopener">原文 t/1226988 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">1个月合计 1044元</span><span class="num-chip">时薪 ≈15元</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>体力型副业的一手时薪实测：下班跑众包一个月 1044 元，评论区算出时薪约 15 元，还被平台乱扣费。劝退区代表作。</div>
+  <div class="content">去年换了新工作, 朝九晚六不加班, 但是薪资打折不及之前的一半, 还完房贷加上每个月还要租房工资所剩无几,最近焦虑的不行,萌生了下班后兼职跑外卖的想法,说干就干 6 月 10 号买完电瓶车当晚就开始跑了几单,除了中间下暴雨没跑,回成都待了两天之外基本每晚都会出车.
+总共收入如下:
+滴滴送货-510.63,
+京东秒送-226.72,
+蜂鸟众包-186.9,
+美团众包-120,
+我老婆也会陪着我一起,有时候她也接单,她那边几个平台加起来有三百多.
+暂时还没找到其他副业,这个月应该还会继续跑.</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#14</span><span class="reply-member">dongdong12345</span><span class="thx zero">♥ 0</span></div><div class="reply-text">众包就是难做，有一天晚上刚出去跑接了 3 单，其中 2 单超时，另外 1 单顾客取消订单，一气之下就回家了。
+平均 1 小时能跑 15 块左右</div></div></div>
+</article><article class="post" id="post-1188739">
+  <div class="post-head">
+    <div class="post-idx">19</div>
+    <div class="post-head-main">
+      <h3 class="post-title">分享一下这些年成功 or 失败的尝试</h3>
+      <div class="post-meta">
+        <span class="meta-member">@wiki14</span>
+        <span>回复 7</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1188739" target="_blank" rel="noopener">原文 t/1188739 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">私活8年 25万+</span><span class="num-chip">AI交付 4小时5000</span><span class="num-chip">十连「卒」清单</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>同一个人身上的成功与失败全记录：接单私活八年 25 万+ 的同时，二手书、搬运、无货源、AI 工作流等十个项目全部「卒」，止损逻辑清晰。</div>
+  <div class="content">三线城市，分享一下这几年下来自己做出的尝试，希望从中可以得到一些经验。
+大致从 2018 年开始，在前同事的引荐下，开始接一些副业，到后面慢慢自己接：
+2018 年+7000 ，建站；
+2019 年+7000 ，建站，接口对接；
+2020 年+110000 ，建站，接口对接(1w)；接一个架构的 Remote(10w)；
+2021 年+55500 ，客户端+接口对接；
+2022 年+5000 ，半躺，接口对接；
+2023 年+0 ，躺；
+2024 年+31000 ，客户端+接口对接；
+2025 年+35000 ，客户端+接口对接；
+2026 年+0 ，暂交付一个接口，2000 暂未到账。
+印象比较深的：
+-Remote ，很累很累，每天睡眠不足 5 小时。但比较有成就感。
+-25 年，接一个客户端需求，纯 AI 完成，后面客户从客户端改为 Win|Linux 运行，同样 AI 完成，未看一行代码的情况下，完成了交付。AI 编码花费时间大致 4 小时，收入 5K 。
+另外一些尝试：
+-平台折扣买书，转转等平台转出，2 个月，收益 0 元，卒
+-淘宝开店卖书，没有文化经营许可证，卒
+-旧书网开店卖书，2 个月，收益&lt;50 元，卒
+-尝试百度文档搬运，1 个月，收益 0 元，卒
+-搬运 YouTube 视频到国内平台，2 个月，收益 0.05 元，卒
+-尝试扣子搭建自媒体短视频工作流，1 个月，收益 0 元，卒
+-尝试 PDD 开店，1 个月，没投流量，靠自然流量，自然收益 0 元，卒
+-尝试 Temu ，1 个月，放弃，收益 0 元，卒
+-尝试做没营养的今日话题类视频，2 个月，15 元，卒
+-尝试自己做内容视频号，2 个月，粉丝 5000 ，收益 95.52 元，卒
+-尝试小程序开发，无人问津，卒
+-某购物网站，分享帖收益≈500
+-淘宝联盟、京东联盟，累计收益≈1k
+-投资朋友的活儿，累计收益≈2k
+-股票、基金，胆小，累计收益≈2k
+其实有些尝试有很多人做的非常好。但每个人的资源、能力、擅长的地方不一样，花费的精力和收益不成正比我就果断选择放弃。
+26 年的计划有几个：
+-某几个历史客户端需要支持信创
+-学习一些新的知识
+-继续瞎折腾一些想法
+欢迎大家一起分享自己成功 or 失败的尝试。</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#7</span><span class="reply-member">wiki14</span><span class="thx">♥ 1</span></div><div class="reply-text">@
+jonsmith
+投入的时间、精力和收益不成正比。
+举个例子：
+去年尝试做没营养的今日话题类视频，开始每条想文案，搞字幕，搞配音，搞剪辑。一条花费时间 1-2 小时，输出 2 分钟左右视频。慢慢接触工具，稳定到 15 分钟一个视频。质量和同类视频差不多。持续了一个月，发现内容同质化严重，且非常依赖各个平台推流算法。唯一得到的 15 元收入，是一个硬广的推广。自媒体行业很卷，如果没有持续的输出能力基本就屁了。需要不停投入大把时间学习、深挖同类账号、分析各个平台的规则和数据。
+认为继续在这个池子里花费时间，得到的收入还不如搞别的，之前预想的积累粉丝接广子或卖货也都不尽人意。所以放弃。</div></div></div>
+</article><article class="post" id="post-1185119">
+  <div class="post-head">
+    <div class="post-idx">20</div>
+    <div class="post-head-main">
+      <h3 class="post-title">勉强的副业，游戏买卖装备，套利</h3>
+      <div class="post-meta">
+        <span class="meta-member">@junkk</span>
+        <span>回复 8</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1185119" target="_blank" rel="noopener">原文 t/1185119 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">白银LOF 日均10-20元</span><span class="num-chip">累计 1k+</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>节点公认「稳但小」的样本：白银 LOF 套利日均一杯奶茶钱；评论区的冒险岛手游工作室两年赚 6 万，是游戏搬砖的天花板对照。</div>
+  <div class="content">和平精英的地铁模式，每个新赛季前一两周东西都比较贵，有东西就可以尽快出手，贬值很快，自己也玩加卖点装备，但是一个赛季最多也就几百。据我所知类似的还有流放之路这种
+或者自己玩 mmorpg 的话，可以接一下副本代练。
+套利
+最近的 lof 白银，之前挺火的吧，站里也发过，从我发帖那个时候开始套利到现在赚个几百肯定没问题的。我自己赚了 1k+了，现在每天还能赚个奶茶钱。
+薅羊毛
+这种不好说，需要银行卡/信用卡多，参加各种银行的活动，以前多的时候，一个月 1k+都可以，现在不太行了，只能省点小钱。还有就是现在的 pdd 每期都有的 5 折券活动，不太好变现，但是可以省不少钱，一个号 1.5 周可以省 15 左右。</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#7</span><span class="reply-member">lemonfishTBS</span><span class="thx">♥ 1</span></div><div class="reply-text">看到装备买卖的话说说我这 2 年玩游戏赚钱的过程吧
+2023 年 8 月份的时候手机 vx 朋友圈突然刷到『冒险岛』手游的广告，刷到的那天已经是下午了，当天刚好是开服的时候，作为从小就玩冒险岛端游的情怀玩家，一直很喜欢这个打怪交友（容易被骗）的横版网游。后面从开服第一天一直玩到今天 2026-01-15 。大概算了下统计的额度，有氪有赚，整体下来基本上赚了 6w 左右（已经去掉氪金到游戏的开销）
+玩这个游戏的人基本上都是 80 、90 后，，很少 00 ，80 、90 后刚好是中年消费的核心人群，现在最大的区（玛利亚区）榜一大哥的氪度应该是 1000 个-2000 个软妹币。这里区间比较大是有原因的，后面会简单说下游戏的玩法（氪金点）。最新出的一个新的 boss ，10 人副本，开荒的时候首通的队伍所有玩家加起来的氪度应该一个小目标左右。
+游戏玩法介绍：
+每日挂机（无需手动，只要买挂机卡自动刷怪）升级，会获得经验值、金币、痕迹（ …</div></div></div>
+</article></section><section class="cat" id="cat-F"><div class="cat-head"><span class="cat-cn">陆</span><h2>灰色地带</h2><p class="cat-desc">收入普遍高于白产，代价是封号、赔偿与刑期</p></div><article class="post" id="post-1213690">
+  <div class="post-head">
+    <div class="post-idx">21</div>
+    <div class="post-head-main">
+      <h3 class="post-title">具体到可复制的副业有人会分享吗？我先来两个吧</h3>
+      <div class="post-meta">
+        <span class="meta-member">@cwwx2022</span>
+        <span>回复 40</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1213690" target="_blank" rel="noopener">原文 t/1213690 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">AI中转 日利80</span><span class="num-chip">冰激凌单次利润400</span><span class="num-chip">私服月5k</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>失业四个月者的真实灰白地带账本：AI 账号中转日利 80、公园冰激凌毛利 80%；评论区既有月入 5k 的私服，也有「老友被判实刑 4 年」的警示。</div>
+  <div class="content">被裁员失业也有四个月了，一直在家呆着做副业。
+分享其中一个小的副业： [利润：80 元/日]
+1.需要很多小红书账号，主要是用来打广告，私聊。
+2.建立链动小铺
+3.找渠道进货或者对接上游用户
+4.产品：codex 的 gpt5.5 中转，windsurf 账号，opus4.7 中转等等产品
+5.然后就开卖
+最重要一点就是群里的售后，随时响应，承诺质保内退款等等
+是可以复制的，只要行动就有单子，现在程序员相比于半年前更愿意花钱买 AI ，但是又不是很富裕买官方 AI ，一个月 300 的预算估计大部分人的心理预期了，正好我上面提到的产品都满足。
+另一个副业就是摆摊： [单次出摊利润是 400 元]
+在周末的时候，去公园卖小碗冰激凌，利润 80% ，可以买材料自制的，最大的成本就是时间成本。也没有多耗时。网上都是教程。</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#5</span><span class="reply-member">evilHa</span><span class="thx">♥ 1</span></div><div class="reply-text">搞网盘分享，好的时候一个月三千，不好的时候一个月一千出头。
+我本身就是收集癖，自打干了，现实生活中的收集癖好了，还挣钱了，每天也花不了太多时间，完美。</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#13</span><span class="reply-member">jlkm2010</span><span class="thx">♥ 1</span></div><div class="reply-text">学习电子产品维修，比如手机平板、显卡、主板等等这些，网上淘二手坏的设备，回来维修好再卖出去。虽然学习的时候有点枯燥，但是学会了，真的可以作为副业赚钱，而且万一失业了，还能用这门手艺养活自己，属于高门槛副业吧。
+学习有一定难度，但并没有很多人想的那么高，很多电路板维修师傅其实都没学历，甚至没有经过专业培训，自己捣鼓捣鼓就学会了，需要一点动手能力，再加上耐心。</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#32</span><span class="reply-member">iomect</span><span class="thx zero">♥ 0</span></div><div class="reply-text">我有一个多年的副业 开某游私服 每周一个服 每个服耗费时间大概 3-5 小时
+每个服能收 1-2k 赞助 平均每个月能有 5k 每年的服务器成本是 2k 没有其他成本</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#35</span><span class="reply-member">no2cat</span><span class="thx">♥ 1</span></div><div class="reply-text">@
+iomect
+注意游戏，有个老友被判实刑 4 年，现在还没出来。</div></div></div>
+</article><article class="post" id="post-1185333">
+  <div class="post-head">
+    <div class="post-idx">22</div>
+    <div class="post-head-main">
+      <h3 class="post-title">也谈谈我的副业吧</h3>
+      <div class="post-meta">
+        <span class="meta-member">@Liner03</span>
+        <span>回复 2</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1185333" target="_blank" rel="noopener">原文 t/1185333 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">起步月 1k</span><span class="num-chip">机器人时期日入几百</span><span class="num-chip">如今每周几十</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>网盘 aff → 短剧微信机器人 → 自动化脚本的灰产三级衰退史；评论区「采集小说被判赔 20 万」是所有搬运类副业最贵的一堂课。</div>
+  <div class="content">也来跟风谈谈我的 2025 年的副业
+去年年初也是看到了不少人分享夸克网盘的 aff ，我也就去当了 aff man 了
+可以说分为三个阶段
+第一阶段
+探索期
+一开始其实没啥技术含量，就是把别人已经发出来的资源，自己手动转存一遍，再发到一些平台上
+说白了就是吃冷饭，但见效快，当时一个月能有 1k 左右
+第二阶段
+短剧方向
+后来开始注意到短剧这个方向，一开始只是搭网站，但很快发现这东西效率太低，我就花了一个月的时间，自己收集短剧 api ，使用开源的微信 pad 协议的机器人，自己整了个短剧机器人，陆陆续续进满了几个微信群。每天收入少则 三四十多则几百(有大哥开会员就赚的多)
+第三阶段
+自动化
+再后来微信开始全面封杀机器人，这条路基本走不通了，索性就把这个逻辑应用到了网站上，现在就利用我收集的短剧 api ，新写的定时发送某些资源网站的脚本，可以算是全面自动化了，不过后来找到了实习就没管了，实际上就发送了四五个资源网，每周也能有个几十块收益
+总结下来就是全靠 aff ，都是脏活累活一点点堆出来的</div>
+  
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#1</span><span class="reply-member">taobaibai111</span><span class="thx zero">♥ 0</span></div><div class="reply-text">建议小心一点版权问题，我之前也是采集了一些小说赔了 20 万</div></div></div>
+</article></section><section class="cat" id="cat-G"><div class="cat-head"><span class="cat-cn">柒</span><h2>节点元帖</h2><p class="cat-desc">社区起源与最高密度的评论区情报源</p></div><article class="post" id="post-1184715">
+  <div class="post-head">
+    <div class="post-idx">23</div>
+    <div class="post-head-main">
+      <h3 class="post-title">[副业] 节点：聊聊你的副业，送 20-500 $V2EX 币（领赛博鸡蛋）</h3>
+      <div class="post-meta">
+        <span class="meta-member">@timespy</span>
+        <span>回复 65</span>
+        <a class="meta-link" href="https://www.v2ex.com/t/1184715" target="_blank" rel="noopener">原文 t/1184715 ↗</a>
+      </div>
+    </div>
+  </div>
+  <div class="num-row"><span class="num-chip">节点起源帖</span><span class="num-chip">65回复</span><span class="num-chip">情报密度第一</span></div>
+  <div class="why"><span class="why-tag">入选理由</span>副业节点的起源帖：站长大额悬赏征集高质量分享。它的评论区是全节点副业模式密度最高的地方——徒步领队、AFF 返佣、科普矩阵、共享充电桩……一帖看尽众生相。</div>
+  <div class="content">为了给新节点
+/go/sidehustle
+注入第一波高质量内容，决定进行“悬赏”。
+规则简单粗暴，根据帖子质量分级直接打赏。
+💰 赏金规则 (Bounty Tiers)
+级别
+奖励数额
+内容标准
+关键词
+🥉 参与奖
+20 $V2EX
+分享一个你的副业点子，尝试过的副业，或者一个失败的副业教训（&gt;100 字）。
+Idea
+吐槽
+🥈 进阶奖
+20-50 $V2EX
+分享副业的
+执行路径
+、副业
+工具栈
+分析、或具体的副业
+信息差
+揭秘。
+How-to
+工具
+🥇 硬核奖
+50-500 $V2EX
+Build in Public
+。晒出真实的副业
+流量/转化/营收数据图表
+，或副业完整的复盘。
+Data
+复盘
+🚀 如何领取
+前往
+副业
+节点发布新主题。
+我会在用 AI 评估后直接使用站内的打赏功能发放奖励。
+ps：规则暂定长期有效，最终解释权归本版块所有。</div>
+  <div class="subtle"><span class="subtle-tag">楼主补充</span>Supplement 1  ·
+Jan 12
+目前回帖的均已打赏，后续的需要移步新节点发送主题获取奖励。⬆️主题描述中有写</div>
+  <div class="replies"><div class="replies-title">高价值回复</div><div class="reply"><div class="reply-head"><span class="reply-no">#1</span><span class="reply-member">seagull7558</span><span class="thx">♥ 1</span></div><div class="reply-text">户外徒步领队
+1. 领队钱：10 来个人 每人收 20 - 3 （保险钱）= 10 * 17 = 170
+2. 顺风车钱：一车 4 个乘客，例如去 100KM 外的地方爬山，基本上就是每人收个 60 块钱 = 240 - 0 （免费充电权益）= 240
+衣物、背包、帐篷、炊具等装备推荐收益
+撮合成功的媒人钱 2K</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#26</span><span class="reply-member">dxxzst</span><span class="thx zero">♥ 0</span></div><div class="reply-text">AFF VPS 小鸡，也做了一个推广站点，目前收益大概有 800 刀</div></div><div class="reply"><div class="reply-head"><span class="reply-no">#50</span><span class="reply-member">q2677855779</span><span class="thx">♥ 2</span></div><div class="reply-text">目前在做科普自媒体，上个月中旬开始做的，之前已经探索过很多自媒体副业赛道了，都失败，但好在接累了经验，现在这个赛道算是搞起来了，抖音 11w 、b 站 16w 、小红书 5w 粉丝、快手 3w+，目前抖音伙伴计划+b 站激励，每天大概 200 块钱，接广大概万播 100 块钱，之前接了一个吹风机的广告，目前 30w 播放，大概有 3000 块，后面还排了转转的广告，抖音目前还没有接广，不过星图抖音官方推荐的是 9k 一次广子（还没接过），只能说，在播放稳定的情况下，双平台 10w 粉丝级别的，月收入过万是完全没问题的。</div></div></div>
+</article></section>
+</main>
+
+<footer>
+  <div><a class="back" href="report.html">← 返回《V2EX 副业节点全景调研报告》</a></div>
+  <div>数据：v2ex_sidehustle_data（raw_html 保真层 + json 解析层 + analysis 提炼层）· 生成于 2026-09-01</div>
+</footer>
+
+</body>
+</html>

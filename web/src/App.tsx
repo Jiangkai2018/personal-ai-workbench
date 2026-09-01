@@ -10,6 +10,7 @@ import FinancePage from './pages/FinancePage'
 import ReportViewPage from './pages/ReportViewPage'
 import AgentPage from './pages/AgentPage'
 import KnowledgePage from './pages/KnowledgePage'
+import ResearchPage from './pages/ResearchPage'
 import LoginPage from './pages/LoginPage'
 import { api } from './api/client'
 import type { Scope, SessionUser } from './types'
@@ -150,6 +151,10 @@ export default function App() {
             <Link to="/knowledge" className="scope-btn agent-btn" aria-label="进入知识库">
               ☰ <span className="entry-text">知识库</span>
             </Link>
+            {/* 调研报告入口（0901）：与 Agent/知识库并列 */}
+            <Link to="/research" className="scope-btn agent-btn" aria-label="进入调研报告">
+              ◈ <span className="entry-text">调研</span>
+            </Link>
           </div>
           <div className="header-right">
             <span className="whoami">{user.name}</span>
@@ -178,6 +183,7 @@ export default function App() {
             <Route path="/finance" element={<FinancePage />} />
             <Route path="/agent" element={<AgentPage />} />
             <Route path="/knowledge" element={<KnowledgePage />} />
+            <Route path="/research" element={<ResearchPage />} />
             <Route path="/reports/:id" element={<ReportViewPage />} />
           </Routes>
         </main>

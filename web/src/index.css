@@ -2326,3 +2326,52 @@ input[type='range']:focus-visible::-webkit-slider-thumb {
     padding: 6px 10px;
   }
 }
+
+/* ── 调研报告区（0901）：目录页卡片，报告本体是 web/public/research 静态 HTML ── */
+.research-sub {
+  margin: 0 0 14px;
+  font-size: 13px;
+}
+.research-groups {
+  display: grid;
+  gap: 12px;
+}
+.research-card-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.research-pending {
+  opacity: 0.6;
+}
+.research-card-desc {
+  margin: 4px 0 0;
+  font-size: 12px;
+}
+.research-list {
+  list-style: none;
+  display: grid;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 0;
+}
+.research-link {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius, 10px);
+  text-decoration: none;
+  color: var(--ink);
+  transition: border-color 0.15s;
+}
+.research-link:hover {
+  border-color: var(--accent);
+}
+.research-link-title {
+  font-weight: 500;
+}
+.research-link-desc {
+  font-size: 12px;
+}

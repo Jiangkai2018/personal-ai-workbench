@@ -1,0 +1,1541 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>精华帖全文 · Reddit 副业生态调研</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700;900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#F7F6F3; --surface:#FFFFFF; --ink:#201D1A; --muted:#6B655E;
+  --hairline:#E5E1DA; --accent:#C93D12; --accent-ink:#8A2A0C;
+  --wash:#F6EAE2; --pos:#1E6B4E; --neg:#A63A2E;
+  --shadow:0 1px 2px rgba(32,29,26,.05),0 8px 24px rgba(32,29,26,.05);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ground:#191613; --surface:#211D19; --ink:#EDE8E1; --muted:#A59C90;
+  --hairline:#312C26; --accent:#FF6B3D; --accent-ink:#FFA07E;
+  --wash:#2A211A; --pos:#4CB884; --neg:#E0766A;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+}}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth; scroll-padding-top:4.6rem}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{
+  background:var(--ground); color:var(--ink);
+  font-family:"Noto Sans SC",system-ui,sans-serif;
+  font-size:16px; line-height:1.85; -webkit-font-smoothing:antialiased;
+}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.mono{font-family:"IBM Plex Mono",monospace}
+
+/* ---------- sticky topbar with GLOBAL one-way lang switch ---------- */
+.topbar{
+  position:sticky; top:0; z-index:20;
+  background:rgba(247,246,243,.9);
+  backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--hairline);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .topbar{background:rgba(25,22,19,.9)} }
+.topbar-in{
+  max-width:52rem; margin:0 auto; padding:.6rem 1.25rem;
+  display:flex; align-items:center; gap:1rem;
+}
+.back{font-size:.85rem; white-space:nowrap}
+.topbar h1{
+  font-family:"Noto Serif SC",serif; font-weight:900; font-size:1.02rem;
+  flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
+.seg{
+  display:inline-flex; border:1px solid var(--hairline); border-radius:.5rem;
+  overflow:hidden; background:var(--surface); box-shadow:var(--shadow); flex:none;
+}
+.seg button{
+  font:inherit; font-size:.82rem; padding:.32rem .95rem; border:none; cursor:pointer;
+  background:transparent; color:var(--muted); font-family:"IBM Plex Mono",monospace;
+}
+.seg button+button{border-left:1px solid var(--hairline)}
+.seg button.on{background:var(--accent); color:#fff; font-weight:500}
+.seg button:not(.on):hover{color:var(--ink)}
+
+/* ---------- language visibility: ONE global switch flips the whole page ---------- */
+.lang.en{display:none}
+html.lang-en .lang.en{display:block}
+html.lang-en .lang.zh{display:none}
+
+main{max-width:52rem; margin:0 auto; padding:0 1.25rem 6rem}
+.lede{padding:2.4rem 0 1.6rem; border-bottom:1px solid var(--hairline); margin-bottom:.6rem}
+.lede .eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:.72rem; letter-spacing:.22em;
+  color:var(--accent); text-transform:uppercase; margin-bottom:.8rem;
+}
+.lede h2{
+  font-family:"Noto Serif SC",serif; font-weight:900;
+  font-size:clamp(1.5rem,4vw,2.1rem); line-height:1.3; margin-bottom:.7rem;
+}
+.lede p{color:var(--muted); max-width:40rem; font-size:.95rem}
+
+/* ---------- TOC ---------- */
+.toc{margin:2rem 0 1.6rem}
+.toc-h{
+  font-family:"IBM Plex Mono",monospace; font-size:.74rem; color:var(--muted);
+  letter-spacing:.08em; margin:1.1rem 0 .5rem;
+}
+.toc-grid{display:grid; grid-template-columns:repeat(auto-fill,minmax(15rem,1fr)); gap:.45rem}
+.toc-grid a{
+  display:block; font-size:.86rem; line-height:1.5; background:var(--surface);
+  border:1px solid var(--hairline); border-radius:.45rem; padding:.4rem .65rem;
+}
+.toc-grid a b{font-family:"IBM Plex Mono",monospace; color:var(--accent); font-weight:500; margin-right:.35rem}
+
+/* ---------- posts ---------- */
+article.post{
+  background:var(--surface); border:1px solid var(--hairline); border-radius:.7rem;
+  box-shadow:var(--shadow); padding:1.5rem 1.6rem 1.2rem; margin:1.6rem 0;
+  scroll-margin-top:4.6rem;
+}
+article.post:target{border-color:var(--accent); animation:flash 2.4s ease 1}
+@keyframes flash{0%{box-shadow:0 0 0 4px rgba(201,61,18,.35)}100%{box-shadow:var(--shadow)}}
+.pmeta{
+  display:flex; flex-wrap:wrap; align-items:center; gap:.55rem 1rem;
+  font-size:.78rem; color:var(--muted); margin-bottom:.7rem;
+}
+.pno{font-family:"IBM Plex Mono",monospace; color:var(--accent); font-size:.9rem}
+.psub{font-weight:700; color:var(--ink)}
+.pscore{color:var(--pos); font-weight:500}
+.pid{font-size:.72rem}
+.plink{margin-left:auto; white-space:nowrap}
+.ptitle{
+  font-family:"Noto Serif SC",serif; font-weight:700; font-size:1.3rem;
+  line-height:1.45; margin-bottom:.55rem; text-wrap:balance;
+}
+.why{
+  font-size:.85rem; color:var(--muted); background:var(--wash);
+  border-left:3px solid var(--accent); border-radius:0 .4rem .4rem 0;
+  padding:.45rem .8rem; margin:.7rem 0 1rem;
+}
+.whyt{font-weight:700; color:var(--accent-ink); margin-right:.5rem}
+.removed-note{font-size:.85rem; color:var(--muted); font-style:italic; margin:.6rem 0}
+.body p{margin:.7rem 0}
+.body ul,.body ol{padding-left:1.5rem; margin:.7rem 0}
+.body li{margin:.35rem 0}
+.body blockquote{
+  border-left:3px solid var(--hairline); padding-left:.9rem; color:var(--muted); margin:.7rem 0;
+}
+.comments{border-top:1px solid var(--hairline); margin-top:1.3rem; padding-top:.4rem}
+.comments h3{font-size:.92rem; margin:.9rem 0 .2rem; color:var(--muted); font-weight:500; letter-spacing:.03em}
+.comment{
+  border-left:2px solid var(--hairline); margin:.85rem 0 .85rem .5rem;
+  padding-left:1rem; border-radius:0 .4rem .4rem 0;
+}
+.comment.d2{margin-left:1.4rem}
+.comment.d3,.comment.d4{margin-left:2.3rem}
+.cmeta{font-size:.76rem; color:var(--muted); display:flex; gap:.8rem; align-items:baseline; flex-wrap:wrap}
+.cauthor{font-family:"IBM Plex Mono",monospace; color:var(--accent-ink)}
+.opb{
+  font-size:.64rem; font-weight:700; letter-spacing:.06em; color:#fff;
+  background:var(--accent); border-radius:.25rem; padding:.05rem .3rem;
+}
+.cscore{font-variant-numeric:tabular-nums}
+.cbody{font-size:.93rem; margin:.25rem 0 .1rem}
+.cbody p{margin:.4rem 0}
+.cbody ul,.cbody ol{padding-left:1.4rem; margin:.4rem 0}
+footer{margin-top:4rem; border-top:1px solid var(--hairline); padding-top:1.4rem; color:var(--muted); font-size:.84rem}
+
+@media (max-width:640px){
+  main{padding:0 .85rem 4rem}
+  article.post{padding:1.15rem 1.05rem .9rem}
+  .topbar-in{padding:.5rem .85rem; gap:.6rem}
+  .back{font-size:.78rem}
+  .plink{margin-left:0}
+  .toc-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-in">
+    <a class="back" href="report.html#s10">← 返回报告</a>
+    <h1>精华帖全文 · Reddit 副业生态调研</h1>
+    <div class="seg" role="group" aria-label="语言切换（全局，单向）">
+      <button type="button" id="btn-zh" class="on" aria-pressed="true">中</button><button type="button" id="btn-en" aria-pressed="false">英</button>
+    </div>
+  </div>
+</div>
+<main>
+<div class="lede">
+  <div class="eyebrow">Featured Posts · Full Text · 23 Posts</div>
+  <h2>报告引用的精华帖全文</h2>
+  <p>本页收录调研报告引用的全部 23 篇帖子：标题、正文与按分数排序的前 6 条高赞评论。英文原帖均已本地预翻译为中文（金额、平台名、俚语尽量保留原味），点右上角 <b>中 / 英</b> 可全局一键切换语言；从报告点入的引用链接会直接定位到对应帖子。</p>
+</div>
+<nav class="toc"><div class="toc-h">目录 · 报告 10 节「值得细读的帖子」</div><div class="toc-grid"><a href="#p-11i3ws0"><b>01</b> 副业 = “我的主业工资不够花”</a><a href="#p-1vuwit1"><b>02</b> 有人在版里偷偷给一家赌场打了七个月广告</a><a href="#p-16jo2ax"><b>03</b> 卖电子书是我做过最棒的决定！</a><a href="#p-1ocvbd7"><b>04</b> 2025 年，每一个“教你做副业”的人</a><a href="#p-1rppa5u"><b>05</b> 拒付快把我的副业拖垮了，急需防拒付方案，怀孕的妻子指望这份收入</a><a href="#p-1vtzktx"><b>06</b> 被动收入不属于穷人，我受够了看这个版假装不是这样</a><a href="#p-1f7lf98"><b>07</b> 副业做成了 $140k/年的生意</a><a href="#p-1hm7btk"><b>08</b> 2024 年副业收入 $6,000：什么有效、什么无效</a><a href="#p-1upbxbh"><b>09</b> 试了两个月“AI 无人出镜 YouTube Shorts 赚钱法”，说点诚实的数字</a><a href="#p-1vva3j8"><b>10</b> 对存款为 $0 的人，YouTube 上大多数“被动收入”建议是彻头彻尾的骗局</a><a href="#p-1edcbt6"><b>11</b> 突然发现副业已经比主业 9-5 挣得多，该辞职 all-in 吗？</a><a href="#p-11h2xyc"><b>12</b> 这位单亲妈妈需要一个副业</a><a href="#p-1rilqr6"><b>13</b> 你们的二手倒卖现金收入都怎么报税？</a><a href="#p-1u2d3j0"><b>14</b> 抓个正着：Playtime / justDice 系 App 伪造客服记录骗提现（附证据）</a><a href="#p-1q0fea0"><b>15</b> 副业做到月入 $40k，然后被算法调整干趴了</a><a href="#p-1qgf29u"><b>16</b> 副业成功案例——奢侈手表</a><a href="#p-1fzuhoh"><b>17</b> 谷歌说 36% 的美国成年人有副业，你的呢？</a><a href="#p-1vykxfa"><b>18</b> MTurk 即将永久关闭</a><a href="#p-1hjq718"><b>19</b> 我教人怎么从在线赌场“薅钱”——守门人上次举报了我，他们还会再来</a><a href="#p-18pmyd6"><b>20</b> 我急需多赚点钱</a></div><div class="toc-h">报告 07 节「鉴别铁律」引用帖</div><div class="toc-grid"><a href="#p-1279vqo"><b>21</b> 求助——该不该告诉新雇主我在做副业？</a><a href="#p-1ho2tps"><b>22</b> 我靠联盟营销日入 $680</a><a href="#p-1hnzsnb"><b>23</b> 我写的 YouTube 脚本拿了 140 万播放，客户却把我鸽了</a></div></nav>
+<article class="post" id="p-11i3ws0">
+<div class="pmeta"><span class="pno">01</span><a class="psub" href="https://www.reddit.com/r/antiwork" target="_blank" rel="noopener">r/antiwork</a><span>2023-03-04</span><span class="pscore">▲ 7371 分</span><span>💬 123 评论</span><span class="mono pid">11i3ws0</span><a class="plink" href="https://www.reddit.com/comments/11i3ws0" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">副业 = “我的主业工资不够花”</h2></div>
+<div class="lang en"><h2 class="ptitle">Side hustle = “my main job doesn’t pay me enough”</h2></div>
+<p class="why"><span class="whyt">入选理由</span>全语料最高赞：“副业 = 主业工资不够”的定义之争起点</p>
+<div class="lang zh removed-note">原帖正文已被删除 / 无正文——本帖价值在评论区。</div><div class="lang en removed-note">Original post body was removed / empty — the value is in the comments.</div>
+<div class="lang zh body"></div>
+<div class="lang en body"></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/lovemydogs1969</span><span class="cscore">▲ 175</span></div>
+<div class="lang zh cbody"><p>我注意到过去几年，大量文章把“副业”美化成多么值得敬佩的事，却一笔带过它要吞掉多少业余时间，也回避了“如果主业薪水像样，这人根本不会去干”这个事实。<br>与此同时我还注意到一堆吹捧“微型住宅”和“房车生活”的文章，说得像人间天堂，却绝口不提对很多人来说正常尺寸的房子已经贵到高攀不起。<br>我认为这些文章就是宣传，目的是让我们习惯并接受：我们的生活水准将低于上一代人。</p></div>
+<div class="lang en cbody"><p>I've noticed in the last several years, a lot of articles sort of glorifying the "side hustle" like it's so admirable, and glossing over the fact that it takes a lot of free time and the person probably wouldn't be doing it if their main job paid adequately.<br>But I've also noticed at the same time a lot of articles glorifying "tiny houses" and "van life", making it sound like it's the best thing ever, glossing over the fact of how unaffordable and unattainable regular sized houses are for a lot of people.<br>I think these articles are propaganda, to get us used to the idea and expectation that our standard of living will be lower than previous generations.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/robrTdot</span><span class="cscore">▲ 130</span></div>
+<div class="lang zh cbody"><p>政府公布的就业增长数字，是靠人们的第二份、第三份工作注水撑起来的。唉。</p></div>
+<div class="lang en cbody"><p>Government quotes job growth with numbers juiced by people's second and third jobs.  Ugh.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/eddyathome</span><span class="cscore">▲ 103</span></div>
+<div class="lang zh cbody"><p>事情的本质就是这样。最富的 1% 就想让你疲于奔命，连最基本的中产生活都负担不起，住着微型房子、靠副业勉强收支平衡。他们要你又穷又累，这样你就没力气反抗他们。</p></div>
+<div class="lang en cbody"><p>That's absolutely what it is.  The wealthy 1% want you to be struggling and unable to afford even a basic middle class lifestyle so that you live in a tiny house while working that side hustle to make ends meet.  They want you broke and exhausted so you don't rebel against them.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/sparklingdinoturd</span><span class="cscore">▲ 65</span></div>
+<div class="lang zh cbody"><p>真是匪夷所思——人们默认别人每周干 40 多个小时的活，然后仅仅因为人家是“翻汉堡的”“割草的”，连付不起账单、房租、饭钱都成了理所当然。</p>
+<p>“再找份工作呗”（翻译：在痛苦中把人生耗尽）</p>
+<p>“你不是有智能手机吗”（翻译：把手机处理掉，这样老板联系不上你，正好找理由开除你）</p>
+<p>“我上大学那会儿靠泡面活下来的”（翻译：吃点不健康的便宜货吧，反正你很快就会过劳死）</p>
+<p>“找个室友呗”（翻译：交出你的空间和隐私，好让 CEO 供得起第三套度假别墅）</p></div>
+<div class="lang en cbody"><p>It shouldn't...but it blows my mind that people expect people to work 40+ hour weeks and it's ok that they struggle to pay bills or rent or food just because they 'flip burgers' or 'cut grass'.</p>
+<p>"Get a second job" (Read 'work your life away in misery')</p>
+<p>"Bet you got a smartphone" (get rid of your phone so your boss can't contact you and fires you for it)</p>
+<p>"When I was in college I survived on ramen" ( read "eat unhealthy! Its cheap and you'll work yourself to death soon anyway")</p>
+<p>"Get roommates" (read "Give up your space and privacy so the CEO can afford their 3rd vacation home")</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/Only-Reach-3938</span> <span class="opb">OP</span><span class="cscore">▲ 65</span></div>
+<div class="lang zh cbody"><p>完全同意。而且他们彻底完蛋了。我见过（诚然是市级层面的）求职者研究，人们投简历连回复都得不到。而在官方劳动统计里，这些神奇的新增就业全是最低血汗工资。硅谷裁掉 10 万个岗位，却“创造”出 30 万个“休闲餐饮”岗位。</p></div>
+<div class="lang en cbody"><p>Totally. Plus they are totally f*cking cooked. I’ve seen (admittedly City-level) research of people applying for jobs, and don’t even get replies. Officially in the labor stats these magic job growth are all minimum-slave wage. Silicon Valley loses 100k jobs, but 300k jobs are created for “leisure”</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/CommercialBox4175</span><span class="cscore">▲ 60</span></div>
+<div class="lang zh cbody"><p>这是对“我的工作只付贫困线工资”的一个糟糕透顶的委婉说法！</p></div>
+<div class="lang en cbody"><p>Terrible euphemism for my job pays Poverty Wages!</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1vuwit1">
+<div class="pmeta"><span class="pno">02</span><a class="psub" href="https://www.reddit.com/r/passive_income" target="_blank" rel="noopener">r/passive_income</a><span>2026-08-21</span><span>My Experience</span><span class="pscore">▲ 2162 分</span><span>💬 189 评论</span><span class="mono pid">1vuwit1</span><a class="plink" href="https://www.reddit.com/comments/1vuwit1" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">有人在版里偷偷给一家赌场打了七个月广告</h2></div>
+<div class="lang en"><h2 class="ptitle">Someone has been advertising a casino here for seven months</h2></div>
+<p class="why"><span class="whyt">入选理由</span>版主深挖赌场用西里尔字母绕过 automod 投放垃圾广告 7 个月</p>
+
+<div class="lang zh body"><p>上个月我在这里读到一篇不错的帖子，讲一个哥们把老家电报废前的运转声录下来，现在把这些音频片段卖给独立游戏开发者。哇，挺酷的，我当时想。可帖子中间有一句话，提到从 “Ѕtake” 攒下的一笔钱。</p>
+<p>仔细看那个 S。它不是 S。它是 Ѕ——一个西里尔字母，在大多数字体里渲染出来和拉丁大写 S 几乎一模一样。你我快速阅读时，看到的是 Stake，那家在线赌场。而对一个检索 “Stake” 这个词的过滤器来说，这是一个完全不同的字符串，直接放行。</p>
+<p>为什么要费劲换一个字母？因为保护社区的一切机制几乎都靠文本匹配运作：automod、违禁词表、搜索框。检查新帖的过滤器匹配不到，之后任何人（包括版务）按品牌名搜索也什么都搜不到。这就是它能在这里跑七个月没人发现的主要原因。大规模使用时，这招还能让每份垃圾模板在查重系统眼里都长得不一样。</p>
+<p>我一找，就找出十几个这样的帖子，最早可追溯到至少七个月前。每一个都是一段小巧得离奇的具体成功故事，中间都嵌着同款句子：顺嘴一提钱从哪来，品牌名里换了一个字母。我并不觉得这些故事是想直接把赌场卖给你，更像是让“从赌场赢了钱”读起来像某人生活里平平无奇的日常事实。</p>
+<p>我不确定赌场本身是不是幕后主使。赌博类联盟客按注册量拿佣金，经常自己跑投放，所以我只讲我查到的东西，不猜背后是谁。我也不点名账号、不贴帖子链接。如果其中有些是收了钱负责加一句话的真人，把读者放去冲他们解决不了任何问题。我不搞猎巫。</p>
+<p>但怎么分辨哪些内容在用这招？字母手法肯定会变，所以不必死盯字母。要看的是：故事里出现一个对情节根本不重要的 App、网站或平台，通常是一句随口带过的“启动资金来源”。那就是广告。诚实帖子里也有这类细节，所以把它当作“接下来要读得更仔细”的理由，而不是实锤。</p>
+<p>我已经加了一条版规，标记混用两种字母表的词。我也会把它们从我 newsletter 引用的帖子里过滤掉。肯定抓不完所有花样，但希望能有点用。如果你看到读起来像这样的内容，私信版务。</p>
+<p>隐性广告很常见，这轮投放不会是最后一轮。同样的换字母把戏现在遍布 X 上的加密垃圾信息，邮件垃圾佬这么干已经几十年了。我写了一份《骗局与避坑指南》来普及常见套路（纯科普，免费，无任何可购买的东西）。</p>
+<p>针对这一招，我建议盯住三点：</p>
+<ol><li><strong>有赞，但评论区没人真正回应问题。</strong> 真实有机的帖子通常会吸引具体的问题。一片叫好、没人追问，值得多看一眼。</li></ol>
+<ol><li><strong>启动资金的来源是一个具体得离奇的品牌。</strong> 在这些植入帖里，那句提及就是帖子存在的全部目的。</li></ol>
+<ol><li><strong>账号只有一篇帖子。</strong> 信故事之前先点开用户名。这里的植入帖来自一批注册几个月、全部历史就是那一篇爆款故事、外加零散在无关版块里几句评论的账号。</li></ol>
+<p>各位小心。</p></div>
+<div class="lang en body"><p>Last month I was reading a good post here, about a guy who recorded the sounds of old appliances before they went to the dump and now sells the clips to indie game developers. Wow, pretty cool, I thought. In the middle of it was a sentence about keeping some money saved "from Ѕtake."</p>
+<p>Look closely at that S. It isn't an S. It's Ѕ, a Cyrillic letter that renders almost identically to a Latin capital S in most fonts. To you and me, reading quickly, it says Stake, the online casino. To a filter looking for the word "Stake," it's a completely different string, and it goes straight through.</p>
+<p>Why bother with one letter? Because nearly everything that protects a community works by matching text: automod, banned word lists, the search bar. The filter checking a new post finds no match, and nobody searching the brand name later finds anything either, including the mods. That's most of why this ran here for seven months without anyone noticing. At scale it also makes every copy of a spam template look different to duplicate detection.</p>
+<p>Once I went looking, I found more than a dozen of these going back at least seven months. Each is a small, oddly specific success story with the same kind of sentence in the middle: a passing mention of where the money came from, spelled with a swapped letter. I don't think the stories are there to sell you a casino so much as to make having money from one read like an ordinary fact of someone's life.</p>
+<p>I don't know that the casino itself is behind it. Gambling affiliates get paid per signup and often run campaigns on their own, so I'm telling you what I found rather than speculate on who's behind it. I'm also not naming the accounts or linking the posts. If some of them belong to real people who were paid to add a sentence, sending readers after them doesn't fix anything. I'm not advocating a witch hunt.</p>
+<p>But how can you tell what content is using this trick? The letter trick will probably change, so I wouldn't watch for that necessarily. I'd watch for a mention of an app, website, or a program that isn't really important to the story, usually an offhand line about where the starting money came from. That's the advertisement. Honest posts have some of those details too, so look for it as a reason to read the rest more carefully rather than proof of anything.</p>
+<p>I've added a moderation rule that flags words mixing two alphabets. And I'll also filter them out of any posts I link to from the newsletter. It won't catch all of the tricks I'm sure, but hopefully it helps. And if you spot something that reads like this, message the mods.</p>
+<p>Hidden ads are common, and this campaign won't be the last one. The same swapped-letter trick is all over crypto spam on X right now, and email spammers have done it for decades. I wrote a <a href="https://passivepiggie.com/guides/scam-and-pitfall-guide/" target="_blank" rel="noopener">Scam &amp; Pitfall Guide</a> to spread awareness about some common traps (purely educational - free / nothing to buy).</p>
+<p>For this specifically, here is what I'd watch for:</p>
+<ol><li>\<em>\</em>Upvotes but no real responses to the questions in the comments.\<em>\</em> A real organic post usually attracts specific questions. Lots of applause and no follow-ups is worth a second look.</li></ol>
+<ol><li>\<em>\</em>An oddly specific brand as the source of the starting money.\<em>\</em> In the planted posts, that mention is why the post exists.</li></ol>
+<ol><li>\<em>\</em>The account has one post.\<em>\</em> Click the username before you believe the story. The planted posts here came from accounts a few months old whose entire history is the one viral story, plus a thin scatter of comments in unrelated subreddits.</li></ol>
+<p>Be careful out there.</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Conscious_Ant562</span><span class="cscore">▲ 615</span></div>
+<div class="lang zh cbody"><p>能发现那个西里尔 S 的细节功力真是顶尖，我们大多数人直接就划过去了</p></div>
+<div class="lang en cbody"><p>the attention to detail on finding that Cyrillic S is next-level, most of us just scroll right past</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/noteasybeingspleezy</span><span class="cscore">▲ 162</span></div>
+<div class="lang zh cbody"><p>这种事在很多版块都发生一年多了——entitledpeople、relationshipadvice、jobs。全是小故事里塞一句“在 stake 赢了一把，眼前的处境才稍微好过了一点”。</p></div>
+<div class="lang en cbody"><p>This is happening in loads of subreddits and for over a year - entitledpeople, relationshipadvice, jobs. All little stories with a reference to a win on stake that made the situation they were facing slightly easier.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Longjumping-Pool-363</span><span class="cscore">▲ 128</span></div>
+<div class="lang zh cbody"><p>哇，我记得刷到过一篇这种帖子，当时就觉得那句突兀的 Stake 特别违和……</p></div>
+<div class="lang en cbody"><p>Oh wow I remember seeing one of these posts and thinking the random mention of Stake was so jarring…</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/noteasybeingspleezy</span><span class="cscore">▲ 123</span></div>
+<div class="lang zh cbody"><p>（附截图）我关注这事有段时间了，陷得有点深。</p></div>
+<div class="lang en cbody"><p><a href="https://preview.redd.it/ylxswoglotkh1.jpeg?width=1051&amp;format=pjpg&amp;auto=webp&amp;s=2e0bc1de3043829d9463e75c975788c5c0f2887a" target="_blank" rel="noopener">https://preview.redd.it/ylxswoglotkh1.jpeg?width=105…</a></p>
+<p>I have been overly invested in this for a while.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Ok-Flan8529</span><span class="cscore">▲ 112</span></div>
+<div class="lang zh cbody"><p>给这位版务涨薪！</p></div>
+<div class="lang en cbody"><p>give this mod a pay raise</p></div>
+</div>
+<div class="comment d3">
+<div class="cmeta"><span class="cauthor">u/noteasybeingspleezy</span><span class="cscore">▲ 94</span></div>
+<div class="lang zh cbody"><p>（附截图）这种帖子上首页太频繁了，他们把这些东西编织进故事里的手法非常猎食性。我不理解这种帖子怎么按联盟佣金结算，也特别好奇他们怎么做到这种规模的投放。</p></div>
+<div class="lang en cbody"><p><a href="https://preview.redd.it/5r1sjf65ptkh1.jpeg?width=1320&amp;format=pjpg&amp;auto=webp&amp;s=47b2b14c1cabcb35546830a73c13d307a07147b6" target="_blank" rel="noopener">https://preview.redd.it/5r1sjf65ptkh1.jpeg?width=132…</a></p>
+<p>These hit the front page so often and it’s so predatory the stories they are interweaving it into. I don’t see how they can be on affiliate commission for this kind of post, and I am so interested in how they deliver this at scale.</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-16jo2ax">
+<div class="pmeta"><span class="pno">03</span><a class="psub" href="https://www.reddit.com/r/beermoney" target="_blank" rel="noopener">r/beermoney</a><span>2023-09-15</span><span>Earnings Report</span><span class="pscore">▲ 1184 分</span><span>💬 140 评论</span><span class="mono pid">16jo2ax</span><a class="plink" href="https://www.reddit.com/comments/16jo2ax" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">卖电子书是我做过最棒的决定！</h2></div>
+<div class="lang en"><h2 class="ptitle">Selling eBooks was the best idea ever!</h2></div>
+<p class="why"><span class="whyt">入选理由</span>“免营销热卖品类”研究：NSFW 言情电子书（原帖正文已被删，精华在评论区）</p>
+<div class="lang zh removed-note">原帖正文已被删除 / 无正文——本帖价值在评论区。</div><div class="lang en removed-note">Original post body was removed / empty — the value is in the comments.</div>
+<div class="lang zh body"></div>
+<div class="lang en body"></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/blackgirldown</span><span class="cscore">▲ 218</span></div>
+<div class="lang zh cbody"><p>祝你继续成功。</p></div>
+<div class="lang en cbody"><p>To your continued success.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/DenseImprovement1084</span> <span class="opb">OP</span><span class="cscore">▲ 63</span></div>
+<div class="lang zh cbody"><p>我用 D2D（Draft2Digital）发布作品。上传故事到 D2D 时可以自选要分发的平台。如我在另一条评论所说，我偏重口（spicy）向写手，所以主要勾选 Smashwords。不过我知道有人会全平台勾选，以此扩大销量和曝光。</p></div>
+<div class="lang en cbody"><p>I use D2D to publish the stories. During the story upload to D2D, you can choose the platforms you want to distribute to. As I mentioned in another comment, I am more of a spicy writer so I mainly select smashwords. However, I know from others that they just select every platform, that is available in order to increase their sales and visibility.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/socialmarker12</span><span class="cscore">▲ 56</span></div>
+<div class="lang zh cbody"><p>我靠这个干了好多年，是主业。走 KDP 发 Amazon。D2D 以前发不了 Amazon，就算现在能，Amazon 你也该自己直发、多留钱在手里。我建议东挤一小时西挤一小时，学会至少在 Amazon、Smashwords 和 B&amp;N 上直接出版，D2D 留着铺 Apple 之类省事的渠道。这样到手的钱更多。</p>
+<p>短篇重口小说，拼的就是速度和惯性。写多快发多快，数字才滚得起来。</p></div>
+<div class="lang en cbody"><p>I made a living doing this for a lot of years. Publish through KDP for Amazon. D2D didn't use to be able to publish on Amazon, but even if they can, you should do that yourself and keep more of the money. I'd invest an hour or two here or there to learn how to publish directly on at least Amazon, Smashwords and B&amp;N, and let D2D get you elsewhere like Apple, because it's easier. You'll get more of the money that way.</p>
+<p>For short, spicy fiction, speed and momentum are the name of the game. Write and publish as fast as you can and the numbers can rack up.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/DenseImprovement1084</span> <span class="opb">OP</span><span class="cscore">▲ 55</span></div>
+<div class="lang zh cbody"><p>谢谢！我可能会多写点，看情况吧，但我不想给自己太大压力。</p></div>
+<div class="lang en cbody"><p>Thank you! I might write more, lets see, but I do not want to put too much pressure on myself</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/randak1977</span><span class="cscore">▲ 44</span></div>
+<div class="lang zh cbody"><p>你在什么平台卖？</p></div>
+<div class="lang en cbody"><p>What platform do you sell on?</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/DenseImprovement1084</span> <span class="opb">OP</span><span class="cscore">▲ 39</span></div>
+<div class="lang zh cbody"><p>根据我的调研，只有两个品类不打营销也能疯卖：言情，和 NSFW 言情（参考《五十度灰》）。我做的是后者。</p></div>
+<div class="lang en cbody"><p>From my research, there are only two genres that sell like crazy without marketing: Romance and the NSFW romance (think 50 Shades of Grey). Im in the latter.</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1ocvbd7">
+<div class="pmeta"><span class="pno">04</span><a class="psub" href="https://www.reddit.com/r/povertyfinance" target="_blank" rel="noopener">r/povertyfinance</a><span>2025-10-22</span><span>Vent/Rant (No Advice/Criticism!)</span><span class="pscore">▲ 803 分</span><span>💬 77 评论</span><span class="mono pid">1ocvbd7</span><a class="plink" href="https://www.reddit.com/comments/1ocvbd7" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">2025 年，每一个“教你做副业”的人</h2></div>
+<div class="lang en"><h2 class="ptitle">Every single person selling a side hustle in 2025</h2></div>
+<p class="why"><span class="whyt">入选理由</span>2025 定调帖：“卖副业的人都在卖课”</p>
+
+<div class="lang zh body"><p>都在卖课。从 8 千粉的博主到百万粉的大 V，无一例外。</p>
+<p>我在 YouTube / Instagram 上搜副业，就想看看都有什么路子。每当有哪个看着还行——他们最后必定来一句</p>
+<p>“评论区留言，我私信你”——然后永远是什么破课。这种规模的收割居然被大家当作稀松平常，真的让我血压飙升。</p>
+<p>/吐槽结束</p></div>
+<div class="lang en body"><p>Is selling a damn course. This goes for content creators with 8k followers to those with 1million+.</p>
+<p>Searching YouTube /IG looking for side hustles just to learn what’s out there. When something looks alright / decent - they always come out with</p>
+<p>“Leave a comment and I’ll send you a DM” and it’s always some damn course. It really grinds my gear the amount of grifting which happens and people put it out there like it’s no big deal</p>
+<p>/rant</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/firefly20200</span><span class="cscore">▲ 472</span></div>
+<div class="lang zh cbody"><p>副业本身就是收割（The side hustle IS grifting）。就这么简单，句号。</p>
+<p>市面上真正存在的无非是：再打一份工、跑 DoorDash/Uber/Instacart/Amazon/Walmart 零工，或者做自己的生意——我说的是真生意，不是 dropship 中国劣质货。没人有理由花 $29.99 从你这儿买件 $4 的中国塑料玩意儿，有 Amazon 和 TEMU 呢。</p></div>
+<div class="lang en cbody"><p>The side hustle IS grifting. That’s it. Period.</p>
+<p>The only things out there are basically get a second job, run DoorDash/Uber/Instacart/Amazon/Walmart gig work, or start your own business. By start your own business I mean an actual business, not buying shitty Chinese goods by drop shipping. There’s no reason why someone would want to pay $29.99 to bug a $4 Chinese plastic item from you vs Amazon or TEMU or something.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/SIPR_Sipper</span><span class="cscore">▲ 314</span></div>
+<div class="lang zh cbody"><p>只要 $9.99，我就给你一套“保证有效”的方法，教你从每个遇到的傻子身上赚接近 $10。</p></div>
+<div class="lang en cbody"><p>For just $9.99 I can give you a GUARANTEED method to make close to $10 from every idiot you encounter.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Soilstone</span><span class="cscore">▲ 88</span></div>
+<div class="lang zh cbody"><p>我心目中最有效/最简单的副业，就是问自己：“哪种大多数人讨厌、但我并不那么讨厌的体力活？”</p>
+<p>割草<br>压力清洗<br>保洁<br>擦窗<br>……等等</p>
+<p>其他任何“需要”上课程、上训练营的，基本就像大家说的——是有人想利用人们改善生活的希望与渴望。</p></div>
+<div class="lang en cbody"><p>I think the most effective/easiest side hustles are just saying "what kind of labor do I not fucking hate that most people seem to"</p>
+<blockquote>Lawn care</blockquote>
+<blockquote>Pressure washing</blockquote>
+<blockquote>Cleaning</blockquote>
+<blockquote>Window washing</blockquote>
+<blockquote>...etc.</blockquote>
+<p>Anything else "requiring" a class or special course pretty much what everyone here is saying... An attempt for someone to take advantage of folks' hope and desire to improve their life.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/No_Try6944</span><span class="cscore">▲ 87</span></div>
+<div class="lang zh cbody"><p>整个美国经济的地基就是收割 lol</p></div>
+<div class="lang en cbody"><p>The entire foundation of the US economy is grifting lol</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/upstatestruggler</span><span class="cscore">▲ 73</span></div>
+<div class="lang zh cbody"><p>太榨人了。全是传销。</p></div>
+<div class="lang en cbody"><p>It’s so exploitative. Pyramid schemes.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/loiloiloi6</span><span class="cscore">▲ 63</span></div>
+<div class="lang zh cbody"><p>人们确实会花 $30 买 $4 的中国破烂，当然会。但坑在于你将把全部利润烧在广告上。推 dropshipping 的人给你看的永远是营收截图，从不给你看算上广告费后其实亏钱的账。</p></div>
+<div class="lang en cbody"><p>People do buy $4 chinese junk for $30, of course they do, but the catch is that you will spend all your profits on advertising. When people try to push dropshipping they will show you their revenue but not that they actually took a loss when ads are factored in</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1rppa5u">
+<div class="pmeta"><span class="pno">05</span><a class="psub" href="https://www.reddit.com/r/smallbusiness" target="_blank" rel="noopener">r/smallbusiness</a><span>2026-03-10</span><span class="pscore">▲ 178 分</span><span>💬 146 评论</span><span class="mono pid">1rppa5u</span><a class="plink" href="https://www.reddit.com/comments/1rppa5u" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">拒付快把我的副业拖垮了，急需防拒付方案，怀孕的妻子指望这份收入</h2></div>
+<div class="lang en"><h2 class="ptitle">Chargebacks about to sink my whole side hustle, need chargeback prevention fast, pregnant wife counting on this</h2></div>
+<p class="why"><span class="whyt">入选理由</span>chargeback 防御手册：签名确认 + 打包录像 + USPIS 报案</p>
+
+<div class="lang zh body"><p>几个月前开始倒腾电子产品，扣完所有费用月利润 $800。妻子又怀上了，上一个娃的开销账单还堆着。然后拒付（chargeback）开始了。这个月四单。一个哥们买笔记本充电器，次日送达，然后发起“未收到货”。妥投证明都在。另一双鞋，穿上脚拍照发网上，然后说是假货。</p>
+<p>银行一直站他们那边，我已经亏了 $400，濒临破产。再亏不起了。描述、图片、视频都改进过了。还是照样发生。我在想要不要上自动拒付管理工具或防护服务。你们都怎么防这种破事？值得换平台或者加个服务吗？</p>
+<p>压力山大，求尽快给个主意。</p></div>
+<div class="lang en body"><p>Started flipping electronics couple months back, making 800 month profit after all fees. wife pregnant again, bills stacking from last kid stuff. then chargebacks start. four this month. one dude buys laptop charger, gets it next day, files not received. proof delivery there. another pair shoes, wears em posts pics online, then says fake.</p>
+<p>banks keep siding with them, im down 400 now close to broke. cant afford more losses. tried better descriptions pics videos even. still happens. thinking maybe i need some automated chargeback management or service to protect myself. how you guys protect against this crap, worth switching platforms or add some service?</p>
+<p>stressing hard need ideas asap.</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/NeedleworkerSmart486</span><span class="cscore">▲ 755</span></div>
+<div class="lang zh cbody"><p>所有 $50 以上的订单一律开“签收确认”，这对拒付是降维打击。再把你打包封箱、面单清晰可见的全过程录下来。我赢过多起纠纷，靠的就是上传 30 秒打包视频当证据——银行对这个的重视程度远高于一个单纯的物流单号。</p></div>
+<div class="lang en cbody"><p>Signature confirmation on everything over 50 bucks is a game changer for chargebacks. Also start filming yourself packing and sealing every order with the shipping label visible. Ive won multiple disputes just by uploading a 30 second packing video as evidence, banks take that way more seriously than just a tracking number.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/Silver-Honkler</span><span class="cscore">▲ 216</span></div>
+<div class="lang zh cbody"><p>黄金和高档珠宝交易就是这么干的。配合全部沟通记录的截图，基本刀枪不入。</p></div>
+<div class="lang en cbody"><p>This is what is done with gold and high end jewelry. It is pretty bulletproof along with copies of any communication.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Masterweedo</span><span class="cscore">▲ 184</span></div>
+<div class="lang zh cbody"><p>如果你走的是 USPS，这就构成邮件欺诈（Mail Fraud），应该向邮局举报——USPIS（美国邮政稽查局）对这个是动真格的。</p></div>
+<div class="lang en cbody"><p>If you used USPS, this is Mail Fraud, and you should report it to the post office, the USPIS takes it seriously.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Legitimate_Run8985</span><span class="cscore">▲ 149</span></div>
+<div class="lang zh cbody"><p>有些人无缘无故地刻薄。你确实需要更好的风控、要做更聪明的决定，但当下对多数美国人来说每月多 $800 已经是梦了。别让人贬得你觉得自己一无是处。</p></div>
+<div class="lang en cbody"><p>People are being weird and mean for no reason. You need better controls in place and to make some smarter decisions yes, but an additional $800 a month for most Americans right now is a dream. Don't let folks make you think it's nothing.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/just-dig-it-now</span><span class="cscore">▲ 81</span></div>
+<div class="lang zh cbody"><p>他说的是倒腾电子产品，我理解就是收二手再卖。风险确实大。</p></div>
+<div class="lang en cbody"><p>He says flipping electronics, which to me means buying used and reselling. Definitely risky.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/owossome</span><span class="cscore">▲ 78</span></div>
+<div class="lang zh cbody"><p>这招被严重低估了。USPS 比任何其他政府机构都有牙齿。现在的政府想弄死它是有原因的。邮件欺诈有多严重，很多人没有概念。</p></div>
+<div class="lang en cbody"><p>This is seriously under utilized. The USPS has more teeth than any other government entity. There is a reason the current administration is trying to destroy it. It's insane how serious mail fraud is.</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1vtzktx">
+<div class="pmeta"><span class="pno">06</span><a class="psub" href="https://www.reddit.com/r/passive_income" target="_blank" rel="noopener">r/passive_income</a><span>2026-08-20</span><span>My Experience</span><span class="pscore">▲ 718 分</span><span>💬 69 评论</span><span class="mono pid">1vtzktx</span><a class="plink" href="https://www.reddit.com/comments/1vtzktx" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">被动收入不属于穷人，我受够了看这个版假装不是这样</h2></div>
+<div class="lang en"><h2 class="ptitle">passive income isn’t for poor people, and i’m tired of watching this sub pretend otherwise</h2></div>
+<p class="why"><span class="whyt">入选理由</span>“被动收入不属于穷人”——三年祛魅的定调帖</p>
+
+<div class="lang zh body"><p>这是一个本版没人想听的事实：</p>
+<p>被动收入不是起点。它是你把东西搭起来之后剩下的那部分。你要么有钱，要么有别人真正愿意买单的技能。两样都没有的话，你需要的不是被动收入策略，你需要的是一份工作。</p>
+<p>我把我的真实时间线摆出来，省得大家脑补这一切是从天上掉下来的：</p>
+<p>读了工程硕士。因为在餐馆打工、当快递员——账单可不管你什么学历。做过一阵客服，真正学会了生意是怎么一天天运转的，不是从 YouTube 学的，是身处其中学的。后来电话接得太好，进了 Google。把一路攒下的所有东西凑起来，开了自己的公司。这家公司现在每月给我带来约 $2,000 的被动收入。</p>
+<p>注意这份清单里缺了什么：坐在家里对着笔记本，因为看了个“新手被动收入”视频就等着天上掉钱。</p>
+<p>如果你 20 岁、没本金、没技能——没关系，人人都有起点——但正确的动作是去搞技能、搞学历、或者找一份能学到东西的任何工作，而不是寻找能跳过十年苦干的秘密捷径。</p>
+<p>被动收入是终点的奖励。它不是计划本身。</p></div>
+<div class="lang en body"><p>here’s the truth nobody on this sub wants to hear :<br>passive income isn’t a starting point. it’s what’s left over after you’ve already built something. you need money, or you need skills that are actually worth something to someone else. if you have neither, you don’t need a passive income strategy, you need a job.</p>
+<p>i’ll give you my actual timeline so people stop imagining this stuff appears out of nowhere:</p>
+<p>did a master’s in engineering. worked in restaurants and as a courier because bills don’t care about your degree. did customer service for a while, actually learned how businesses run day to day, not from youtube, from being inside one. eventually got too good at answering the phone I got into Google. took everything i’d learned and picked up along the way and started my own company. that company now makes me about $2,000/month passively.</p>
+<p>notice what’s missing from that list: sitting at home with a laptop expecting money to fall out of the sky because i watched a “passive income for beginners” video.</p>
+<p>if you’re 20 with no capital and no skills, that’s fine, everyone starts somewhere, but the move is to go get skills or get a degree or get any job that teaches you something, not to hunt for the secret shortcut that skips a decade of work.<br>passive income is the reward at the end. it is not the plan.</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Justscrolling375</span><span class="cscore">▲ 65</span></div>
+<div class="lang zh cbody"><p>讽刺的是，你得先有“辛苦钱”才能赚“躺赚的钱”。我目前最被动的一笔收入是高息储蓄（HYSA）利息——反正钱本来就该放在那儿。</p>
+<p>金额不足以改变人生，但利息够覆盖几笔 $10 以下的小开销。</p></div>
+<div class="lang en cbody"><p>Ironically you need hard working money to make lazy money. For me the most passive income I got was from my HYSA interest because money is supposed to be there anyways</p>
+<p>It ain’t life changing amount per month but at least the interest can cover a few smaller expenses under $10</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/asher030</span><span class="cscore">▲ 32</span></div>
+<div class="lang zh cbody"><p>如果说的是直接跳到自我维持的财务自由级被动收入，你说得对，钱生钱得有本。但小体量的“被动”确实可以滚动自我放大，股息复投就是典型。</p>
+<p>本版真正有价值的是“怎么走完前面那段”的操作指导……比如在股息股之外错峰配置国债（$1k 起购、按 $1k 加码，持有期内持续付息、到期还本，5-20 年期，20 年期利率最好），这往往是从积累期到凑够本金的一次进阶。</p>
+<p>但如果没人分享这些步骤，新人就只能干瞪眼，因为所有人都把身后的桥烧了……</p></div>
+<div class="lang en cbody"><p>Jumping straight to self-sustaining financial freedom passive income, you're right. Takes money to make money. However you CAN use smaller passives to build up on itself, that's the whole basis behind compounding dividends for instance.</p>
+<p>Guidance given on HOW to do that is still very much relevant for the sub though, just can't really go into thread after thread after thread like there's much else to add beyond that. Aside from steps taken to further capitalize on such...like switching or adding onto the dividend stocks with staggered treasury bond purchases since those you need as a minimum of $1k per in increments of $1k, with some having a higher minimum than just $1k...but pay out interest for as long as you own that bond till you get the money back at the end of its lifetime...often 5-20 years depending, with 20 being the best rates. Which often proves a step up from the growth period to reach the capital needed.</p>
+<p>But there's still a place for this sub in guiding people on the steps to achieve that, else they're just left floundering because no one shares that because everyone burns the damned bridge behind them....</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Sauraigne</span><span class="cscore">▲ 32</span></div>
+<div class="lang zh cbody"><p>谢谢你。终于有人说真话了。</p></div>
+<div class="lang en cbody"><p>Thank you. Finally the truth has been spoken.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/revelry0128</span><span class="cscore">▲ 23</span></div>
+<div class="lang zh cbody"><p>完全同意。人们以为被动收入是一次到位的，其实它在此之前要付出巨量劳动。你得先投入时间和努力去搭一个有价值的东西。不经历起步阶段的努力，被动收入不会自己变被动。这正是大多数人不懂的。</p></div>
+<div class="lang en cbody"><p>I couldn't agree more. People think passive income is one and done but it actually takes a lot of work before it becomes passive. You have to put in the time and effort to build something and not just something, but of value. A passive income does not become passive without the effort at the beginning. And that is what most people don't understand.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/Ok_Coyote_5282</span> <span class="opb">OP</span><span class="cscore">▲ 14</span></div>
+<div class="lang zh cbody"><p>我只是烦透了有人发帖“我 20 岁，0 技能 0 存款 0 学历，怎么月入 1 万？我有台电脑”——这种程度的妄想到底是怎么回事。</p></div>
+<div class="lang en cbody"><p>I'm just tired of people posting " im 20 with 0 skills , 0 money , 0 education  how to make 10k? i have computer"  like wtf is even that level of delusion</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/TheSleepyTeeDJ</span><span class="cscore">▲ 14</span></div>
+<div class="lang zh cbody"><p>Z 世代可不想听这个！</p></div>
+<div class="lang en cbody"><p>Gen Z don’t wanna hear that!</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1f7lf98">
+<div class="pmeta"><span class="pno">07</span><a class="psub" href="https://www.reddit.com/r/Entrepreneur" target="_blank" rel="noopener">r/Entrepreneur</a><span>2024-09-02</span><span class="pscore">▲ 471 分</span><span>💬 178 评论</span><span class="mono pid">1f7lf98</span><a class="plink" href="https://www.reddit.com/comments/1f7lf98" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">副业做成了 $140k/年的生意</h2></div>
+<div class="lang en"><h2 class="ptitle">Side Hustle turned into $140k business</h2></div>
+<p class="why"><span class="whyt">入选理由</span>压力清洗 $140k/年真实样本：47 岁、$2M 退休储蓄与转型时机的完整讨论</p>
+
+<div class="lang zh body"><p>2020 年疫情初期我开始给人洗房子（外墙清洗）。当时居家办公了差不多两年。副业越做越大，去年我注册了 LLC。我在现在的公司干了 18 年，年薪 $140k。现在副业（LLC）的年均收入也是 $140k。我想明年五月从企业界退休，专心经营 LLC。我 47 岁，退休储蓄有 $200 万。大家怎么看？</p></div>
+<div class="lang en body"><p>I started washing houses during 2020 at the onset of COVID. I was working from home for almost 2 years. My side hustle grew to the point I created an LLC last year. I've been at my workplace for 18yrs and make 140k a year. My side hustle now LLC is averaging 140k as well. I want to retire from the Corporate world next May and focus on my LLC. I'm 47 with 2 mil in retirement savings. Thoughts?</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Rdw72777</span><span class="cscore">▲ 402</span></div>
+<div class="lang zh cbody"><p>47 岁就有 $200 万退休金，你基本上想干嘛就干嘛，放手去做吧。</p></div>
+<div class="lang en cbody"><p>$2m in retirement at 47 you can pretty much do whatever you want, so feel free to do this.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/redbate</span><span class="cscore">▲ 113</span></div>
+<div class="lang zh cbody"><p>没错，这是“可以对客户说‘去你的’”级别的钱。</p></div>
+<div class="lang en cbody"><p>Yup this is "can go tell client to get fucked" kind of money.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/EastValuable9421</span><span class="cscore">▲ 98</span></div>
+<div class="lang zh cbody"><p>干吧。做大它，然后笑看人生。</p></div>
+<div class="lang en cbody"><p>Do it. Scale it up and laugh</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/importsexports</span><span class="cscore">▲ 83</span></div>
+<div class="lang zh cbody"><p>我和你处境一样，除了存款那部分。</p>
+<p>前面两条路：</p>
+<ol><li>辞职，扩张，做到 $500k 营收、$300k 净利。</li></ol>
+<ol><li>低压力、不折腾——辞职，维持现状，试着用一半时间赚到同样的钱，享受人生。</li></ol>
+<p>换成我会聚焦时间，干自己想干的事。</p></div>
+<div class="lang en cbody"><p>I'm in the same position with the exception of savings.</p>
+<p>Two ways ahead.</p>
+<ol><li>Quit, scale and reach $500k gross, $300,000 net.</li></ol>
+<ol><li>Low stress, no bullshit... quit, continue what you're doing and try to make that same money in half the time. Enjoy your time off.</li></ol>
+<p>Focus on time and do the shit you want to do is where I would focus.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/shop_wgb</span><span class="cscore">▲ 70</span></div>
+<div class="lang zh cbody"><p>去做！我当年的条件比你差多了，也干了——毫无悔恨。</p></div>
+<div class="lang en cbody"><p>DO IT i did it at a much less favorable position than you - i regret nothing</p></div>
+</div>
+<div class="comment d4">
+<div class="cmeta"><span class="cauthor">u/VonBassovic</span><span class="cscore">▲ 39</span></div>
+<div class="lang zh cbody"><p>辞职前先试试外雇一两个员工跑量。跑通了，你就从体力活里退出来，只做销售和质量把控。规模化。</p></div>
+<div class="lang en cbody"><p>Try scaling it with an outside employee or two before quitting. Once that works, pull back from doing the manual and do sales and quality assurance. Scale.</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1hm7btk">
+<div class="pmeta"><span class="pno">08</span><a class="psub" href="https://www.reddit.com/r/sidehustle" target="_blank" rel="noopener">r/sidehustle</a><span>2024-12-25</span><span>Sharing Ideas</span><span class="pscore">▲ 671 分</span><span>💬 73 评论</span><span class="mono pid">1hm7btk</span><a class="plink" href="https://www.reddit.com/comments/1hm7btk" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">2024 年副业收入 $6,000：什么有效、什么无效</h2></div>
+<div class="lang en"><h2 class="ptitle">$6,000 in Side Hustle income for 2024: what works and what doesn&#x27;t</h2></div>
+<p class="why"><span class="whyt">入选理由</span>唯一附收入证明的年度总结（含失败项目复盘）</p>
+
+<div class="lang zh body"><p>今年我的副业收入大约 $6,000，想把有效和无效的拆开讲讲。主要是因为我在无效的事上浪费了不少时间，希望各位能绕开，哈哈。</p>
+<p>文末附收入证明——我认为凡宣称“做 XYZ 赚到钱”的人，都应该强制出示证明。</p>
+<p><strong>用户研究（User Research）</strong></p>
+<p>简单说：有些教授/研究员和公司需要你对他们的研究和产品提意见。有一些公司专门让你注册、提供这类输入。</p>
+<p>视平台而定，你要么在站内填问卷，要么录音频/视频走一遍演示。录音频听着吓人，但这才是真正的钱所在——这类问卷 10-15 分钟的活儿能付 $10+。</p>
+<p>哪些站点/App 靠谱？按我的经验：</p>
+<p><em>UserTesting</em>：</p>
+<p>在我看来这是参与用户研究的最佳网站。注册流程极简，填一些基本信息就开始收到测试邀请。建议把资料填到最满，才能解锁尽量多的问卷。</p>
+<p>单笔 $4–$90。$4 和 $10 的最简单，10 分钟完成，只需录音频。$30–$90 的需要和公司约时间、走产品演示和问答，30–90 分钟，折算时薪依然可观。</p>
+<p>唯一的坑：你不会每份都符合资格。我的经验约 6 份中 1 份，但申请动作极快，不合格的也不怎么浪费时间。</p>
+<p><em>Prolific</em>：</p>
+<p>这个稍费劲、单价比 UserTesting 低，但适合没时间约访谈的人。</p>
+<p>纯问卷站，绝大多数无需录音录像（对某些人是加分项），还提供浏览器扩展，一来新问卷就提醒。</p>
+<p>同样建议把个人资料填满，才能尽量多合格。</p>
+<p>用户研究总体提醒：这是纯副业，别指望替代主业。我估算认真做每月约 $300，时薪约 $15-20。</p>
+<p><strong>自由职业（Freelancing）</strong></p>
+<p>人人都听过，都想问到底行不行。行，但有条件。</p>
+<p>自由职业极度饱和。极度饱和。你能想到的任何品类——从 logo 设计到复杂软件服务——巴基斯坦的 Ahmed 都能 $5 接单，质量不输你甚至更好。</p>
+<p>大多数人败在这：定价太高，卖自己还不熟的技能。接不到单，就此放弃。自由职业无论选什么，都需要大量耐心才能做好、才有像样收入。</p>
+<p>第一步：选你擅长的。</p>
+<p>logo 设计适合别人不代表适合不会做的你。要么选本来就擅长的，要么选你愿意投入时间练成的。获取可出售的技能需要时间，起步阶段不好玩——菜的时候从来不好玩。</p>
+<p>第二步：定低价。</p>
+<p>这也是残酷真相：在建立品牌（好评、反馈、社会证明）之前，你必须把价格定得远低于市场才接得到单。这意味着 $5 出手。对，就是 $5。不管这单花 2 小时还是 20 分钟。这只是我的经验和建议，别的自由职业者可能路径不同，但我坚信对普通人这是拿到首批订单的最佳路径。有了订单和社会证明，就能开始涨价。我的客单价从 $5 涨到了 $33。</p>
+<p>能卖什么？</p>
+<p>我广泛观察下来，身边做得好的品类：</p>
+<ol><li>写作/内容创作</li><li>平面设计</li><li>视频剪辑</li><li>翻译服务</li><li>商务服务</li><li>职业服务（我的细分）</li><li>数字营销/SEO</li><li>网站/App 开发</li></ol>
+<p>每一个都需要时间和投入去积累，但只要技能到手就有回报。不容易，但这是能兑现的副业。</p>
+<p><strong>股息投资（Dividend Investing）</strong></p>
+<p>在我看来这是副业/被动收入的圣杯——让钱替你打工。股息是什么？公司给持股股东发的利润分配。不仅会发，还会随利润增长逐年提高。</p>
+<p>公司破产了怎么办？好问题。所以多数股息投资者偏好 ETF（交易所交易基金）。基金持有一篮子公司而非一两家，风险低于个股。热门基金跟踪标普 500 等宽基指数，覆盖大量行业。</p>
+<p>热门股息基金：</p>
+<p>SCHD：股息率 3.7%，即每投 $100 每年回 $3.7。</p>
+<p>VYM：股息率 2.5%，即每投 $100 每年回 $2.5。</p>
+<p>股息投资是长期游戏。不会立刻月入几千，需要坚持，但时间拉长会滚成可观的副业。再次强调这是副业，别指望替代主业，大概率不能。但让钱为你工作，加上长期股价增值，可能是笔好赌注。</p>
+<p><strong>什么无效？</strong></p>
+<p>Dropshipping：</p>
+<p>我试了 3 次，3 次全败。我拒绝相信 dropshipping 能成为稳定副业。有人私信我声称赚到了，我要证明，至今一份都没见过。我认识的两个 dropshipping 成功的人都是全职干。要跑通需要大量时间、承诺和专注。我认为它不构成“副业”。</p>
+<p>社交媒体上的 AI 内容/低努力内容：</p>
+<p>这我觉得不用多说——更像彩票系统。万分之一频道能成，那你还不如直接买彩票。YouTube 上说这招管用的频道，靠宣传假收益的视频赚 adsense 的钱比做频道本身多。变现也是大问题，YouTube 正在打击二创/AI/低努力内容。如果你有跑通的这种频道，请联系我，我很乐意被证明是错的。</p>
+<p>Flipping（二手倒卖）：</p>
+<p>平台倒卖从没为我工作过——要么市场太有效，要么我太慢、投入时间不够。选品、上架、出售全得自己来，太耗时。另一个问题是规模化：你的时间有限、毛利不会扩张，没法 scale。我住在大城市，可能市场本来就太有效、必须出手快。说说你们的经历，有没有靠这个持续赚到钱。</p>
+<p><strong>2025 年目标：</strong></p>
+<p>2025 年副业收入冲 $10,000，主要靠现有项目扩量，也探索新的。我在看 crypto sweepstakes（加密抽奖站），本版不少人背书。也想多试别的。</p>
+<p>新年快乐，希望给你带来了一点副业灵感。</p>
+<p><strong>证明：</strong></p>
+<p>文末附 Prolific / User Testing / Fiverr / 股息账户的截图（原文为图片链接）。</p></div>
+<div class="lang en body"><p>This year I made $6,000 (roughly) in side hustle income and I wanted to break down what worked for me and what didn’t. Mostly because I wasted time trying out things that don’t work and hopefully people can avoid that lol</p>
+<p>Proof is also attached below which I also think should be mandatory for anyone claiming they made money doing XYZ.</p>
+<p><strong>User Research</strong></p>
+<p>Simply put: There are people (professors/researchers) and companies out there who want your input on their research and products. There are companies you can sign up for to register and provide this input.</p>
+<p>Depending on the site, you will either need to do a survey on the site or record your audio/video walking through a demonstration. Although recording audio seems like a lot, this is where the real money is at with these surveys paying $10+ for around 10-15 minutes of work.</p>
+<p>What are some good sites/apps for this? According to my experience, the following:</p>
+<p><em>UserTesting</em>:</p>
+<p>This is in my opinion the best website for participating in user research. The sign up process is extremely easy and they ask some basic information about yourself to start receiving surveys. I recommend filling out as much information as possible to get access to as many surveys as possible.</p>
+<p>Each of these surveys range from $4-$90. The $4 and $10 surveys are simple and take 10 minutes to complete and ask you to record your audio only. The $30-$90 surveys require you to set up a time with the company to walk through a product demo and questions. These surveys take 30-90 minutes to complete so the hourly rate is still pretty high.</p>
+<p>The only caveat with this is that you will not qualify for all of these surveys. In my experience, you will qualify for around 1 out of every 6 surveys but since you can apply extremely quickly, you don’t waste much time on surveys you do not qualify for.</p>
+<p><em>Prolific</em>:</p>
+<p>This one is a bit more work and pays less, although it's a good option for people that do not have time to schedule interviews for more money.</p>
+<p>This is a website that is surveys only, no need to record audio or video for most of these surveys which might be a bonus for some people and they also give you a helpful extension that alerts you whenever a survey is ready for you.</p>
+<p>Again, I recommend filling out as many surveys as possible so you get qualified for as many surveys as possible.</p>
+<p>A general comment about user research: This is a pure side hustle so do not expect to replace your full time income with this, at most I estimate I can make around $300 per month doing this regularly at an hourly rate of around $15-20/hour.</p>
+<p><strong>Freelancing</strong></p>
+<p>We have all heard this before and wonder if it works. And it does, with some conditions.</p>
+<p>Freelancing is extremely saturated. EXTREMELY saturated. Anything that you can think of, from logo design to more complicated software services, Ahmed from Pakistan can do it for $5 and do it as well as you if not better.</p>
+<p>This is where most people will fail, they will price their services too high and sell something they are not yet good at. Get no orders and call it a day. Freelancing requires a lot of patience no matter what you choose to do in order to get good at it and make a decent income.</p>
+<p>Step 1: Pick something that you are good at.</p>
+<p>If logo designing works for someone it will not work for you if you suck. So the first thing is to actually do something you are good at or ARE WILLING TO PUT IN THE TIME TO GOOD AT. You will need to put in some effort to acquire skills you can sell. This will take time and will not be fun at the start because it’s never fun when you are terrible at something.</p>
+<p>Step 2: Price Low</p>
+<p>This will also be a harsh truth but you will need to price way lower than the market to actually get orders until you build a brand i.e get positive reviews and feedback. Social proof. This will mean selling whatever you have chosen at $5. Yeah, $5. No matter if it takes 2 hours of work or 20 minutes, you will have to do this. Of course this is just my advice and what worked for me, I am sure other freelancers might have done differently but I strongly believe for average people this is the best way to get orders. Once you get orders and social proof, you can start charging more. My average order value was $5 and now it's $33.</p>
+<p>What Can You Sell?</p>
+<p>I have searched far and wide and these are the categories that I see others around me doing well:</p>
+<ol><li>Writing and Content Creation</li><li>Graphic Design</li><li>Video Editing</li><li>Translation services</li><li>Business services</li><li>Career services (my niche)</li><li>Digital Marketing/SEO</li><li>Web/App development</li></ol>
+<p>Each one of these requires time and dedication to build but the payoff is there if you are able to acquire skills. It will not be easy but it is a side hustle that can pay off.</p>
+<p><strong>Dividend Investing</strong></p>
+<p>In my opinion, this is the holy grail for side hustling/passive income. Making your money work for you is the thesis here. What are dividends? These are profit payments companies pay shareholders who hold the company’s stock. Companies not only pay dividends they also increase their dividend payments over time as their profits increase.</p>
+<p>What if the company goes bankrupt? Good question. This is why most dividend investors prefer ETFs or exchange traded funds. These funds hold a basket of companies and not just 1 or 2 companies. This ensures that the ETF is less risky than individual investments. Some of the popular funds track the S&amp;P 500 and other indices that are broad and include a lot of sectors</p>
+<p>Some of the popular dividend funds include:</p>
+<p>SCHD: 3.7% yield, meaning you get $3.7 dollars a year for every 100 invested.</p>
+<p>VYM: 2.5% yield, meaning you get $2.5 dollars a year for every 100 invested.</p>
+<p>Dividend investing is a LONG TERM game. You will not make thousands immediately, you will need to stay consistent but over time this will grow and turn into a lucrative side hustle. Once again, this is a side hustle so do not expect this to replace your full time income. It will most likely not. But making your money work for you and not to mention the long term share price appreciation might be a good bet.</p>
+<p><strong>What Does Not Work?</strong></p>
+<p>Dropshipping:</p>
+<p>I tried this 3 times and all 3 times this did not work. I just refuse to believe that dropshipping can be a consistent side hustle. I get people reach out to me and in my DMs claiming they made money, I ask them for proof and have never seen any. The two people I know that do dropshipping successfully DO IT FULL TIME. It takes a lot of time, commitment and dedication to make it work. I don’t think it qualifies as a “side hustle”</p>
+<p>AI Content/Low Effort content on Social Media:</p>
+<p>I don’t think this needs to be said but this is more like a lottery system. Yeah 1 in 10000 channels succeed but just buy a lottery ticket at this point. Channels saying this works on YouTube are making more money from videos on adsense on their false claims. The monetization aspect is a huge issue too, with YouTube cracking down on reused/AI/low effort content. If someone has a successful channel like this, reach out. I would love to be proven wrong.</p>
+<p>Flipping:</p>
+<p>Marketplace flipping never worked for me because the market is too efficient or maybe I am too slow and cannot dedicate enough time to this. You have to source, list and sell everything yourself on marketplace and it takes too much time. The one other problem I have is scale. You cannot scale this since your time is limited and margins don’t expand. I live in a bigger city so maybe the market is already too efficient and there is a need to act quick. Let me know what your experience has been and if you were able to consistently make money doing this.</p>
+<p><strong>Goals for 2025:</strong></p>
+<p>I want to hit $10,000 in side hustle income for 2025, mostly through scaling these hustles and also exploring new ones. I was looking at crypto sweepstakes as one since a lot of people here vouch for that. Interested to try out more too.</p>
+<p>Happy new year and hopefully you got some ideas for side hustling.</p>
+<p><strong>Proof:</strong></p>
+<p><a href="https://preview.redd.it/6w5bowz0q19e1.png?width=3584&amp;format=png&amp;auto=webp&amp;s=d56a3aff7d2f7e0bd79deecb7b63fca8bf8236c9" target="_blank" rel="noopener">Prolific </a></p>
+<p><a href="https://preview.redd.it/tdwwfxz0q19e1.png?width=3584&amp;format=png&amp;auto=webp&amp;s=4101b995de61bc39d5cafb9d208a5419d9a4976d" target="_blank" rel="noopener">User Testing</a></p>
+<p><a href="https://preview.redd.it/tyknau7eq19e1.png?width=2958&amp;format=png&amp;auto=webp&amp;s=66b40275e4a986d2ee9fd772be19fdfde87dbc46" target="_blank" rel="noopener">Fiverr</a></p>
+<p><a href="https://i.redd.it/45nhq8g5r19e1.gif" target="_blank" rel="noopener">Dividends</a></p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/zainlikesmoney</span> <span class="opb">OP</span><span class="cscore">▲ 63</span></div>
+<div class="lang zh cbody"><p>谢谢认可。我认为凡在本版声称靠某事赚到钱的人，出示证明应该成为强制要求。</p></div>
+<div class="lang en cbody"><p>Appreciate it. I think proof should be mandatory for anyone claiming they made money doing something on the subreddit.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/RobinZander1</span><span class="cscore">▲ 56</span></div>
+<div class="lang zh cbody"><p>谢谢！有用，而且看着可信。感谢附上证明。</p></div>
+<div class="lang en cbody"><p>Thanks!  Helpful and looks legit.  Appreciate the attached proof.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/CounterAdmirable4218</span><span class="cscore">▲ 14</span></div>
+<div class="lang zh cbody"><p>我会往你这份“有效清单”里加一条：银行开户奖励（bank switching），真有效、回报好。</p></div>
+<div class="lang en cbody"><p>Bank switching I would add to your list of things that do work and pay well.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Outrageous_Flower527</span><span class="cscore">▲ 13</span></div>
+<div class="lang zh cbody"><p>我 2024 年靠宠物寄养副业赚了 $40k，同时全职远程做 HRBP。所以如果你有远程工作，宠物寄养可以非常赚。</p></div>
+<div class="lang en cbody"><p>I made $40k with my pet sitting side hustle in 2024. I work full time as a remote HRBP. So if you have a remote job, pet sitting can be extremely lucrative.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/reviery_official</span><span class="cscore">▲ 12</span></div>
+<div class="lang zh cbody"><p>你也在 AI 训练站点上接活吗？我 7 月以来在那边赚了 $7,700……对我来说挺好使的。（附链接）</p></div>
+<div class="lang en cbody"><p>Are you freelancing on AI training sites too? I got 7700 there since July..<br>Works quite well for me.</p>
+<p><a href="https://www.reddit.com/r/WFHJobs/comments/1gom6vv/comment/lwnxdiv/" target="_blank" rel="noopener">https://www.reddit.com/r/WFHJobs/comments/1gom6vv/co…</a></p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/Easy-Money69</span><span class="cscore">▲ 10</span></div>
+<div class="lang zh cbody"><p>学历不重要，重要的是作品集和给客户交付想要的结果。</p>
+<p>我有本科学位，但我相信没有学位也能证明自己的价值。</p></div>
+<div class="lang en cbody"><p>Education doesn’t matter if you have a portfolio and provide clients with their desired results.</p>
+<p>I have a bachelors but believe you can prove your worth without a degree.</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1upbxbh">
+<div class="pmeta"><span class="pno">09</span><a class="psub" href="https://www.reddit.com/r/sidehustle" target="_blank" rel="noopener">r/sidehustle</a><span>2026-07-06</span><span>Looking For Ideas</span><span class="pscore">▲ 411 分</span><span>💬 44 评论</span><span class="mono pid">1upbxbh</span><a class="plink" href="https://www.reddit.com/comments/1upbxbh" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">试了两个月“AI 无人出镜 YouTube Shorts 赚钱法”，说点诚实的数字</h2></div>
+<div class="lang en"><h2 class="ptitle">Tried the faceless AI YouTube Shorts money thing for 2 months, the honest numbers</h2></div>
+<p class="why"><span class="whyt">入选理由</span>faceless AI YouTube 诚实复盘 + 评论区 AI 帖鉴伪现场</p>
+
+<div class="lang zh body"><p>每隔几周就有人发“用 AI 做 YouTube Shorts 月入 $10k”的帖子，永远含糊其辞。所以我来说说跑了 2 个月之后的诚实版本，蹭的是 GTA 6 内容潮。</p>
+<p>前提是真的。已货币化频道的 Shorts 每百万次播放收益约 $2k–$10k（视品类而定），超级游戏大作意味着对切片和反应视频的需求近乎无限。流传的方法很简单：找一条已经在爆的视频，把视频描述喂给 Claude 生成脚本，用 AI 数字人工具（我用的是 Argil）生成画面，CapCut 拼接，发 Shorts。</p>
+<p>实际落到我头上：2 个月下来，几条视频上了六位数播放，但大多数死在几百播放，真实到手是每月几百刀，不是人们炫耀的截图。工具现在反而是最简单的部分。真正的问题是所有人都在跑一模一样的 GTA 角度，你发的东西等于撞进一堵同质化垃圾墙，而且 YouTube 对低努力搬运内容越收越紧。</p>
+<p>不是说这事不成立——对某些人显然成立。只是“24 小时后删除”那帮人卖给你的是梦，不是中位数。有没有人真在新鲜感退去后做出稳定收入？还是对你来说也停滞了？</p></div>
+<div class="lang en body"><p>very few weeks someone posts the "make $10k a month from faceless YouTube Shorts with AI" thing and it's always vague, so this is the honest version after running it for 2 months on the back of the GTA 6 content wave.</p>
+<p>The premise is real. YouTube's Shorts payout on a monetised channel runs somewhere around $2k to $10k per million views depending on niche, and a massive game launch means basically infinite demand for clips and reactions. The method going round is simple, find a video already pulling numbers, feed the description into Claude to spin a script, generate the visuals with an AI avatar tool (I used Argil), stitch it together in CapCut, post to Shorts.</p>
+<p>Where it actually landed for me, 2 months in, a handful of videos hit six figures of views but most died at a few hundred, and my real take-home is closer to a few hundred bucks a month, not the screenshots people flex. The tools are honestly the easy part now. The real problem is everyone's running the identical GTA angle so you're posting into a wall of the same slop, and YouTube's getting stricter about low-effort reused content.</p>
+<p>Not saying it doesn't work, it clearly does for some people. Just that the "24 hours before I delete this" crowd are selling you the dream, not the median. Anyone actually cleared steady money past the novelty phase, or did it plateau for you too.</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/PepeSylvia11</span><span class="cscore">▲ 423</span></div>
+<div class="lang zh cbody"><p>“每月几百刀”本身已经是凡尔赛了。这远远好过绝大多数干了两个月的人。</p></div>
+<div class="lang en cbody"><p>“A few hundred bucks a month” is also a flex. That is far, far better than the vast majority of people two months in.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/SendLove4</span><span class="cscore">▲ 227</span></div>
+<div class="lang zh cbody"><p>lol，这帖子本身就是 AI 写的</p></div>
+<div class="lang en cbody"><p>lol this post itself is written with AI</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/dataoops</span><span class="cscore">▲ 121</span></div>
+<div class="lang zh cbody"><p>这是给 argil 还是什么玩意打的广告吧</p></div>
+<div class="lang en cbody"><p>this is an ad for argil or some shit</p></div>
+</div>
+<div class="comment d3">
+<div class="cmeta"><span class="cauthor">u/kristmass</span><span class="cscore">▲ 76</span></div>
+<div class="lang zh cbody"><p>从 Claude 复制粘贴的，按 Command C 之前高亮条没拉到顶。</p></div>
+<div class="lang en cbody"><p>Copy pasted from claude, didn’t get the highlight bar all the way to the top before command C</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/adam_364</span><span class="cscore">▲ 73</span></div>
+<div class="lang zh cbody"><p>注意到没有：这种帖子永远、无一例外、会“顺便”提到某个“随机”工具。真不懂为什么这不算违反版规 1。</p></div>
+<div class="lang en cbody"><p>Notice how with these posts there's ALWAYS, without failure, the mention of a "random" tool just thrown in there coincidentally. Honestly why this isn't banned for breaking Rule 1 is beyond me</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/badwolf42</span><span class="cscore">▲ 47</span></div>
+<div class="lang zh cbody"><p>如果真是 AI 写的，我猜第一句会是 “Every few weeks someone posts…”（每隔几周就有人发……）。</p>
+<p>而实际写的是 “very few weeks someone posts…”（很少几周……）。</p>
+<p>烂语法和烂自动纠正至少让它像人写的。也许不是，但这些错误不太像 AI 输出。</p></div>
+<div class="lang en cbody"><p>If it were, I would imagine the first sentence would be “Every few weeks someone posts…”</p>
+<p>Instead it’s “very few weeks someone posts…”</p>
+<p>Bad grammar and bad autocorrect at least make it seem like a person wrote it. Maybe not but those errors seem unlikely to be AI output.</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1vva3j8">
+<div class="pmeta"><span class="pno">10</span><a class="psub" href="https://www.reddit.com/r/passive_income" target="_blank" rel="noopener">r/passive_income</a><span>2026-08-22</span><span>My Experience</span><span class="pscore">▲ 341 分</span><span>💬 67 评论</span><span class="mono pid">1vva3j8</span><a class="plink" href="https://www.reddit.com/comments/1vva3j8" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">对存款为 $0 的人，YouTube 上大多数“被动收入”建议是彻头彻尾的骗局</h2></div>
+<div class="lang en"><h2 class="ptitle">Most &quot;passive income&quot; advice on YouTube is a total scam for anyone with a $0 balance</h2></div>
+<p class="why"><span class="whyt">入选理由</span>600 个设计赚 $14 → 细分模板 $250-400/月的完整反转</p>
+
+<div class="lang zh body"><p>过去 12 个月，我把大师们宣称“零投入赚几千”的每一种“低努力”副业试了个遍。按需印刷？我往 Redbubble 传了 600 多个设计，六个月整赚 $14，同时在 Canva 上烧掉无数小时。Dropshipping？为了卖一个根本没人要的“爆款”厨房小玩意，我在广告上亏了将近 $900。没人想听的真相是：对没有本金的人，被动收入不是快速致富方案。它要么是对一项可规模化技能投入海量时间，要么干脆就是已有本金的利息。我掉进的坑，就是以为自己能“设好就忘”，却根本没有任何真实价值可以提供给市场。</p>
+<p>在所有流行玩法全败之后，我终于开始真正赚钱——靠回到我本来就懂的东西。我是技术文档写手，我做了一套非常垂直的文档模板卖给小型工程公司，挂在一个细分市场上。我不推广、不投广告，上个季度它每月稳定带来 $250–$400。初始那套花了我约 60 小时苦工，但现在它是真·被动。我付出惨痛代价学到的教训是：如果 TikTok 上有人告诉你“很简单”“人人都能做”，他们通常只是想卖你课，或者赚你绝望点击的广告费。</p>
+<p>如果你存款 $0 又没有专业技能，你需要的不是被动收入策略，而是第二份工作或一张证书。我知道这话难听，但我真希望一年前有人对我这么说，免得我在 Redbubble 上浪费几百个小时。真被动收入需要地基。想通这一点后，我整个视角都变了。别再找“黑客式捷径”，去找“能解决一次、永久收钱”的问题。这没有“从第一天起睡觉也能赚钱”那么酷，但至少真的有效。好奇这里有没有人经历过类似的当头棒喝，还是只有我特别不擅长照着“简单指南”执行 lol。</p></div>
+<div class="lang en body"><p>I spent the last 12 months trying every single "low effort" side hustle that gurus claim can make you thousands with zero investment. Print on demand? I uploaded over 600 designs to Redbubble and made exactly $14 in six months while spending way too many hours on Canva. Dropshipping? I lost nearly $900 on ads trying to sell some "viral" kitchen gadget that literally nobody wanted. The reality that nobody wants to hear is that passive income isnt a "get rich quick" scheme for people with no capital. It’s either an investment of massive amounts of time into a skill that eventually scales, or it’s just interest on money you already have. I fell for the trap of thinking I could just "set it and forget it" without having any real value to offer to the market.</p>
+<p>After failing at all the trendy stuff, I finally started making actual money when I went back to what I actually know. I’m a technical writer so I created a very specific set of documentation templates for small engineering firms and put them on a niche marketplace. I dont promote them, I dont run ads, and they’ve been bringing in a steady $250 to $400 a month for the last quarter. It took me about 60 hours of hard work to build the initial set, but now it’s truly passive. The lesson I learned the hard way is that if some guy on TikTok is telling you it’s easy and "anyone can do it," they’re usually just trying to sell you a course or get ad revenue from your desperate views.</p>
+<p>If you have $0 and no specialized skills, you dont need a passive income strategy, you need a second job or a certificate. I know that sounds harsh but I wish someone had told me that a year ago before I wasted hundreds of hours on redbubble. Real passive income requires a foundation. Once I realized that, my whole perspective shifted. Stop looking for "hacks" and start looking for problems you can solve once and get paid for forever. It’s not as "cool" as making money while you sleep from day one, but at least it actually works. Curious if anyone else here had a similar wake up call or if I was just exceptionally bad at following those "easy" guides lol.</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Public-Lynx6675</span><span class="cscore">▲ 105</span></div>
+<div class="lang zh cbody"><p>被动收入通常始于多了几道工序的主动收入。</p></div>
+<div class="lang en cbody"><p>Passive income usually starts as active income with extra steps.</p></div>
+</div>
+<div class="comment d3">
+<div class="cmeta"><span class="cauthor">u/certifiedtoothbench</span><span class="cscore">▲ 30</span></div>
+<div class="lang zh cbody"><p>恕我直言，想靠自己赚钱的话 60 小时根本不算什么，哪怕目标是把它变被动。这正是那么多人选择打工而不是创业的原因——可靠得多。</p>
+<p>60 小时对我来说就是一周的班。指望一周的工作量替代我整个收入流、养我下半辈子，荒谬。</p>
+<p>另外我没记错的话，真正靠谱的建议者都会让你从自己深度熟悉的细分切入，找到能对这群人提供被动化服务的路子。</p></div>
+<div class="lang en cbody"><p>I’m sorry but 60 hours is nothing when you’re trying to make money on your own even if the goal is to make it passive. That’s why so many people chose to work for someone instead of start a business, much more reliable.</p>
+<p>60 hours is like one week’s worth of working on the job for me. To expect a week of work to be able to replace my entire income stream and support me for the rest of my life is ridiculous.</p>
+<p>Also if I’m not mistaken a lot of the actual good advice givers recommend that you look for a niche that you may personally know intimately and can easily find a way to provide a service you can generate passive income from to them.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/mpbh</span><span class="cscore">▲ 25</span></div>
+<div class="lang zh cbody"><p>收入只来自两样东西：时间和/或资本。没有资本，就得投入时间——那不叫被动，那叫上班。</p></div>
+<div class="lang en cbody"><p>Income comes from 2 thing: time and/or capital. If you don't have capital, you have to invest time, and that's not passive. That's just a job.</p></div>
+</div>
+<div class="comment d4">
+<div class="cmeta"><span class="cauthor">u/japan_noob</span><span class="cscore">▲ 24</span></div>
+<div class="lang zh cbody"><p>看到“60 小时=很长时间”我笑了。</p>
+<p>要不这家伙学学我，各种事干上 8 年，第 8 年才挖到金，中途从不放弃。</p>
+<p>所以我现在才能不工作就到处旅行，因为我牺牲了真正的时间去搭东西，一路失败了无数次。</p></div>
+<div class="lang en cbody"><p>I kind of laughed when I saw 60 hours as “lot of time” to succeed in a way where you make money without an employer.</p>
+<p>How about this guy try doing various things for 8 years like me and finally hitting gold the 8th year without giving up.</p>
+<p>Thats why I can travel and do anything without working because I sacrificed real time to build something and failed a ton of times along the way.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/tspurwolf</span><span class="cscore">▲ 24</span></div>
+<div class="lang zh cbody"><p>YouTube 上发被动收入视频的人，尤其那些声称赚翻的，大多根本没在做他们教的事。</p>
+<p>如果 Mark Tilbury 们真靠 Amazon KDP 那些玩意月入几千，才懒得经营 YouTube 频道——直接放大本来就赚钱的事不就完了。</p>
+<p>很多被动收入套路确实曾经有效过，后来彻底过饱和。比如 Etsy 已经基本没法用了。</p></div>
+<div class="lang en cbody"><p>A lot of people posting about passive income on YouTube, especially the ones who claim to make loads, aren’t actually doing it.</p>
+<p>If people like e.g. Mark Tilbury actually earned thousands from Amazon KDP and the other stuff they go on about, they’d never bother with a YouTube channel. You’d just do more of the things making you loads of money.</p>
+<p>A lot of these passive income setups DID work at some point, but ended up becoming totally oversaturated. Etsy became basically unusable, for example.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/Astute_Skink927</span> <span class="opb">OP</span><span class="cscore">▲ 22</span></div>
+<div class="lang zh cbody"><p>我那些“被动”模板花了 60+ 小时高强度主动劳动才得以存在。天下没有免费午餐。</p></div>
+<div class="lang en cbody"><p>My "passive" templates took 60+ hours of high-effort active work to even exist. There's no such thing as a free lunch.</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1edcbt6">
+<div class="pmeta"><span class="pno">11</span><a class="psub" href="https://www.reddit.com/r/Entrepreneur" target="_blank" rel="noopener">r/Entrepreneur</a><span>2024-07-27</span><span class="pscore">▲ 250 分</span><span>💬 181 评论</span><span class="mono pid">1edcbt6</span><a class="plink" href="https://www.reddit.com/comments/1edcbt6" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">突然发现副业已经比主业 9-5 挣得多，该辞职 all-in 吗？</h2></div>
+<div class="lang en"><h2 class="ptitle">I just realized my side hustle is making more than my 9-5 job. Should I quit and go all in?</h2></div>
+<p class="why"><span class="whyt">入选理由</span>辞职时机的社区标准答案</p>
+
+<div class="lang zh body"><p>一部分我想辞职、专心做大这个生意。另一部分害怕离开稳定工资和福利的安全感。</p>
+<p>有人经历过这个阶段吗？你跳了吗？结果如何？</p>
+<p>很想听大家的经历和建议。有没有一种聪明的、从雇员过渡到全职创业者的方式，不至于赌上一切？</p></div>
+<div class="lang en body"><p>Part of me wants to quit my job and focus on growing this business. The other part is scared to leave the security of a steady paycheck and benefits.</p>
+<p>Has anyone else been in this situation? Did you take the leap? How did it turn out?</p>
+<p>I'd love to hear your experiences and advice. Is there a smart way to transition from employee to full-time entrepreneur without risking everything?</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/theoneandonlyhendy</span><span class="cscore">▲ 270</span></div>
+<div class="lang zh cbody"><p>慢慢来。副业没有连续几个月稳定给你带来像样收入之前，别跳。</p></div>
+<div class="lang en cbody"><p>Take your time, don’t take the leap until your side hustle has been steadily earning you well for at least a few months.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/ChristianHorner</span><span class="cscore">▲ 85</span></div>
+<div class="lang zh cbody"><p>就是！而且如果你还没准备，先存够至少 6 个月开支的应急基金。</p></div>
+<div class="lang en cbody"><p>This! And if you haven't already, set aside an emergency fund (your monthly expenses) for atleast 6 months.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/pbspry</span><span class="cscore">▲ 79</span></div>
+<div class="lang zh cbody"><p>我 2007-2008 年也在你这个位置。为要不要离开全职岗位整整纠结了 3 年。失去医保和稳定工资对心理的冲击是巨大的，哪怕副业收入已经有工资的 1-2 倍。回头看，我希望当年立刻就辞，但剪断那根财务脐带确实是一道严重的心理关。</p>
+<p>过渡的最佳方式：把副业赚到的每一分钱都存进“自立门户基金”，放进一个 5% 利息的账户。攒到能支撑至少 12 个月的缓冲，就扣扳机。</p>
+<p>为自己工作和为别人工作完全是两个世界，绝大多数方面好得没法比。就算不成，至少试过——这是 95% 的人说不出口的。</p></div>
+<div class="lang en cbody"><p>Was in your position back in 2007-2008.  Hemmed and hawed about leaving my full-time job for 3 solid years.  Losing health insurance and a steady paycheck is a serious mindfuck, even when you have 1-2x your salary coming in via the side hustle.  Looking back, I wish I'd done it right away, but it's a serious mental hurdle to leap, cutting that financial cord.</p>
+<p>Best way to ease the transition is to save every possible penny you're making from the side hustle and throw it into your "go into business for yourself fund".  Save it all, put it into an account yielding 5% interest, and once you've got enough of a financial cushion to support you for at least 12 months, pull the trigger.</p>
+<p>Working for yourself is an entirely different world compared to working for someone else.  Immeasurably better in most ways.  If it doesn't work out, hey, at least you tried, which is something 95% of people cant' say.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/gas-man-sleepy-dude</span><span class="cscore">▲ 41</span></div>
+<div class="lang zh cbody"><p>报数字。给营收增长时间线。列个人和生意的预算，含带利率的负债。描述现工作福利。列被抚养人。</p>
+<p>换句话说：“看情况，需要更多信息。”</p></div>
+<div class="lang en cbody"><p>Give some numbers.  Give a timeline of progression of revenue growth.  List a budget both personal and for the business including debts with interest rates.  Describe current work benefits.  List dependents.</p>
+<p>In other words, « It depends and requires additional info »</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/MajorHubbub</span><span class="cscore">▲ 35</span></div>
+<div class="lang zh cbody"><p>悄悄躺平（quiet quit）</p></div>
+<div class="lang en cbody"><p>Quiet quit</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/Automatic_Photo_9508</span><span class="cscore">▲ 31</span></div>
+<div class="lang zh cbody"><p>如果副业“收入超过主业”的状态已经维持 6 个月以上，可以考虑转入。不过我建议找份兼职留作应急，以防路上出岔子。我想说的是：你需要把 PLAN B 规划出来。</p></div>
+<div class="lang en cbody"><p>If your side hustle is maintaing the figure of earning more then 6 month then you can consider moving in , however i would suggest to find a part time job for some emergency money just in case something down the road. create a PLAN B i would say is the thing that you need to plan out</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-11h2xyc">
+<div class="pmeta"><span class="pno">12</span><a class="psub" href="https://www.reddit.com/r/povertyfinance" target="_blank" rel="noopener">r/povertyfinance</a><span>2023-03-03</span><span>Income/Employement/Aid</span><span class="pscore">▲ 379 分</span><span>💬 310 评论</span><span class="mono pid">11h2xyc</span><a class="plink" href="https://www.reddit.com/comments/11h2xyc" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">这位单亲妈妈需要一个副业</h2></div>
+<div class="lang en"><h2 class="ptitle">This single mama needs a side hustle</h2></div>
+<p class="why"><span class="whyt">入选理由</span>“avoid all MLMs”经典回复 + 低收入者选项全景</p>
+
+<div class="lang zh body"><p>Reddit 新手，不确定发对地方没有，多包涵哈哈。</p>
+<p>我是三个孩子的单亲妈妈，最小的 11 个月。我目前全职远程办公，白天独自带娃，另外两个孩子在上学。我需要赚更多钱跟上通胀，但完全不知道该干嘛。自从 3 年前开始居家办公，我越来越社恐，很难走出去推销自己。而且这活儿必须能带着我 11 个月的老三一起干——这个年头我不敢把孩子交给任何人；还得能在孩子们放学出校门时我在家、能送他们去训练等等。试过 Instacart，单量根本不够。</p>
+<p>我知道要求很苛刻，但没什么是不可能的，对吧？欢迎任何建议。</p></div>
+<div class="lang en body"><p>New to Reddit, not sure if I am posting in the right place so bare with me hahaha</p>
+<p>Single mom of 3 here, my youngest is 11 mths old and I currently work full time from home and have my son all day while the others are in school. I need to make more money to keep up with inflation and have NO CLUE what to do. I have become a huge recluse since starting to work from home 3 years ago and have trouble putting myself out there. I also need it to be something that I can have my 11 mth old with me as I trust no one these days with him, and I need to be able to be home for my kids when they get out of school, get them to sports etc I have tried "Instacart" and just do not get enough.</p>
+<p>I know its a tall order but nothing is impossible, right? Open to any suggestions.</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/KitRhalger</span><span class="cscore">▲ 843</span></div>
+<div class="lang zh cbody"><p>远离一切 MLM（多层次传销）。统计数据一次次证明：除非你站在大团队的金字塔顶，你能保本就算走运。</p></div>
+<div class="lang en cbody"><p>avoid all MLMs. Statistics show time and time again unless you're at the top of a large team you're lucky to break even</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/oscarwinner88</span><span class="cscore">▲ 559</span></div>
+<div class="lang zh cbody"><p>你能不能在家里多看护一两个孩子？既帮了另一位上班的家长，也能增加收入。</p></div>
+<div class="lang en cbody"><p>Could you watch one or more additional children in your home?   That could be a way to earn more income while helping out another working parent.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/nip9</span><span class="cscore">▲ 326</span></div>
+<div class="lang zh cbody"><p>校车司机。我们本地学区急缺司机，大多数新司机都把自己家小的绑在身后的安全座椅上跑线路，自家的学龄孩子也跟着一起上下学。</p>
+<p>除此之外，托育和保洁是极少数“带着 11 个月婴儿上班”通常被接受的工作。</p></div>
+<div class="lang en cbody"><p>School bus driver. My local districts have been desperate for drivers and the majority of new drivers have their young kids strapped into a car seat right behind them as they drive their route and their school age children riding along to &amp;amp; from school.</p>
+<p>Otherwise childcare &amp;amp; housecleaning are among the very few other jobs in which bringing an 11 month along with you is generally ok</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/Lily_Of_The_Valley_6</span><span class="cscore">▲ 227</span></div>
+<div class="lang zh cbody"><p>或者做上学前/放学后托管也行。多少上班族家长会感激一个离学校近、能在放学和下班之间“接住”孩子的人。</p></div>
+<div class="lang en cbody"><p>Or even just before and after school care. Plenty of working parents would appreciate someone close to school that could get their kids to cover between school and work ending.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/Nameless_Nurse</span><span class="cscore">▲ 159</span></div>
+<div class="lang zh cbody"><p>同意。</p>
+<p>再让我在 Instagram 上刷到一个晒 beauty counter、rodan and fields、Mary Kay、CBD 玩意的妈妈，我真的要疯了 lol</p></div>
+<div class="lang en cbody"><p>Agreed.</p>
+<p>If I see another mom on my Instagram post about beauty counter, rodan and fields, Mary Kay, CBD products, etc I’m going to lose my freaking mind lol</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/cannycandelabra</span><span class="cscore">▲ 157</span></div>
+<div class="lang zh cbody"><p>我在家照顾癌症晚期的父亲时，靠买卖旧书。我在 eBay 按箱收细分品类（推理、科幻等）的书，在 Amazon 单本卖。有时周六早上去车库拍卖（garage sale）淘教材之类的。每周只花几小时，每月进账 $300-400。</p></div>
+<div class="lang en cbody"><p>When I was home taking care of my terminally I’ll father I bought and sold books. I would buy boxes of books on eBay in niche markets (Mysteries, Sci-Fi, etc) and sell them individually on Amazon. Sometimes I’d spend Saturday AM garage sailing for text books or what have you. Brought in 300-400 a month doing it only a few hours a week</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1rilqr6">
+<div class="pmeta"><span class="pno">13</span><a class="psub" href="https://www.reddit.com/r/Flipping" target="_blank" rel="noopener">r/Flipping</a><span>2026-03-02</span><span>Discussion</span><span class="pscore">▲ 9 分</span><span>💬 56 评论</span><span class="mono pid">1rilqr6</span><a class="plink" href="https://www.reddit.com/comments/1rilqr6" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">你们的二手倒卖现金收入都怎么报税？</h2></div>
+<div class="lang en"><h2 class="ptitle">How do y’all report cash flipping on marketplace income on taxes? Side hustle while in college and was wondering how to report flipping income on taxes</h2></div>
+<p class="why"><span class="whyt">入选理由</span>现金收入报税大战现场（原帖正文为空，精华在评论区）</p>
+<div class="lang zh removed-note">原帖正文已被删除 / 无正文——本帖价值在评论区。</div><div class="lang en removed-note">Original post body was removed / empty — the value is in the comments.</div>
+<div class="lang zh body"></div>
+<div class="lang en body"></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Xenephobe375</span><span class="cscore">▲ 49</span></div>
+<div class="lang zh cbody"><p>我的现金收入不报。我该交的税都交过了。山姆大叔不需要更多。</p></div>
+<div class="lang en cbody"><p>My cash income doesn't get reported. I already pay my fair share of taxes. Uncle Sam doesn't need any more.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/mk2drew</span><span class="cscore">▲ 29</span></div>
+<div class="lang zh cbody"><p>现金的事，没人需要知道。</p></div>
+<div class="lang en cbody"><p>Nobody needs to know about cash.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/cha-cha-melon</span><span class="cscore">▲ 25</span></div>
+<div class="lang zh cbody"><p>贝索斯和马斯克想方设法避税，你倒好，上赶着把看不见的钱分给山姆大叔，图什么。</p>
+<p>除非有人替你申报了“付钱给你”这件事（比如 W2 或 1099 收入），在 IRS 的账本上你一分钱收入都没有。</p>
+<p>你可以去“自首”申报自雇收入、给联邦和州交税，但别指望像 W2 打工人那样拿退税。也可以顺手申报费用——纯属给自己加活儿，零收益。</p>
+<p>我不是税务顾问，但我经历过自雇、1099 和 W2，学到一些东西。祝好运。</p></div>
+<div class="lang en cbody"><p>Jeff Bezos and Elon Musks do their outmost to avoid paying taxes yet here you are, trying to share your invisible money with Uncle Sam for no reason.</p>
+<p>Unless someone reports paying you, say W2 or 1099 income, you didn’t get any income as per the IRS books.</p>
+<p>You can snitch on yourself by reporting self-employment income and pay the taxes to the IRS and the state where you live, but don’t expect a tax return like normal W2 earners get. Oh and might as well report expenses, but you’d be making more work for yourself for literally no gain.</p>
+<p>I am not a tax advisor or anything but I’ve been self employed, 1099, and W2 employee so I’v learned a few things. Good luck.</p></div>
+</div>
+<div class="comment d4">
+<div class="cmeta"><span class="cauthor">u/hitometootoo</span><span class="cscore">▲ 18</span></div>
+<div class="lang zh cbody"><p>你像一张破唱片：一直在回复，却根本不读别人的回复。别回了，开始读吧，把别人对你说的话听进去。</p></div>
+<div class="lang en cbody"><p>You sound like a broken record and yet you aren't reading the replies. Stop replying, start reading and taking in what is being said to you.</p></div>
+</div>
+<div class="comment d3">
+<div class="cmeta"><span class="cauthor">u/TuftLifeHardRugs</span><span class="cscore">▲ 17</span></div>
+<div class="lang zh cbody"><p>lol，这儿坐着一个 fed（联邦探员），想从他嘴里套点东西。</p></div>
+<div class="lang en cbody"><p>lol fed over here trying to get something out of him</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Nevilles_Remembrall_</span><span class="cscore">▲ 12</span></div>
+<div class="lang zh cbody"><p>大家一遍又一遍告诉你别报。你非要报，行吧。享受给山姆大叔送更多钱去炸棕皮肤人民的快乐吧 🤷</p></div>
+<div class="lang en cbody"><p>People keep telling you over and over dont report it. If you want to, cool. Enjoy paying Uncle Sam more money to blow up brown people i guess 🤷</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1u2d3j0">
+<div class="pmeta"><span class="pno">14</span><a class="psub" href="https://www.reddit.com/r/beermoney" target="_blank" rel="noopener">r/beermoney</a><span>2026-06-10</span><span>PSA</span><span class="pscore">▲ 63 分</span><span>💬 3 评论</span><span class="mono pid">1u2d3j0</span><a class="plink" href="https://www.reddit.com/comments/1u2d3j0" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">抓个正着：Playtime / justDice 系 App 伪造客服记录骗提现（附证据）</h2></div>
+<div class="lang en"><h2 class="ptitle">Caught them red-handed: Playtime / justDice apps are faking support logs to scam payouts (With Evidence)</h2></div>
+<p class="why"><span class="whyt">入选理由</span>被平台拒付后的教科书级反击：邮件支付方实锤</p>
+
+<div class="lang zh body"><p>如果你在玩 justDice / AppLike 旗下任何 App（Playtime、Cash Giraffe、Money Cash、Just Games），注意了。它们正在伪造后端数据，坑走用户的大额余额，而我把他们当场抓住，证据齐全。</p>
+<p>长话短说：我的余额到 $150 时申请提现，支付在 App 里卡住。我开工单询问，他们的客服（“Taha” 和 “Ems” 两个坐席）在多个工单线程里连发 16 条一模一样的复制粘贴话术，赌咒发誓说钱已成功处理、已发给他们的支付供应商 Tremendous。</p>
+<p>我没跟这些废物机器人纠缠，直接绕过他们，发邮件给 Tremendous 管理层要求审计。昨天下午，Tremendous 的受赠支持经理 William V. 给我发来正式声明，证实 justDice 从未为我的账户下单或发放任何奖励。</p>
+<p>他们不是出了故障。他们的客服团队就是在伪造交易记录，好清空提现队列、用虚假借口窃取用户数据。</p>
+<p>当我拿出他们自家供应商的证据对质时，他们彻底装死。没有回复，没有人工修复，一片死寂。</p>
+<p>既然他们想躲在坏掉的自动循环后面，我查了他们在德国的公司注册信息（justDice GmbH / AppLike Group，注册号 HRB 141399），并向以下机构提交了点名其 CEO Jonas Thiemann 和 Carlo Szelinsky 的正式欺诈投诉：</p>
+<p>加拿大竞争局（欺骗性营销/消费者欺诈）</p>
+<p>Google Play 欺诈运营团队（违反政策，申请吊销其开发者执照）</p>
+<p>如果你以为这些 App 靠谱，停手吧。你的余额一高到值得动手，他们就会锁你、然后撒谎。别再白送广告收入。如果他们也用“供应商处理中”的借口搪塞你，直接跳过客服、向 Google Play 举报该 App。</p></div>
+<div class="lang en body"><p>Heads up if you’re grinding on any apps run by justDice / AppLike (Playtime, Cash Giraffe, Money Cash, Just Games). They are actively faking their backend data to screw users out of bigger balances, and I completely caught them red-handed with receipts.</p>
+<p>Long story short, I hit a $150 balance and tried to cash out. The payout stalled in the app. When I opened tickets to see what was up, their support desk (agents "Taha" and "Ems") spammed me with 16 identical copy-paste macros across multiple threads, swearing up and down that the money was successfully processed and sent to their payout vendor, Tremendous.</p>
+<p>Instead of arguing with their useless bots, I bypassed them completely</p>
+<p>and emailed Tremendous management directly for an audit. Yesterday afternoon, William V. (Recipient Support Manager at Tremendous) sent me an official statement confirming that justDice never ordered or issued any rewards for my account.</p>
+<p>They didn't have a glitch. Their support team is literally fabricating transaction records to clear queues and steal user data under false pretenses.</p>
+<p>When I confronted them with the proof from their own vendor, they went completely ghost. No replies, no manual fixes, just total silence.</p>
+<p>Since they want to hide behind broken auto-loops, I looked up their corporate registration in Germany (justDice GmbH / AppLike Group, Registration: HRB 141399) and filed formal fraud complaints naming their CEOs, Jonas Thiemann and Carlo Szelinsky, with:</p>
+<p>Competition Bureau Canada (Deceptive marketing/consumer fraud)</p>
+<p>Google Play Fraud Operations (Policy violations to pull their developer license)</p>
+<p>If you’re using these apps thinking they’re legit, stop. The second your balance gets high enough, they’re going to lock you out and lie about it. Stop giving them free ad revenue. If they gave you the same "vendor processing" excuse, skip their support team entirely and report the app directly to Google Play.</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/LingonberryFun4990</span> <span class="opb">OP</span><span class="cscore">▲ 7</span></div>
+<div class="lang zh cbody"><p>他们赌的就是我们会累。</p>
+<p>但他们挑了个超聚焦的神经多样性患者来欺负。我从不放弃 lol。</p></div>
+<div class="lang en cbody"><p>They rely on us getting exhausted.</p>
+<p>They picked a huperfocused neurodivergent to fuck with though. I don't give up lol.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/roads30</span><span class="cscore">▲ 6</span></div>
+<div class="lang zh cbody"><p>遗憾的是这种事全行业都在发生。不过要给你点赞——越级直捣供应商源头的操作，按说对我们很多人（包括我）应该是常识才对，lol。</p>
+<p>我还觉得 Cashwalk 也有猫腻。他们改了提现流程，现在要求用户接一个根本打不通的电话验证，每次输完代码都提示“无效代码”。以前的系统不需要来电确认。很奇怪的做法，背后可能另有隐情。</p></div>
+<div class="lang en cbody"><p>sadly a lot of this happens across the board. however kudos to skipping the line and going straight to the vendor source, you'd think that would be common sense for a lot of us, myself included. lol</p>
+<p>i think there's something fishy also going on with cashwalk as well. they changed their format in cashing out and are now requiring users to accept a phone call prompt that does not work. and each time you press pound after the code, it comes back with invalid code prompt.</p>
+<p>the previous system didn't require a user to be called to confirm. so, odd way of doing things that may have more of an explaination somewhere.</p></div>
+</div>
+<div class="comment d3">
+<div class="cmeta"><span class="cauthor">u/roads30</span><span class="cscore">▲ 3</span></div>
+<div class="lang zh cbody"><p>太对了！</p></div>
+<div class="lang en cbody"><p>damned right!</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/DietMtDew1</span><span class="cscore">▲ 2</span></div>
+<div class="lang zh cbody"><p>Eureka Surveys 那几个 App 也对我来过一样的。他们赌咒发誓说奖励已发放。我直接联系 Tremendous，对方证实根本没发。这套路到处都是！</p></div>
+<div class="lang en cbody"><p>That happened to me with the Eureka Surveys apps.  They swore up and down they sent the reward.  I contacted Tremendous directly and they verified they didn't.  Thrives all around!</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/ancientchild98</span><span class="cscore">▲ 1</span></div>
+<div class="lang zh cbody"><p>我攒到 $145，还自掏腰包做了 offer 里的充值任务，提现从 6 月 11 日卡到现在。今天他们说我是重复账号、不给付，在 4 个不同工单里反复发同一封邮件。不瞒你说，我气疯了，但这本来就是场赌博对吧？这站就是个骗局。</p></div>
+<div class="lang en cbody"><p>I hit $145 a d invested my own pocket money into the offers and my redemptions stalled since June 11th and today they said I made a duplicate account and they won't pay out and on 4 separate threads keep sending me the exact same email. Im so mad not gonna lie but its always a gamble right? Sites definitely a scam</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/ballz_deep_69</span><span class="cscore">▲ 1</span></div>
+<div class="lang zh cbody"><p>也许早点提现不就完了？何必冒这个险？</p></div>
+<div class="lang en cbody"><p>Maybe just cash out earlier? Why risk that at all?</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1q0fea0">
+<div class="pmeta"><span class="pno">15</span><a class="psub" href="https://www.reddit.com/r/Entrepreneur" target="_blank" rel="noopener">r/Entrepreneur</a><span>2025-12-31</span><span>Recommendations</span><span class="pscore">▲ 62 分</span><span>💬 16 评论</span><span class="mono pid">1q0fea0</span><a class="plink" href="https://www.reddit.com/comments/1q0fea0" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">副业做到月入 $40k，然后被算法调整干趴了</h2></div>
+<div class="lang en"><h2 class="ptitle">Scaled my side hustle to 40k a month then got wrecked by algorithm changes</h2></div>
+<p class="why"><span class="whyt">入选理由</span>$38-42k/月店铺算法调整后流量 -67%：平台依赖风险样本——注意其评论区本身就是软广活体</p>
+
+<div class="lang zh body"><p>我从 2022 年起一边全职上班一边经营一家数字产品店，卖可打印计划表和婚礼模板，没什么玄乎的。到今年 6 月，月流水已经做到 $38k–$42k——对一件每周只投入约 15 小时的事来说简直离谱。然后流量掉了 67%。从每天 200+ 单跌到 30 单上下。什么招都试了：新关键词、更新 listing、甚至第一次花钱买 promoted listings——全没用。现在连竞品都看不全了，搞不清他们哪里做得不一样。后来我开始直接触达存量客户、搭了个简单的独立小店。现在回到大约 $18k/月，还不错，但那波下跌是真疼。既然要正经公司化，我正在搭正式的生意架构。大家有什么下一步的建议吗？</p></div>
+<div class="lang en body"><p>Ive been running a digital products store since 2022 as a side hustle while working full time. Started with printable planners and wedding templates, nothing crazy. by june this year i was pulling in around 38k to 42k monthly which was absolutely insane for something i was doing maybe 15 hours a week. My traffic dropped 67%. Went from 200+ sales a day to maybe 30, tried everything, new keywords, updated listings, even paid for promoted listings which i never did before and nothing worked. Cant even see all my competitor products anymore to figure out what theyre doing different. Then i started reaching out to my existing customer base directly and built a simple store. Now im currently at like 18k/month which is still good but man that drop hurt. Im trying to set up proper business infrastructure now since im going legit. Anyone any ideas on what to do now?</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/robbyslaughter</span><span class="cscore">▲ 22</span></div>
+<div class="lang zh cbody"><p>给你出个招：注册一堆 Reddit 小号，一个负责提问，另一个负责给出“恰好有利于某个付你钱的品牌”的回答。就像这一条。（附链接）</p></div>
+<div class="lang en cbody"><p>Here’s what you should do, make multiple Reddit accounts, and use one to ask questions and the other to give an answer which benefits some brand that is paying you. <a href="https://www.reddit.com/r/Advice/s/MKfIt6zkY1" target="_blank" rel="noopener">Like this one.</a></p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Funny_Plate6081</span><span class="cscore">▲ 18</span></div>
+<div class="lang zh cbody"><p>对我来说最难的是规模化之后的资质验证，最后需要真实的商业租约文件和实际营业地址，不能只留一个 PO 邮箱。后来在一个 Reddit 帖子里找到 Building Lease Co，他们把一切都办妥了，给我一份有效租约，帮大忙了。</p></div>
+<div class="lang en cbody"><p>The hardest part for me was getting verified after scaling and I ended up needing actual commercial lease documentation and a real business address, not just a PO box. Eventually found Building Lease Co through a reddit thread actually and they sorted it all out then got me a valid lease agreement and it was super helpful.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/Buttercup1410</span><span class="cscore">▲ 7</span></div>
+<div class="lang zh cbody"><p>我刚去查了 Building Lease Co，看着太棒了！谢谢推荐。</p></div>
+<div class="lang en cbody"><p>I just checked out Building Lease Co, they look amazing! Thanks for the recommendation.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/who_am_i_to_say_so</span><span class="cscore">▲ 4</span></div>
+<div class="lang zh cbody"><p>哈哈 🤣 真相了</p></div>
+<div class="lang en cbody"><p>Haha 🤣 truth</p></div>
+</div>
+<div class="comment d4">
+<div class="cmeta"><span class="cauthor">u/Buttercup1410</span><span class="cscore">▲ 1</span></div>
+<div class="lang zh cbody"><p>虚拟办公室我见过，但能给你租约的没见过，更别说 $250 一年。我见过的都是 $150 一个月起步。</p></div>
+<div class="lang en cbody"><p>I have seen virtual offices before but I haven't seen one that gives you a lease and certainly not for $250 a year. I've seen it start at $150 per month.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/isaaclhy13</span><span class="cscore">▲ 1</span></div>
+<div class="lang zh cbody"><p>你今年 6 月流水做到多少了？我也是创始人，全职之余跑过小型数字副业，流量扩量和找买家太苦了。试试把 listing 精准匹配搜索意图来提升转化，跑低成本付费测试找出真正能转化的引流磁铁。我做了 SignalScouter——一个创始人式 Reddit 获客与互动服务，实时找帖、起草创始人风格的回复，让你在用户求助的地方截流客户，2 天 89 个注册、10k+ 浏览。欢迎反馈，或者你试用之后咱们聊聊。祝好运。</p></div>
+<div class="lang en cbody"><p>How much were you pulling in by June this year? I'm a founder too and ran a small digital side hustle while working full time, so scaling traffic and finding buyers was brutal. Try niching listings to match exact search intent which ups conversions, and run cheap paid tests to learn which lead magnets actually convert. I built SignalScouter, a founder-led Reddit lead gen and engagement service that finds posts and drafts founder-style replies in real time so you can grab customers where they ask for help, it netted 89 signups in 2 days and 10k+ views, would love any feedback or love to connect if you try it, good luck</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1qgf29u">
+<div class="pmeta"><span class="pno">16</span><a class="psub" href="https://www.reddit.com/r/Entrepreneur" target="_blank" rel="noopener">r/Entrepreneur</a><span>2026-01-18</span><span>Side Hustles</span><span class="pscore">▲ 213 分</span><span>💬 166 评论</span><span class="mono pid">1qgf29u</span><a class="plink" href="https://www.reddit.com/comments/1qgf29u" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">副业成功案例——奢侈手表</h2></div>
+<div class="lang en"><h2 class="ptitle">Side hustle success - Luxury Watches</h2></div>
+<p class="why"><span class="whyt">入选理由</span>手表倒卖完整损益披露（含初期累计亏损 $10k）</p>
+
+<div class="lang zh body"><p>一年半前开始倒腾奢侈手表。起步用的是主业攒下的 $25k 本金，后来累计投入约 $70k 自有资金。没有外部融资、没有导师、没有圈内人、没买过课。2024 年头两块表亏了 $2k，同年晚些又亏 $8k。主卖劳力士和奢侈品牌，$1k 以下不碰，平均单价约 $10k。</p>
+<p>2024 前 6 个月：</p>
+<ul><li>销售 $561k</li><li>毛利 $22k</li><li>净利 $13k</li></ul>
+<p>2025 全年：</p>
+<ul><li>销售 $1.2M</li><li>毛利 $87k</li><li>净利 $63k</li><li>自雇工资约 $8k</li></ul>
+<p>我基本全部走批发，快进快出。目标毛利 6-12%，视持表时长而定。亏损的次数一只手数得过来。目标是扣完一切费用（含每月 $1k 自雇工资）后，做到稳定月净 $10k。</p>
+<p>社媒营销做得很少。今年想发力，多卖给零售端客户拿更健康的毛利，也多从零售端收表。</p>
+<p>一直很开心，我爱表，享受边卖边戴。主业还在，近期不打算辞。</p>
+<p>就是想分享一下。有遗漏或问题评论区问。我会持续发更新记录进度、和大家互动——以前从没这么干过。</p>
+<p>谢谢！</p></div>
+<div class="lang en body"><p>Started flipping luxury watches about a year and half ago. I started with 25k of my own capital from my day job. Eventually I put in up to about \~70k of my own funds (owners capital) to grow the business. I started with no funding, no mentor, no one in the business and no courses. Lost 2k on my first 2 watches in 2024. Lost another 8k later that year. I mostly sell Rolexes and luxury brands. Nothing under 1k. Average watch price is around 10k.</p>
+<p>2024 - First 6 months:</p>
+<p>\- 561k in sales</p>
+<p>\- 22k gross profit</p>
+<p>\- 13k net profit</p>
+<p>2025 - One year:</p>
+<p>\- 1.2m in sales</p>
+<p>\- 87k gross profit</p>
+<p>\- 63k net profit</p>
+<p>\- \~8k payroll (salary to myself)</p>
+<p>Ive been wholesaling pretty much everything. Fast flips. I aim for 6-12% margins, depending on how long I’m holding a watch. I’ve lost a few times, can count on one hand probably. I’m trying to get to a point where I’m making a consistent 10k / month net, after all expenses including my salary of 1k / month.</p>
+<p>I do some social media / marketing but very little. Trying to really focus on that this year so I can sell to more retail clients for a healthier margin. As well as buy more watches from retail clients.</p>
+<p>It’s been really fun and I love watches and enjoy getting to wear them while I try to sell them. I still have my day job and don’t think I’m going to quit anytime soon.</p>
+<p>Just wanted to share this. If I missed anything or any questions just ask below. I’m going to try to post regular updates to track my progress and engage with others as I have never done it before.</p>
+<p>Thanks!</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/f00gers</span><span class="cscore">▲ 132</span></div>
+<div class="lang zh cbody"><p>这么薄的毛利还能做出这样的数字，尤其是同时还不辞职，真的很厉害。更难得的是坦承早期亏损，而不是假装一路顺风。</p></div>
+<div class="lang en cbody"><p>Really impressive numbers for such tight margins, especially while keeping a day job, and it’s refreshing to see someone be honest about early losses instead of pretending it was all smooth sailing.</p></div>
+</div>
+<div class="comment d4">
+<div class="cmeta"><span class="cauthor">u/allbl4ackeverything</span> <span class="opb">OP</span><span class="cscore">▲ 38</span></div>
+<div class="lang zh cbody"><p>说出来可能有点傻：一块表挂了两个月没什么像样的报价、我看着烦了，就直接出掉，哪怕亏一点也认。</p>
+<p>那笔资金可以转去买另一块能赚 $1k 的表，而不是压在这块只能保本的上面。及时止损嘛。</p></div>
+<div class="lang en cbody"><p>This may be dumb but when I get tired of looking at a watch that’s been sitting for about 2 months with no/low offers, I just decide to sell it, even take a loss on it and move on.</p>
+<p>That capital could be used to go into another watch that’s gonna make me 1k versus sitting on this one that I’m going to break even on. Cut your losses kinda deal.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/allbl4ackeverything</span> <span class="opb">OP</span><span class="cscore">▲ 37</span></div>
+<div class="lang zh cbody"><p>太感谢你的好话了！</p>
+<p>主业付账单，副业利润全部滚回生意再投资。亏损肯定有过、以后也会有，这是游戏的一部分。我学会接受并尊重它。</p></div>
+<div class="lang en cbody"><p>I really appreciate your kind words!</p>
+<p>The day job pays the bills, and the side hustle profits just get completely reinvested into the business. Yep for sure there were losses and there always will be. It’s part of the game. I’ve learned to accept and appreciate it.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/allbl4ackeverything</span> <span class="opb">OP</span><span class="cscore">▲ 30</span></div>
+<div class="lang zh cbody"><p>谢谢。鉴定全部我自己做。我现在有一整套鉴定方法，甚至包括拿序列号比对真实的劳力士数据库。</p></div>
+<div class="lang en cbody"><p>I appreciate that. I do all the authentication myself. I have a variety of different methods to authenticate now including even doing serial checks against an actual Rolex database.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/MrBDH98</span><span class="cscore">▲ 27</span></div>
+<div class="lang zh cbody"><p>佩服，干得漂亮！你怎么验真伪？你自己懂行，还是用第三方鉴定？</p></div>
+<div class="lang en cbody"><p>This is impressive, well done! How do you verify they’re genuine pieces and not fakes? Are you clued up yourself, or do you use an authenticator?</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/allbl4ackeverything</span> <span class="opb">OP</span><span class="cscore">▲ 20</span></div>
+<div class="lang zh cbody"><p>我加了很多经销商批发群（有的付费，有的邀请制），拿上面的挂价做比价。有时用 eBay 成交记录，有时用 chrono24。</p>
+<p>举个简化例子：某经销商在批发群挂 $10k，说明他大概 $9k 收的。我设法 $8-8.5k 拿到同款，最坏情况转手 $9k 卖给另一个经销商。超级流通的款，就算 $9k 收也值。</p></div>
+<div class="lang en cbody"><p>I’m in a lot of dealer wholesale groups (some paid, some invite only) and price match against those listings. Sometimes I use ebay sold listings, sometimes chrono.</p>
+<p>A simplified example: A dealer has listed a watch for 10k in the wholesale dealer group. That means the dealer probably paid around 9 for it. I try to get the same watch for 8-8.5 so worst case scenario I can turn around and sell it to another dealer for 9. Sometimes its worth getting it even at 9 if its a super liquid piece.</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1fzuhoh">
+<div class="pmeta"><span class="pno">17</span><a class="psub" href="https://www.reddit.com/r/povertyfinance" target="_blank" rel="noopener">r/povertyfinance</a><span>2024-10-09</span><span>Income/Employment/Aid</span><span class="pscore">▲ 230 分</span><span>💬 414 评论</span><span class="mono pid">1fzuhoh</span><a class="plink" href="https://www.reddit.com/comments/1fzuhoh" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">谷歌说 36% 的美国成年人有副业，你的呢？</h2></div>
+<div class="lang en"><h2 class="ptitle">According to google, 36% of all U.S adults have a side hustle. What&#x27;s yours?</h2></div>
+<p class="why"><span class="whyt">入选理由</span>“Can we start calling it a second job again?”副业正名运动起点</p>
+
+<div class="lang zh body"><p>有时候一份 W2 工资不够花，需要副业来补充收入 / 攒劲 / 糊口。</p>
+<p>你有副业吗？愿意说说做什么、赚多少吗？</p></div>
+<div class="lang en body"><p>Sometimes having a W2 job isn't cutting it and a side hustle is needed to supplement your income / get ahead / make ends meet.</p>
+<p>Do you have a side hustle? Are you able to share what you do and how much you make from it?</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Few_Introduction_256</span><span class="cscore">▲ 433</span></div>
+<div class="lang zh cbody"><p>我们能不能重新叫它“第二份工作”？</p></div>
+<div class="lang en cbody"><p>Can we start calling it a second job again?</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/el_chingon8</span><span class="cscore">▲ 239</span></div>
+<div class="lang zh cbody"><p>献血浆算吗 lol。去年手头特别紧，连捐 3 个多月，赚了 $2k。</p></div>
+<div class="lang en cbody"><p>Does donating plasma count lol, was very tight on money last year, donated 3 months and some change straight and made 2k off of it.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/relevantusername2020</span><span class="cscore">▲ 162</span></div>
+<div class="lang zh cbody"><p>我的“毒副业”是研究和科普“副业和零工经济对人类幸福有多毒”这件事本身。</p></div>
+<div class="lang en cbody"><p>my toxic side hustle is researching and explaining all of the many ways side hustles and the gig economy is toxic for human well being</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Rich260z</span><span class="cscore">▲ 93</span></div>
+<div class="lang zh cbody"><p>我加入了陆军预备役。税后每年多 $10k 左右，医保一年 $600。大部分航班免费优先登机、免费托运，很爽。</p>
+<p>把预备役叫副业是有点怪，但熬过新兵训练之后，就是每月一个周末加夏季两周。误了训练可以申请把天数挪到别的月份。</p>
+<p>如果你特指非 W2 类副业：我去废车场淘稀缺零件。每月能赚几百，偶尔撞大运，$100 收到 $1k 的件。</p></div>
+<div class="lang en cbody"><p>I joined the military reserves. Makes me about 10k extra a year after tax, and my healthcare is $600 a year. Free pre boarding for most flights and free checked bags is nice.</p>
+<p>Yeah it's a bit strange with me referring to this as a side hustle, but once you get past the basic training part, you just work one weekend a month and one 2 week period in summer. If you can't make the drill then you just request to add those days to a different month.</p>
+<p>If you specifically mean non W2 related side hustles, I go junkyard diving and look for niche parts. I can make a few hundred a month, every now and then I hit a gold mine and find a $1k part for $100.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Munkeyslovebananas</span><span class="cscore">▲ 92</span></div>
+<div class="lang zh cbody"><p>为什么我感觉这帖马上要变成 Amway（安利）推销会？</p></div>
+<div class="lang en cbody"><p>How come I feel like this is about to become an Amway presentation?</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/gunslingrburrito</span><span class="cscore">▲ 80</span></div>
+<div class="lang zh cbody"><p>我的副业是卖掉上周给自己买的东西——因为事实证明我买不起。</p></div>
+<div class="lang en cbody"><p>My side hustle is selling things I bought for myself last week, because turns out I couldn't afford them.</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1vykxfa">
+<div class="pmeta"><span class="pno">18</span><a class="psub" href="https://www.reddit.com/r/beermoney" target="_blank" rel="noopener">r/beermoney</a><span>2026-08-26</span><span>PSA</span><span class="pscore">▲ 261 分</span><span>💬 66 评论</span><span class="mono pid">1vykxfa</span><a class="plink" href="https://www.reddit.com/comments/1vykxfa" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">MTurk 即将永久关闭</h2></div>
+<div class="lang en"><h2 class="ptitle">MTurk is Closing For Good</h2></div>
+<p class="why"><span class="whyt">入选理由</span>MTurk 官宣关停：一个时代的落幕</p>
+
+<div class="lang zh body"><p>尊敬的 Amazon Mechanical Turk 用户：</p>
+<p>感谢你参与 Amazon Mechanical Turk 的旅程，感谢你帮助塑造了众包行业。</p>
+<p><strong>特此通知：Amazon 的 Mechanical Turk（MTurk）服务将于 2026 年 9 月 30 日生效关闭。</strong></p>
+<p>这意味着 2026 年 9 月 30 日之后，MTurk 将不再对 worker 和 requester 开放。在此之前，现有 requester 可继续发布 HIT，worker 可继续完成任务。</p></div>
+<div class="lang en body"><p>Dear Amazon Mechanical Turk customer,</p>
+<p>Thank you for being part of Amazon Mechanical Turk's journey and for helping shape the crowdsourcing space.</p>
+<p><strong>We're writing to inform you that Amazon's Mechanical Turk (MTurk) service will close, effective September 30, 2026.</strong></p>
+<p>This means MTurk will no longer be available to workers and requesters after September 30, 2026. Existing requesters can continue to publish HITs, and workers can continue to complete tasks until this date.</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/JuneRunner11</span> <span class="opb">OP</span><span class="cscore">▲ 129</span></div>
+<div class="lang zh cbody"><p>一个传奇 beer money 站谢幕了——尽管它其实已经垂死好一阵子了。</p></div>
+<div class="lang en cbody"><p>A Legendary Beer Money Site is biting the dust even though it has been dying for a while now.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/smolpiggo</span><span class="cscore">▲ 115</span></div>
+<div class="lang zh cbody"><p>好几年没用了，但还是 RIP——我当年正经靠过的 OG beermoney 站 💔</p></div>
+<div class="lang en cbody"><p>I haven't used it in years but rip to the OG beermoney site I used to use seriously 💔</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/SorryEveAtetheApple</span><span class="cscore">▲ 97</span></div>
+<div class="lang zh cbody"><p>一个时代结束了。</p></div>
+<div class="lang en cbody"><p>End of an era</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Artistic-Car7518</span><span class="cscore">▲ 61</span></div>
+<div class="lang zh cbody"><p>我猜他们接下来会用 AI 干这些任务。</p></div>
+<div class="lang en cbody"><p>I'm guessing they'll use AI for those tasks now</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Cheekers1989</span><span class="cscore">▲ 51</span></div>
+<div class="lang zh cbody"><p>我被解雇的那阵子，靠 MTurk 加一份每周 6 小时的远程工作和几件别的事，每周能挣 $60–$100。</p>
+<p>当时我正经历自闭倦怠期和一个有毒的原生家庭，正需要与一切隔离开——我很感激它在那里接住了我。</p></div>
+<div class="lang en cbody"><p>During a time when I had gotten fired from a job, I was doing MTurk along with a WFH job that gave me 6 hours a week and a few other things, I was able to earn maybe $60-$100 a week from it.</p>
+<p>I was also dealing with autistic burnout at the time and a toxic family system so it came when I needed to isolate from everything and I appreciate it being available for me.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/DubiousDodo</span><span class="cscore">▲ 35</span></div>
+<div class="lang zh cbody"><p>说得倒也有趣——有研究员发现大量参与者的任务其实是 AI 干的……这平台多年缺乏现代化改造和对参与者的管控，研究者流向了别的平台，参与者也对剩下那点低薪垃圾任务失去兴趣，两边都走了。</p>
+<p>很长一段时间里，平台上少数还活跃的任务里就有 AI 标注。所以不——AI 没有淘汰 MTurk，是 Bezos 放任它慢慢烂掉的。</p></div>
+<div class="lang en cbody"><p>Funny that you say that, a researcher found ai usage on a lot of participant's work.. there's been a lack of modernization and controls for participants so the researchers dispersed to other platforms and the participants got bored of the few trash researcher left overs underpaying so they left too.</p>
+<p>For a long time one of the few things active there has been ai annotation too so no, ai didn't make mturk obsolete, bezos did by leaving it to slowly rot</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1hjq718">
+<div class="pmeta"><span class="pno">19</span><a class="psub" href="https://www.reddit.com/r/passive_income" target="_blank" rel="noopener">r/passive_income</a><span>2024-12-22</span><span>My Experience</span><span class="pscore">▲ 222 分</span><span>💬 180 评论</span><span class="mono pid">1hjq718</span><a class="plink" href="https://www.reddit.com/comments/1hjq718" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">我教人怎么从在线赌场“薅钱”——守门人上次举报了我，他们还会再来</h2></div>
+<div class="lang en"><h2 class="ptitle">I teach people how to fleece money out of online casinos - gatekeepers reported me last time and they will again</h2></div>
+<p class="why"><span class="whyt">入选理由</span>社交赌场薅羊毛最完整的自述与“被动性”辩论现场</p>
+
+<div class="lang zh body"><p>各位，上次我发这个话题后炸了，包括一群可爱的守门人持续批量举报我、试图压下这些信息。不是第一次，肯定也不会是最后一次，但这拦不住我继续分享——</p>
+<p>Sweeps 赌场薅羊毛 + 促销清洗（sale churning）现在暴利。有人管这个副业叫“反向赌博”，名副其实。</p>
+<p>作为副业，这是低垂的果实，几乎零风险、永远不用花一分钱——你想的话完全可以纯免费玩。我光靠每日登录奖励加清洗促销，每月从这些站赚 $2-3k。8 月 31 日我开了一个专教这个的 subreddit（免费），到现在已 4500+ 成员。两个月前开的 Discord，也已 1300+ 成员。</p>
+<p>对了——先别点踩，这不是 TikTok 那个写信活动！那个也有用，但别付钱让人教（YouTube 上免费有，我们 Discord 也有专门频道！）</p>
+<p>总之，光每天登录一次这些站，我每月白拿约 $500 免费游玩金。零风险，一天花不了 5 分钟，只是前期要花点时间把账号全注册齐。很多赌场登录就给 $1/天，有多有少。我每天登约 40 个站，$20/天。</p>
+<p>这些赌场靠“抽奖（sweepstakes）”法律漏洞维持合法运营，条件是必须提供免费游玩。</p>
+<p>兑现前你得先把额度打过一遍，所以我用低风险策略（比如覆盖式轮盘）保住大部分钱。好奇的话，从几个最好的站开始小规模试试。</p>
+<p>我更赚的另一招是“洗促销”：比如某赌场 $75 卖 100 金币，我打完剩下约 $90，净赚 $15。多站多次，最好的月份超过 $3k。</p>
+<p>给不信的人：我开了个 YouTube 频道，第一条视频就演示了一种洗法——折扣价买币，用一种封顶风险的游戏（覆盖式轮盘）打完额度，以稳赚的利润兑现。</p>
+<p>这些赌场节假日促销和赠品超级多。现在开始正当时，有问题尽管问！</p></div>
+<div class="lang en body"><p>Hey all, last time I posted about this it caught a ton of attention, including a delightful group of gatekeepers who keep mass reporting me in an effort to suppress this info. It wasn't the first time and I'm sure it'll happen again, but that's not going to stop me from getting this stuff out there-</p>
+<p>Sweeps casino farming &amp; sale churning is wildly lucrative right now. Some refer to the hustle as "counter-gambling" rightfully so.</p>
+<p>As far as side hustles go, this is low hanging fruit, virtually no risk, doesn't cost anything ever - you can do this fully free-to-play if you want. I have been making 2-3k a month from these sites just collecting their daily login rewards, as well as washing their sale offers. I decided to make a subreddit dedicated to teaching the hustle (for free) on August 31st, we have grown to 4500+</p>
+<p>members as of now. We also started a discord less than two months ago, and already have 1300+ members.</p>
+<p>Btw - before you downvote, this isn't the TikTok letter writing thing! That stuff works too, just don't pay someone to teach you (it's free on YouTube and we have a channel for it in Discord!)</p>
+<p>Anyways, I collect about $500 a month in free play just from logging into these site once a day. Zero risk, and barely takes 5 minutes a day, just takes some up-tront time to get all the accounts registered. A lot of these casinos give $1/day for logging in, some more, some less. I log into about 40 sites for $20/ day.</p>
+<p>These casinos are using a "sweepstakes" loophole to stay legal, which requires them to offer free play.</p>
+<p>You'll need to play through it once before you can redeem, so I use low-risk strategies to keep most of the money. If you're curious, l'd start with a handful of the best sites and see how it goes.</p>
+<p>The other thing I do to make even more is<br>"washing/ churning" sales. For example, a casino offers 100 coins for $75, I play through, finish at ~$90, and net $15 profit. I do this on multiple sites, multiple times week and make over 3k in my best months.</p>
+<p>For any skeptics, I made a YouTube channel and made my first video demonstrating one of the wash techniques explaining how I bought discounted coins and used a game with a capped risk (covered roulette) to play through the coins and redeem at a guaranteed profit.</p>
+<p>These casinos do a ton of sales and promos around the holidays, lots of extra freebies. Now is a great time to start, Imk if y'all have any questions!</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/TCadd81</span><span class="cscore">▲ 125</span></div>
+<div class="lang zh cbody"><p>按你自己的描述，这不算被动收入……说实话，相当主动。</p></div>
+<div class="lang en cbody"><p>This isn't passive income, based on your description... Seems pretty active, really.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/PapaRL</span><span class="cscore">▲ 73</span></div>
+<div class="lang zh cbody"><p>本版 90% 的东西都是。</p>
+<p>“超级被动的收入，只需要每天花 6 小时登网站/做问卷/给人发邮件……”</p>
+<p>等终于有人发“我 3 年前期干了一大堆活，现在每月躺赚 $Y”，评论又是“这算什么被动？你几年前不是还干了活吗”。</p>
+<p>感觉这版大多数人根本不知道被动收入是什么。</p></div>
+<div class="lang en cbody"><p>90% of the things people point out here are.</p>
+<p>“Totally passive income, just need to spend 6 hours a day logging into sites/doing surveys/emailing people/etc etc”</p>
+<p>Then you finally get a post where someone says, I did x amount of work up front 3 years ago and now I make $y per month and the comments are, “how is that passive? You had to do all that work a few years ago”</p>
+<p>I feel like majority of this sub doesn’t even know what passive income is</p></div>
+</div>
+<div class="comment d3">
+<div class="cmeta"><span class="cauthor">u/2099_dogbear</span> <span class="opb">OP</span><span class="cscore">▲ 35</span></div>
+<div class="lang zh cbody"><p>每天几分钟、潜在几百块，大部分流程自动跑、设好就撒手——那已经相当被动了。</p></div>
+<div class="lang en cbody"><p>A few minutes a day to make potentially a couple hundred bucks is pretty passive when most of the work happens on auto, set it and walk away</p></div>
+</div>
+<div class="comment d4">
+<div class="cmeta"><span class="cauthor">u/lordpuddingcup</span><span class="cscore">▲ 23</span></div>
+<div class="lang zh cbody"><p>如果真只花那么多时间，我同意。</p>
+<p>这版的人连问卷站都敢叫被动收入，那玩意才叫耗时。</p></div>
+<div class="lang en cbody"><p>Agreed if it’s really that much time</p>
+<p>People call fuckin survey sites passive on here and that shit takes forever</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/2099_dogbear</span> <span class="opb">OP</span><span class="cscore">▲ 17</span></div>
+<div class="lang zh cbody"><p>你人真好！谢谢！</p></div>
+<div class="lang en cbody"><p>You rock! Thank you!</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/2099_dogbear</span> <span class="opb">OP</span><span class="cscore">▲ 15</span></div>
+<div class="lang zh cbody"><p>时间投入产出比超过本版 99% 的建议。任何被动收入策略都需要一些管理时间的开销。</p></div>
+<div class="lang en cbody"><p>The time investment to reward ratio is better than 99% of the suggestions on this sub. Every passive income strategy takes some overhead management time</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-18pmyd6">
+<div class="pmeta"><span class="pno">20</span><a class="psub" href="https://www.reddit.com/r/sidehustle" target="_blank" rel="noopener">r/sidehustle</a><span>2023-12-24</span><span>Looking For Ideas</span><span class="pscore">▲ 108 分</span><span>💬 132 评论</span><span class="mono pid">18pmyd6</span><a class="plink" href="https://www.reddit.com/comments/18pmyd6" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">我急需多赚点钱</h2></div>
+<div class="lang en"><h2 class="ptitle">I desperately need to make some extra cash</h2></div>
+<p class="why"><span class="whyt">入选理由</span>卖血浆 / 临床试验健康之争：“perfectly safe” vs 风险自知</p>
+
+<div class="lang zh body"><p>有什么能远程做的吗？有什么好推荐？我几乎入不敷出，任何东西都有帮助。先谢过了。</p></div>
+<div class="lang en body"><p>Is there anything remote I can do? Any good recommendations? I’m barely getting by so anything would help. Please and thank you.</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/thatscrollingqueen</span><span class="cscore">▲ 71</span></div>
+<div class="lang zh cbody"><p>不算远程，但献血浆来钱真的快。</p></div>
+<div class="lang en cbody"><p>Not remote, but donating plasma adds up real quick</p></div>
+</div>
+<div class="comment d3">
+<div class="cmeta"><span class="cauthor">u/bltonwhite</span><span class="cscore">▲ 65</span></div>
+<div class="lang zh cbody"><p>没事的，不会有坏事发生。除非发生了。</p></div>
+<div class="lang en cbody"><p>It's fine, nothing bad happens. Unless something bad happens.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Weesabii</span><span class="cscore">▲ 56</span></div>
+<div class="lang zh cbody"><p>身体健康的话，去当临床试验志愿者。我去年做的那期付了 $12k。</p></div>
+<div class="lang en cbody"><p>If you’re healthy, volunteer for a clinical trial. The one I did last year paid $12k.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/Icy_Coffee8042</span><span class="cscore">▲ 56</span></div>
+<div class="lang zh cbody"><p>干这个之前，请确保你是真的喜欢狗、懂狗。</p></div>
+<div class="lang en cbody"><p>Make sure you care about dogs and are educated on dogs before doing this please</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/AverageGiantPanda</span><span class="cscore">▲ 31</span></div>
+<div class="lang zh cbody"><p>Etsy 数字下载可以列进去，卖出后 24 小时内到账。提前 3 个月布局（现在就开始看情人节、复活节、春季款）。我把它当被动收入，爱死了。</p></div>
+<div class="lang en cbody"><p>Etsy digital downloads is on that list and it paid out 24hrs after a sale is made. Plan 3 months ahead (so start looking at Valentine's Day, Easter, Spring for now). I love it as passive income</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/Skincareaddict13</span><span class="cscore">▲ 26</span></div>
+<div class="lang zh cbody"><p>一想到试验可能出的各种岔子我就发怵。是不是其实没有我脑子里想的那么可怕？</p></div>
+<div class="lang en cbody"><p>I get freaked out thinking about everything that can go wrong from these trials. Is it not as scary as I make it out to be in my head?</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1279vqo">
+<div class="pmeta"><span class="pno">21</span><a class="psub" href="https://www.reddit.com/r/Entrepreneur" target="_blank" rel="noopener">r/Entrepreneur</a><span>2023-03-31</span><span>How Do I ?</span><span class="pscore">▲ 101 分</span><span>💬 159 评论</span><span class="mono pid">1279vqo</span><a class="plink" href="https://www.reddit.com/comments/1279vqo" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">求助——该不该告诉新雇主我在做副业？</h2></div>
+<div class="lang en"><h2 class="ptitle">Help - Should I Tell New Employer About Side Hustle?</h2></div>
+<p class="why"><span class="whyt">入选理由</span>对雇主隐瞒副业的“第一守则”出处（报告 07 节引用）</p>
+
+<div class="lang zh body"><p>我最近接了一份新工作（市场营销的细分职能），下周入职。</p>
+<p>很纠结要不要透露我正在筹备开一家营销代理公司。还没有客户，仍处早期。</p>
+<p>一方面，担心说了会影响我保住这份工作或晋升。</p>
+<p>另一方面，又不想瞒着、日后被抓进官司。我会绕开本公司去拓客，所以我自己看不出利益冲突。但我担心的是，合同写明：与合同协议相关的所有发明、创意和工作成果归雇主所有。</p>
+<p>这种情况该怎么处理？</p></div>
+<div class="lang en body"><p>I accepted a new job recently (specialized function in marketing) and I start next week.</p>
+<p>I’m conflicted about whether or not I should disclose that I’m working on starting a marketing agency.</p>
+<p>I have no clients and it is still in its preliminary stages.</p>
+<p>On one hand, I’m worried that mentioning it would hinder my chances of keeping my job or my growth.</p>
+<p>On the other hand, I don’t want to avoid mentioning it and get caught later in a lawsuit. I would be pursuing clients outside my firm so I don’t really see a conflict of interest. However, I am worried because my contract says that the employer owns all inventions, ideas, and work related to the contract agreement.</p>
+<p>How do I approach this situation?</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/freshposthistory</span><span class="cscore">▲ 149</span></div>
+<div class="lang zh cbody"><p>只要不违反合同，一个字都别说。</p>
+<p>我在金融公司工作，公司强制申报任何注册生意及其细节。最近他们已经不管了——除非和证券或房地产相关。</p></div>
+<div class="lang en cbody"><p>If it’s not breaching any contract, don’t speak of it.</p>
+<p>I work for a financial firm and they force report of any registered business and the details. Recently, they stopped caring about it unless it was related to securities or real estate.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/Scryer_of_knowledge</span><span class="cscore">▲ 122</span></div>
+<div class="lang zh cbody"><p>副业的第一守则，就是不要谈论你的副业。这不关你老板的事（这个双关我尽了全力）。祝你的营销生意兴旺，给你美好人生。</p></div>
+<div class="lang en cbody"><p>First rule about your side hustle is you don't talk about your side hustle. It's none of your boss's business (pun intended to the max). May your marketing business prosper and give you a wonderful life.</p></div>
+</div>
+<div class="comment d3">
+<div class="cmeta"><span class="cauthor">u/scotchtapeman357</span><span class="cscore">▲ 33</span></div>
+<div class="lang zh cbody"><p>不撒谎，但也不主动多给一个字。</p></div>
+<div class="lang en cbody"><p>Don't lie, don't offer more than the truth</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/ChickenFave</span><span class="cscore">▲ 23</span></div>
+<div class="lang zh cbody"><p>别告诉他们。</p>
+<p>如果你现在的工作本身就是营销代理公司，你这是在玩火。如果是另一类企业的 in-house 营销岗（不会抢客户），那没问题。</p>
+<p>无论哪种都闭口不谈，但如果是前者，你得非常认真地藏好。</p>
+<p>你知道公司董事/注册信息是公开可查的吧？</p></div>
+<div class="lang en cbody"><p>Don't tell them.</p>
+<p>If your current job is marketing with an agency, you're playing a dangerous game. If it's an in-house marketing job for another type of business (where you wouldn't be gaining clients) you'll be ok.</p>
+<p>Either way don't say a word, but you'll beed to be very serious about hiding it especially if it's the former.</p>
+<p>You know Director look-up is a thing right?</p></div>
+</div>
+<div class="comment d3">
+<div class="cmeta"><span class="cauthor">u/striker7</span><span class="cscore">▲ 21</span></div>
+<div class="lang zh cbody"><p>干这行这么多年，从没有客户在社交媒体上提过我或我的代理公司，有的客户都合作 8 年了。</p>
+<p>人们一般不会公开自己合作的营销公司，甚至不承认有在合作。要么想让别人觉得自己 100% 靠自己成功，要么不想让竞对顺藤摸瓜联系到你。</p></div>
+<div class="lang en cbody"><p>In all my years, no client has ever mentioned me or my agency in social media. And I have some that I've been working with for up to 8 years.</p>
+<p>People don't typically announce which marketing agency they work with, or even acknowledge they're working with one. They either want others to think they're 100% responsible for their own success, or they don't want competitors to contact you.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/S1ck0fant</span><span class="cscore">▲ 19</span></div>
+<div class="lang zh cbody"><p>告诉新雇主“我的精力不 100% 在这儿”能有什么好处？</p>
+<p>自己想想……</p></div>
+<div class="lang en cbody"><p>What good would come from telling your new job that your priorities are not 100% committed to said new job?</p>
+<p>Think about it…</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1ho2tps">
+<div class="pmeta"><span class="pno">22</span><a class="psub" href="https://www.reddit.com/r/sidehustle" target="_blank" rel="noopener">r/sidehustle</a><span>2024-12-28</span><span>Success Story</span><span class="pscore">▲ 0 分</span><span>💬 39 评论</span><span class="mono pid">1ho2tps</span><a class="plink" href="https://www.reddit.com/comments/1ho2tps" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">我靠联盟营销日入 $680</h2></div>
+<div class="lang en"><h2 class="ptitle">I earn $680/day with affiliate marketing </h2></div>
+<p class="why"><span class="whyt">入选理由</span>骗局样本：0 分“日入 $680”帖与评论区当场处刑（报告 07 节引用）</p>
+
+<div class="lang zh body"><p>非常简单。我没有任何线上赚钱经验。有的日子 $1,360，有的 $3,400。</p></div>
+<div class="lang en body"><p>It’s very easy to do. I don’t have any experience with online income. Some days I make $1,360 others $3,400.</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/First_Banana2470</span><span class="cscore">▲ 25</span></div>
+<div class="lang zh cbody"><p>我有兴趣。能告诉我你跑的是哪个特定的传销盘吗？</p></div>
+<div class="lang en cbody"><p>I’m interested. Can you tell me which particular pyramid scheme you’re running?</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/mranomalous300</span><span class="cscore">▲ 19</span></div>
+<div class="lang zh cbody"><p>行啊，买我的课，只要 $680。</p></div>
+<div class="lang en cbody"><p>Sure buy my course for only $680</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/Strict_Report7537</span><span class="cscore">▲ 12</span></div>
+<div class="lang zh cbody"><p>🤣 😂</p></div>
+<div class="lang en cbody"><p>🤣 😂</p></div>
+</div>
+<div class="comment d3">
+<div class="cmeta"><span class="cauthor">u/Downtown_Memory_1559</span><span class="cscore">▲ 6</span></div>
+<div class="lang zh cbody"><p>那就坦白点嘛。就像那些卖课的说自己靠“做这事”赚钱，其实赚的是卖课的钱。恶心，滚。</p></div>
+<div class="lang en cbody"><p>Then be honest about that. It's like people selling courses who say that they make money of doing this, when they really make money off selling courses. It makes me sick, gtfo</p></div>
+</div>
+<div class="comment d4">
+<div class="cmeta"><span class="cauthor">u/First_Banana2470</span><span class="cscore">▲ 6</span></div>
+<div class="lang zh cbody"><p>所以这只是个轻量版骗局？继续啊，告诉我们具体是哪个？不是传销的话，没理由不说。</p></div>
+<div class="lang en cbody"><p>So it’s just a light scam? Go on them tell us which particular one? If it’s not a pyramid scheme no reason to not tell us.</p></div>
+</div>
+<div class="comment d3">
+<div class="cmeta"><span class="cauthor">u/Mr-X-Muslim</span><span class="cscore">▲ 6</span></div>
+<div class="lang zh cbody"><p>😂😂😂</p></div>
+<div class="lang en cbody"><p>😂😂😂</p></div>
+</div>
+</div>
+</article>
+<article class="post" id="p-1hnzsnb">
+<div class="pmeta"><span class="pno">23</span><a class="psub" href="https://www.reddit.com/r/passive_income" target="_blank" rel="noopener">r/passive_income</a><span>2024-12-28</span><span>Social Media</span><span class="pscore">▲ 85 分</span><span>💬 48 评论</span><span class="mono pid">1hnzsnb</span><a class="plink" href="https://www.reddit.com/comments/1hnzsnb" target="_blank" rel="noopener">Reddit 原帖 ↗</a></div>
+<div class="lang zh"><h2 class="ptitle">我写的 YouTube 脚本拿了 140 万播放，客户却把我鸽了</h2></div>
+<div class="lang en"><h2 class="ptitle">My YouTube Scripts did 1.4 millions views, client ghosted me </h2></div>
+<p class="why"><span class="whyt">入选理由</span>单一客户依赖困境 + “DM 我 = 骗局”的社区直觉（报告 07 节引用）</p>
+
+<div class="lang zh body"><p>我的客户全押 AI 风口，全部精力投在他自己的 AI 写作工具上，YouTube 频道完全放养。他有好几个数据很好的无人出镜频道，但只吃广告分成，对联盟、赞助一概没兴趣。</p>
+<p>我知道我做的事有价值，因为我在多条视频里复现过效果，不是一次性运气。</p>
+<p>我的做法：复制一条已爆视频的同款风格。我做了《25 个我们都怀念的 1970 年代住宅设计》，37 万播放；隔一个月又做《再来 25 个……》，17 万播放。</p>
+<p>现在特别难找到新频道合作，求建议！</p></div>
+<div class="lang en body"><p>My client is on the AI hype train, focusing entirely on his AI writing tool while leaving his YouTube channels unattended. He has multiple faceless channels that perform well, but with only ad revenue, he is not interested in affiliates, sponsorships.</p>
+<p>I know what I do has value because I've repeated it in multiple videos, so it's not just a one-off thing.</p>
+<p>What I do is replicate a similar style of video that went viral. I did '25 1970s Home Features We All Miss,' which got 370k views, and then '25 More 1970s Home Features,' which got 170k views, with a month's gap in between.</p>
+<p>It's incredibly hard to find new channels to work on; any suggestions would be appreciated!</p></div>
+<div class="comments">
+<div class="lang zh"><h3>高赞评论（前 6，按分数）</h3></div>
+<div class="lang en"><h3>Top comments (first 6, by score)</h3></div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/archcherub</span><span class="cscore">▲ 77</span></div>
+<div class="lang zh cbody"><p>你会写 YouTube 脚本？为什么不自己开频道、跑这些脚本？</p>
+<p>也许我漏了什么——无人出镜频道还需要哪些东西？</p></div>
+<div class="lang en cbody"><p>You do YouTube scripts? Why not just start your own YouTube channel and run these scripts?</p>
+<p>Perhaps I am missing out What else is needed for the channel to run for a faceless channel</p></div>
+</div>
+<div class="comment d3">
+<div class="cmeta"><span class="cauthor">u/sam-sung-sv</span><span class="cscore">▲ 47</span></div>
+<div class="lang zh cbody"><p>为什么不做一个关于“YouTube 脚本写作”的频道。</p></div>
+<div class="lang en cbody"><p>Why dont you make one about YouTube Script Writing.</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/ZombieSurvivor365</span><span class="cscore">▲ 20</span></div>
+<div class="lang zh cbody"><p>为什么总有人坚持让你“私信”谈某种神秘的“给你安排活”？？？有什么活直接在版里说不就完了？比把楼主钓进私信体面十倍。</p></div>
+<div class="lang en cbody"><p>Why do people insist you DM them for some mysterious “work for you”??? Why not mention what work they have in this subreddit? It’s 10 times less sketchy instead of trying to lure OP into their DM’s.</p></div>
+</div>
+<div class="comment d2">
+<div class="cmeta"><span class="cauthor">u/Exotic_Accountant565</span> <span class="opb">OP</span><span class="cscore">▲ 17</span></div>
+<div class="lang zh cbody"><p>配音。我试过 AI，不行。剪辑加动态图形，没有团队做不了。要月产 10-15 条 25-30 分钟长视频（长的广告分成更高），月成本约 $3,000。</p></div>
+<div class="lang en cbody"><p>Voice acting, i have tried AI it doesnt work. editing with motion graphics, i can not be done without a team. you need something like 3000$ per month to create 10-15 videos per month, all long form like 25-30 minutes, more ad rev in these</p></div>
+</div>
+<div class="comment d1">
+<div class="cmeta"><span class="cauthor">u/m3umax</span><span class="cscore">▲ 16</span></div>
+<div class="lang zh cbody"><p>所以，你就是正在摧毁互联网的那帮人之一？求你收手吧。</p></div>
+<div class="lang en cbody"><p>So you are basically one of the people destroying the Internet? Please just stop.</p></div>
+</div>
+<div class="comment d4">
+<div class="cmeta"><span class="cauthor">u/krazay88</span><span class="cscore">▲ 12</span></div>
+<div class="lang zh cbody"><p>卧槽，这些我全都会啊。</p>
+<p>等我把牙套摘了，我觉得可以试试。</p></div>
+<div class="lang en cbody"><p>holy shit, I can literally do all of that</p>
+<p>as soon as I get my braces off, I think I might give it a shot</p></div>
+</div>
+</div>
+</article>
+<footer>
+  <p>翻译为 AI 预翻译并本地内嵌（无在线翻译依赖）· 原文来自 Arctic Shift 公开归档 · 引用请保留帖子 ID 与 <span class="mono">reddit.com/comments/&lt;ID&gt;</span> 溯源链接。</p>
+</footer>
+</main>
+<script>
+(function(){
+  var root = document.documentElement;
+  var bz = document.getElementById('btn-zh'), be = document.getElementById('btn-en');
+  function setLang(l){
+    root.classList.toggle('lang-en', l === 'en');
+    bz.classList.toggle('on', l !== 'en');
+    be.classList.toggle('on', l === 'en');
+    bz.setAttribute('aria-pressed', String(l !== 'en'));
+    be.setAttribute('aria-pressed', String(l === 'en'));
+    try{ localStorage.setItem('hl-lang', l); }catch(e){}
+  }
+  bz.addEventListener('click', function(){ setLang('zh'); });
+  be.addEventListener('click', function(){ setLang('en'); });
+  var saved = null;
+  try{ saved = localStorage.getItem('hl-lang'); }catch(e){}
+  var q = new URLSearchParams(location.search).get('lang');
+  setLang(q === 'en' ? 'en' : (q === 'zh' ? 'zh' : (saved === 'en' ? 'en' : 'zh')));
+})();
+</script>
+</body>
+</html>

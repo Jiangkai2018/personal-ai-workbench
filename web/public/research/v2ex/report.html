@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>V2EX「副业」节点全景调研报告 · 2026-08-31</title>
+<style>
+:root{
+  --page:#f9f9f7; --surface:#fcfcfb; --ink:#0b0b0b; --ink-2:#52514e; --muted:#898781;
+  --hairline:#e1e0d9; --baseline:#c3c2b7; --accent:#2a78d6; --accent-deep:#1c5cab;
+  --good:#006300; --good-bg:#eef4ec; --warn:#9a6b00; --warn-bg:#fdf6e8; --bad:#b02a2a; --bad-bg:#f9eceb;
+  --ring:rgba(11,11,11,.10); --bar:#2a78d6; --bar-soft:#cde2fb;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --page:#0d0d0d; --surface:#1a1a19; --ink:#fff; --ink-2:#c3c2b7; --muted:#898781;
+    --hairline:#2c2c2a; --baseline:#383835; --accent:#3987e5; --accent-deep:#86b6ef;
+    --good:#0ca30c; --good-bg:#16221a; --warn:#e0a93e; --warn-bg:#2b2416; --bad:#e66767; --bad-bg:#2a1a19;
+    --ring:rgba(255,255,255,.10); --bar:#3987e5; --bar-soft:#184f95;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--page);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  line-height:1.8;font-size:15.5px}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ===== 封面 ===== */
+.cover{background:var(--surface);border-bottom:1px solid var(--hairline);padding:56px 24px 40px}
+.cover-inner{max-width:960px;margin:0 auto}
+.kicker{font-size:12.5px;letter-spacing:3px;color:var(--accent);font-weight:700;margin-bottom:14px}
+.cover h1{font-size:34px;font-weight:800;letter-spacing:.5px;line-height:1.35;max-width:760px}
+.cover .sub{color:var(--ink-2);margin-top:14px;font-size:15px;max-width:780px}
+.cover .meta-line{margin-top:22px;font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 22px}
+
+.tiles{max-width:960px;margin:30px auto 0;padding:0 24px;display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+.tile{background:var(--surface);border:1px solid var(--ring);border-radius:12px;padding:16px 14px 13px;text-align:center}
+.tile .v{font-size:26px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:-.5px}
+.tile .k{font-size:12px;color:var(--muted);margin-top:2px}
+.tile.hero-tile .v{color:var(--accent)}
+
+/* ===== 导航 ===== */
+.toc-wrap{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--page) 88%,transparent);
+  backdrop-filter:blur(10px);border-bottom:1px solid var(--hairline);padding:9px 24px}
+.toc{max-width:960px;margin:0 auto;display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.toc::-webkit-scrollbar{display:none}
+.toc a{flex:none;border:1px solid var(--hairline);background:var(--surface);border-radius:999px;
+  padding:4px 13px;font-size:12.5px;color:var(--ink-2)}
+.toc a:hover{border-color:var(--accent);color:var(--accent);text-decoration:none}
+
+/* ===== 章节骨架 ===== */
+main{max-width:960px;margin:0 auto;padding:40px 24px 30px}
+section.chap{margin-bottom:54px}
+.chap-head{display:flex;align-items:baseline;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:10px;margin-bottom:22px}
+.chap-no{font-size:13px;color:var(--accent);font-weight:800;letter-spacing:2px;white-space:nowrap}
+.chap-head h2{font-size:23px;font-weight:750}
+h3{font-size:17.5px;font-weight:720;margin:30px 0 12px;display:flex;align-items:baseline;gap:10px}
+h3 .no{color:var(--accent);font-size:13px;font-weight:800;letter-spacing:1px;white-space:nowrap}
+p{margin-bottom:13px;color:var(--ink)}
+p.lead{font-size:16px;color:var(--ink);font-weight:500}
+.muted{color:var(--ink-2)}
+.small{font-size:13px;color:var(--muted)}
+
+/* 引用小徽标 */
+.cite-ref{display:inline-block;font-size:10.5px;font-weight:700;color:var(--accent-deep);
+  border:1px solid color-mix(in srgb,var(--accent) 40%,transparent);border-radius:5px;
+  padding:0 5px;margin:0 1px;vertical-align:2px;line-height:1.6;white-space:nowrap}
+.cite-ref:hover{text-decoration:none;background:color-mix(in srgb,var(--accent) 10%,transparent)}
+
+/* 结论框 */
+.callout{border-radius:12px;padding:18px 22px;margin:18px 0;border:1px solid var(--ring);background:var(--surface)}
+.callout.key{border-left:4px solid var(--accent)}
+.callout.good{border-left:4px solid var(--good);background:var(--good-bg)}
+.callout.warn{border-left:4px solid var(--warn);background:var(--warn-bg)}
+.callout.bad{border-left:4px solid var(--bad);background:var(--bad-bg)}
+.callout .tag{font-size:11.5px;font-weight:800;letter-spacing:2px;display:block;margin-bottom:6px}
+.callout.key .tag{color:var(--accent)} .callout.good .tag{color:var(--good)}
+.callout.warn .tag{color:var(--warn)} .callout.bad .tag{color:var(--bad)}
+
+/* ===== 图表 ===== */
+figure.chart{background:var(--surface);border:1px solid var(--ring);border-radius:14px;padding:20px 22px 16px;margin:20px 0}
+figure.chart figcaption{font-size:13px;color:var(--muted);margin-top:12px}
+.chart-title{font-size:14.5px;font-weight:700;margin-bottom:4px}
+.chart-sub{font-size:12.5px;color:var(--muted);margin-bottom:14px}
+.crow{display:grid;grid-template-columns:150px 1fr 46px;gap:10px;align-items:center;margin-bottom:9px}
+.crow .lbl{font-size:13px;color:var(--ink-2);text-align:right;line-height:1.4}
+.crow .lbl b{color:var(--ink)}
+.bar-track{position:relative;height:22px}
+.bar{position:absolute;left:0;top:0;bottom:0;width:calc(var(--w) - 0px);min-width:4px;
+  background:var(--bar);border-radius:0 4px 4px 0;transition:filter .15s}
+.bar:hover{filter:brightness(1.08)}
+.crow .val{font-size:13.5px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--ink)}
+.crow.warn-row .bar{background:repeating-linear-gradient(-45deg,var(--bar) 0 6px,color-mix(in srgb,var(--bar) 72%,var(--surface)) 6px 12px)}
+
+/* ===== 表格 ===== */
+table{width:100%;border-collapse:collapse;margin:18px 0;background:var(--surface);
+  border:1px solid var(--ring);border-radius:12px;overflow:hidden;font-size:13.5px}
+th{background:color-mix(in srgb,var(--ink) 4%,var(--surface));text-align:left;font-weight:700;
+  padding:10px 14px;border-bottom:1px solid var(--hairline);font-size:12.5px;letter-spacing:.5px;color:var(--ink-2)}
+td{padding:10px 14px;border-bottom:1px solid var(--hairline);vertical-align:top;line-height:1.65}
+tr:last-child td{border-bottom:none}
+td.num{font-variant-numeric:tabular-nums;font-weight:650;white-space:nowrap}
+tr.rowgood td:first-child{box-shadow:inset 3px 0 0 var(--good)}
+tr.rowbad td:first-child{box-shadow:inset 3px 0 0 var(--bad)}
+tr.rowwarn td:first-child{box-shadow:inset 3px 0 0 var(--warn)}
+.pill{display:inline-block;font-size:11px;font-weight:700;border-radius:999px;padding:1px 9px;margin-right:6px;vertical-align:1px}
+.pill.g{background:var(--good-bg);color:var(--good)} .pill.w{background:var(--warn-bg);color:var(--warn)}
+.pill.b{background:var(--bad-bg);color:var(--bad)} .pill.n{background:color-mix(in srgb,var(--accent) 10%,var(--surface));color:var(--accent-deep)}
+
+/* ===== 列表 ===== */
+ul.dash{list-style:none;margin:12px 0 16px}
+ul.dash li{padding-left:22px;position:relative;margin-bottom:9px;color:var(--ink)}
+ul.dash li::before{content:"—";position:absolute;left:0;color:var(--accent);font-weight:700}
+ul.dash li .h{font-weight:700}
+
+/* ===== 引用精华帖（文末） ===== */
+#citations{scroll-margin-top:70px}
+.cite-group{margin-bottom:24px}
+.cite-group h3{margin:20px 0 10px}
+.cite-list{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+a.cite{display:block;background:var(--surface);border:1px solid var(--ring);border-radius:11px;
+  padding:13px 16px;transition:border-color .15s, transform .15s}
+a.cite:hover{border-color:var(--accent);text-decoration:none;transform:translateY(-1px)}
+a.cite .t{font-size:14px;font-weight:700;color:var(--ink);display:block;line-height:1.5}
+a.cite .id{font-size:11.5px;color:var(--accent);font-weight:700;font-variant-numeric:tabular-nums;margin-right:6px}
+a.cite .d{font-size:12px;color:var(--muted);margin-top:4px;display:block;line-height:1.6}
+a.cite .arrow{color:var(--accent);float:right;font-weight:700}
+
+footer{border-top:1px solid var(--hairline);background:var(--surface);padding:28px 24px;
+  font-size:12.5px;color:var(--muted);text-align:center}
+footer a{font-size:13.5px;display:inline-block;margin-bottom:8px}
+
+@media (max-width:860px){.tiles{grid-template-columns:repeat(3,1fr)}.cite-list{grid-template-columns:1fr}}
+@media (max-width:640px){
+  .cover h1{font-size:25px}
+  .crow{grid-template-columns:110px 1fr 40px}
+  .crow .lbl{font-size:11.5px}
+  table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .toc-wrap{overflow:hidden}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= 封面 ================= -->
+<div class="cover">
+  <div class="cover-inner">
+    <div class="kicker">EMPIRICAL RESEARCH REPORT · 数据说话</div>
+    <h1>V2EX「副业」节点全景调研报告</h1>
+    <p class="sub">对 V2EX <a href="https://www.v2ex.com/go/sidehustle" target="_blank" rel="noopener">/go/sidehustle</a> 节点（「专注于 MVP 验证、独立开发与睡后收入」）全量帖子的逐帖精读与实证分析：138 个帖子、1,652 条回复，提炼出 444 条副业模式记录，其中 199 条带一手收入数字。</p>
+    <div class="meta-line">
+      <span>数据采集：2026-08-31（全量，回复数与列表页零偏差）</span>
+      <span>分析完成：2026-09-01</span>
+      <span>原始数据：v2ex_sidehustle_data/</span>
+    </div>
+  </div>
+</div>
+<div class="tiles">
+  <div class="tile hero-tile"><div class="v">139</div><div class="k">节点主题总数</div></div>
+  <div class="tile"><div class="v">138</div><div class="k">成功采集（1帖已删）</div></div>
+  <div class="tile"><div class="v">1,652</div><div class="k">回复总数</div></div>
+  <div class="tile"><div class="v">444</div><div class="k">副业模式记录</div></div>
+  <div class="tile"><div class="v">199</div><div class="k">A 档·一手数字</div></div>
+  <div class="tile"><div class="v">34</div><div class="k">C 档·广告引流</div></div>
+</div>
+
+<nav class="toc-wrap"><div class="toc">
+  <a href="#s1">〇 核心结论</a><a href="#s2">一 节点生态</a><a href="#s3">二 数据总览</a>
+  <a href="#s4">三 七大发现</a><a href="#s5">四 时薪视角</a><a href="#s6">五 选型框架</a>
+  <a href="#s7">六 风险识别</a><a href="#s8">七 方法与局限</a><a href="#citations">引用·精华帖 ↓</a>
+</div></nav>
+
+<main>
+
+<!-- ================= 〇 核心结论 ================= -->
+<section class="chap" id="s1">
+  <div class="chap-head"><span class="chap-no">〇</span><h2>核心结论：一句话讲完这个节点</h2></div>
+  <p class="lead">这个节点用 1,652 条回复讲了一个被反复验证的故事——</p>
+  <div class="callout key">
+    <span class="tag">KEY FINDING</span>
+    <p><b>赚钱的副业几乎都是主业技能的溢出</b>（程序员接单与做产品、设计私单、行业专家咨询）；<b>不赚钱的副业高度雷同</b>（AI 起号、刷金币、纯搬运、无准备摆摊）；而<b>收入数字最大的两类——重资产线下店与灰产——恰恰风险最高</b>。</p>
+    <p style="margin-bottom:0">没有人靠风口致富。多数人靠的是本行技能的溢出、已有渠道的复用，和「项目死了就换下一个」的心理预期。</p>
+  </div>
+  <ul class="dash">
+    <li><span class="h">副业的第一死因是平台政策，不是能力</span>——微信封小程序、淘宝禁售、头条封号、小红书打击代做……依赖单一平台的项目，生命周期以月计。</li>
+    <li><span class="h">粉丝量与变现无强关联</span>——「视频号 9 万粉、小红书 5000 粉、抖音 2500 粉，一个商单都没有」与「双平台 10 万粉月入过万」在同一批帖子里并存，差别在赛道与内容形态。</li>
+    <li><span class="h">AI 是效率放大器，不是造富机器</span>——同一个节点里，AI 让程序员 4 小时交付 5,000 元私活，也让 59 条 AI 视频只换来 22.35 元。AI 放大的是已有技能，不凭空创造赚钱能力。</li>
+    <li><span class="h">凡是先收钱的「副业机会」，你都不是玩家，你是奖品</span>——34 条 C 档广告记录的套路高度模板化（免费群漏斗、暗链引流、账号托管、9.9 元课）。</li>
+  </ul>
+</section>
+
+<!-- ================= 一 节点生态 ================= -->
+<section class="chap" id="s2">
+  <div class="chap-head"><span class="chap-no">一</span><h2>节点生态画像：一个被悬赏点燃的年轻社区</h2></div>
+  <h3><span class="no">1.1</span>起源：赛博鸡蛋经济学</h3>
+  <p>节点于 <b>2026-01-12</b> 上线。创建者 timespy 用「聊副业送 20–500 $V2EX 币」的悬赏（<a class="cite-ref" href="essence.html#post-1184715">精华 23</a>）引爆冷启动：按内容质量分级打赏，晒真实营收数据者可得最高档。前三天涌出 60+ 帖——本节点高质量复盘帖密度远超一般社区，悬赏机制是直接原因。</p>
+  <p>那个悬赏帖的评论区（65 回复）至今仍是全节点副业模式密度最高的地方：户外领队 + 顺风车 + 撮合佣金的复利结构、AFF 返佣、科普自媒体矩阵、共享充电桩电费差价……一帖看尽众生相。</p>
+
+  <h3><span class="no">1.2</span>三个需要先知道的生态事实</h3>
+  <ul class="dash">
+    <li><span class="h">样本主体是程序员。</span>叙事模式高度一致：「试过 N 个副业，失败一堆，最后靠 1–2 个跑通」。线下业态叙述者的决策链条也明显带着工程师思维（选址热力图、上桌率统计、成本公式）。</li>
+    <li><span class="h">节点里有 3 个「AI 全量清单」二道贩子帖。</span>它们用 AI 汇编其他人的帖子做成清单引流，数字全部是二手转述。本报告已剔除重复计数，凡转述均回溯原帖。</li>
+    <li><span class="h">节点仅存续约 8 个月。</span>所有「月入」数据多为 1–2 个月窗口，长期可持续性证据不足——这是读下文所有收入数字时必须带着的 asterisk。</li>
+  </ul>
+
+  <h3><span class="no">1.3</span>评论区与主楼同权重</h3>
+  <p>本报告最大的方法特点：把回复当数据，而不是当噪音。多个帖子的核心价值恰恰在评论区——例如 t/1186092 楼主的一天半 3,000 元只是引子，评论区才挖出「企业级插件 1 万/个长尾售卖」「30 客户订阅站月入 2 万」两条更硬的记录（<a class="cite-ref" href="essence.html#post-1186092">精华 05</a>）；而 t/1184755 的 283 楼里，既有经验公式，也有对楼主流水截图的公开质疑（<a class="cite-ref" href="essence.html#post-1184755">精华 14</a>）。社区监督真实存在。</p>
+</section>
+
+<!-- ================= 二 数据总览 ================= -->
+<section class="chap" id="s3">
+  <div class="chap-head"><span class="chap-no">二</span><h2>数据总览：444 条记录的骨架</h2></div>
+  <p>逐帖精读主楼 + 全部回复后，按「一条独立副业模式 = 一条记录」提炼，每条记录标注证据强度、市场范围与模式类型。</p>
+
+  <figure class="chart">
+    <div class="chart-title">图 1 · 证据强度分布</div>
+    <div class="chart-sub">A = 楼主或回复者晒出一手收入数字 · B = 真实过程但无数字 · C = 广告 / 引流 / 无实质（条）</div>
+    <div class="crow"><span class="lbl"><b>B</b> · 真实过程无数字</span><div class="bar-track"><div class="bar" style="--w:100%"></div></div><span class="val">211</span></div>
+    <div class="crow"><span class="lbl"><b>A</b> · 一手收入数字</span><div class="bar-track"><div class="bar" style="--w:94.3%"></div></div><span class="val">199</span></div>
+    <div class="crow"><span class="lbl"><b>C</b> · 广告引流无实质</span><div class="bar-track"><div class="bar" style="--w:16.1%"></div></div><span class="val">34</span></div>
+    <figcaption>45% 的记录有一手数字——这在副业类社区里是罕见的高信噪比；但仍有超过一半只有过程没有数字，C 档广告占 7.7%。</figcaption>
+  </figure>
+
+  <figure class="chart">
+    <div class="chart-title">图 2 · 模式类型分布</div>
+    <div class="chart-sub">一条记录归入一个主类型（条）。斜纹 = 收入常伴随法律 / 封号风险的类型</div>
+    <div class="crow"><span class="lbl"><b>内容型</b>（自媒体/写作）</span><div class="bar-track"><div class="bar" style="--w:100%"></div></div><span class="val">97</span></div>
+    <div class="crow"><span class="lbl"><b>技能型</b>（接单/开发）</span><div class="bar-track"><div class="bar" style="--w:88.7%"></div></div><span class="val">86</span></div>
+    <div class="crow"><span class="lbl"><b>服务型</b>（咨询/代办）</span><div class="bar-track"><div class="bar" style="--w:66%"></div></div><span class="val">64</span></div>
+    <div class="crow warn-row"><span class="lbl"><b>灰产边缘</b> ⚠</span><div class="bar-track"><div class="bar" style="--w:66%"></div></div><span class="val">64</span></div>
+    <div class="crow"><span class="lbl"><b>投资套利型</b></span><div class="bar-track"><div class="bar" style="--w:55.7%"></div></div><span class="val">54</span></div>
+    <div class="crow"><span class="lbl"><b>体力型</b>（众包/摆摊）</span><div class="bar-track"><div class="bar" style="--w:41.2%"></div></div><span class="val">40</span></div>
+    <div class="crow"><span class="lbl"><b>资产型</b>（线下店/硬件）</span><div class="bar-track"><div class="bar" style="--w:40.2%"></div></div><span class="val">39</span></div>
+    <figcaption>内容型数量第一但收入中位数最低；灰产边缘记录多达 64 条、其中 A 档密度极高——「写出来赚钱的灰产」本身就是这个社区的坦诚之处。</figcaption>
+  </figure>
+
+  <figure class="chart">
+    <div class="chart-title">图 3 · 市场范围分布</div>
+    <div class="chart-sub">出海叙事声量大，实际盘子小（条）</div>
+    <div class="crow"><span class="lbl"><b>境内</b></span><div class="bar-track"><div class="bar" style="--w:100%"></div></div><span class="val">372</span></div>
+    <div class="crow"><span class="lbl"><b>混合</b>（境内境外兼做）</span><div class="bar-track"><div class="bar" style="--w:11.3%"></div></div><span class="val">42</span></div>
+    <div class="crow"><span class="lbl"><b>出海</b></span><div class="bar-track"><div class="bar" style="--w:8.1%"></div></div><span class="val">30</span></div>
+    <figcaption>「出海月入万刀」是社交媒体叙事，不是这个社区的现实：纯出海记录仅 30 条，且多数收入惨淡（详见发现 2）。</figcaption>
+  </figure>
+</section>
+
+<!-- ================= 三 七大发现 ================= -->
+<section class="chap" id="s4">
+  <div class="chap-head"><span class="chap-no">三</span><h2>七大发现</h2></div>
+
+  <h3><span class="no">发现 1</span>赚钱的副业 ≈ 主业技能的溢出</h3>
+  <p>A 档证据最密集的群落，全部是「把上班攒的手艺换个场景卖」：</p>
+  <table>
+    <thead><tr><th>模式</th><th>一手数字</th><th>关键前提</th></tr></thead>
+    <tbody>
+      <tr class="rowgood"><td><span class="pill g">技能</span>FinOps 云成本优化咨询</td><td class="num">5 万 / 1.5 天</td><td>游戏公司运维负责人背景 + 150 项优化规则 + 熟人转介（<a class="cite-ref" href="essence.html#post-1185052">精华 02</a>）</td></tr>
+      <tr class="rowgood"><td><span class="pill g">技能</span>脚本开发长期外包</td><td class="num">≈9 万（每周 1k × 2 年）</td><td>吾爱破解渠道 + 安卓逆向功底（<a class="cite-ref" href="essence.html#post-1186058">精华 01</a>）</td></tr>
+      <tr class="rowgood"><td><span class="pill g">产品</span>桌面客户端付费软件</td><td class="num">总流水 37 万 / 自得 10 万+</td><td>自学 Python 死磕两年、几十个版本迭代（同上）</td></tr>
+      <tr class="rowgood"><td><span class="pill g">技能</span>AI 辅助接单（毕设/留学）</td><td class="num">月入 2–4 万（2025）</td><td>GPT/Cursor 工作流 + 闲鱼→小红书双号矩阵（<a class="cite-ref" href="essence.html#post-1233430">精华 04</a>）</td></tr>
+      <tr class="rowgood"><td><span class="pill g">产品</span>企业级插件长尾售卖</td><td class="num">1 万/个 · 年出几个</td><td>评论区一手记录，持续两三年（<a class="cite-ref" href="essence.html#post-1186092">精华 05</a>）</td></tr>
+      <tr class="rowgood"><td><span class="pill g">产品</span>付费订阅网站</td><td class="num">月入 2 万 · 30 客户</td><td>业余维护，晚上周末回邮件（同上）</td></tr>
+      <tr class="rowgood"><td><span class="pill g">产品</span>直播中控插件 SaaS</td><td class="num">稳定 4,000+/月</td><td>先免费一个月换传播再转付费（<a class="cite-ref" href="essence.html#post-1185219">精华 08</a>）</td></tr>
+      <tr><td><span class="pill n">服务</span>专家库评标 / 论文辅导</td><td class="num">1,000/次 · 500/节</td><td>副高或软考高级 / 博士在读，机构匿名导流</td></tr>
+      <tr><td><span class="pill n">技能</span>设计私单 / 3D 外包</td><td class="num">年 8 万 · 月均 4k</td><td>淘宝店铺多年沉淀 + 熟人，想扩扩不动</td></tr>
+    </tbody>
+  </table>
+  <div class="callout good">
+    <span class="tag">WHY IT WORKS</span>
+    <p style="margin-bottom:0">共性不是「风口」，而是三件事的交集：<b>主业里已经练出的稀缺技能</b> × <b>已有的获客渠道</b>（熟人转介 &gt; 平台抢单）× <b>交付成本低</b>。反过来，缺任何一项的同类尝试（如无渠道的淘宝接单「金额被同行压得特别低」）全部失败。</p>
+  </div>
+
+  <h3><span class="no">发现 2</span>收入两极分化是常态：尾部样本比头部更有信息量</h3>
+  <p>同一批帖子里，头部与尾部的数字相差四到五个数量级：</p>
+  <table>
+    <thead><tr><th>样本</th><th>一手数字</th><th>投入</th></tr></thead>
+    <tbody>
+      <tr class="rowgood"><td>科普自媒体矩阵（单月）</td><td class="num">接广+播放 1.2 万+</td><td>3 天一更 + AI 工作流（<a class="cite-ref" href="essence.html#post-1188665">精华 10</a>）</td></tr>
+      <tr class="rowgood"><td>B 站搬运 + AI 字幕（一年）</td><td class="num">充电 1.4 万</td><td>AI 成本 200 元 / 月投 4 小时（<a class="cite-ref" href="essence.html#post-1186314">精华 11</a>）</td></tr>
+      <tr class="rowbad"><td>视频号 AI 剧情 59 条原创</td><td class="num">总收入 22.35 元</td><td>近 0 成本，被封一个月（<a class="cite-ref" href="essence.html#post-1224995">精华 12</a>）</td></tr>
+      <tr class="rowbad"><td>App Store AI 应用</td><td class="num">到手 $33</td><td>$99 开发者账号 + 3 个月下班时间</td></tr>
+      <tr class="rowbad"><td>出海工具站 ×4（一整年）</td><td class="num">合计 $219.34</td><td>楼主自评「回本了但没真正赚到钱」（<a class="cite-ref" href="essence.html#post-1185251">精华 09</a>）</td></tr>
+      <tr class="rowbad"><td>公众号流量主 / 头条图文</td><td class="num">累计 25 元 / 24.95 元</td><td>持续写作数月</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    <span class="tag">READ THE TAIL</span>
+    <p style="margin-bottom:0">发帖本身就有幸存者偏差——愿意回来写复盘的失败者已经比沉默的大多数积极。把尾部数字当「期望值锚点」、把头部数字当「运气上限」，是读一切副业帖的正确姿势。</p>
+  </div>
+
+  <h3><span class="no">发现 3</span>粉丝量 ≠ 变现：赛道决定商单，形态决定单价</h3>
+  <ul class="dash">
+    <li><span class="h">反例扎实：</span>「小红书 5000 粉、视频号 9 万粉、抖音 2500 粉，一个商单都没有，慢慢停更了」；纯搬运号 1 万粉「变不了现没啥用」。</li>
+    <li><span class="h">正例扎实：</span>双平台 10 万粉科普矩阵「月入过万完全没问题」；B 站花火植入万播 100–150 元、单笔几千；装修类垂直号刚满万粉即持续接广。</li>
+    <li><span class="h">机制：</span>商单看的是<b>赛道购买力</b>（女性好物 / 数码 / 汽车 / 装修强，科普 / 泛娱乐弱）与<b>内容形态</b>（有商品展示位才有金主），不是粉丝绝对值。科普赛道甚至出现「头条 150 万粉仅够吃饭」的极端样本。</li>
+    <li><span class="h">平台单价差异巨大：</span>抖音万播约 5–10 元（还有争议）、B 站充电 30 元 iOS 只到手 10 元、快手约「5 万余额宝每天 10 块」。靠播放分成养活自己是小概率事件。</li>
+  </ul>
+
+  <h3><span class="no">发现 4</span>重资产线下店：数字最大，坑也最大</h3>
+  <table>
+    <thead><tr><th>业态</th><th>投入</th><th>收益（一手）</th><th>结局 / 风险</th></tr></thead>
+    <tbody>
+      <tr class="rowgood"><td>自助洗车店（西安，已开 3 家）</td><td class="num">≈20 万/店</td><td class="num">月利润 1 万+ / 店</td><td>回本约 1 年；场地=生死，琐碎到半夜接电话（<a class="cite-ref" href="essence.html#post-1184755">精华 14</a>）</td></tr>
+      <tr class="rowwarn"><td>自助洗车店（北京跟风者）</td><td class="num">30 万+</td><td class="num">运营在预期中</td><td>「公司一堆事店里一堆事」；评论区指行业靠预充值沉淀资金（<a class="cite-ref" href="essence.html#post-1216096">精华 15</a>）</td></tr>
+      <tr class="rowgood"><td>自助棋牌室（2024 最早一批）</td><td class="num">装修 7–8 万</td><td class="num">月净约 1 万</td><td>一年半后转让——「开店心累」（<a class="cite-ref" href="essence.html#post-1185070">精华 16</a>）</td></tr>
+      <tr class="rowgood"><td>县城汽车美容店</td><td class="num">15 万</td><td class="num">春节两月赚 10 万</td><td>平时入不敷出，极度季节性（<a class="cite-ref" href="essence.html#post-1184814">精华 17</a>）</td></tr>
+      <tr class="rowwarn"><td>自助台球厅（多店加盟）</td><td class="num">—</td><td class="num">朋友店一年回本</td><td>自己第 3 家选址失误亏 5 万；窗口期「23 年–24 上半年」已关</td></tr>
+      <tr class="rowwarn"><td>充电站（光伏+储能）</td><td class="num">累计 500 万</td><td class="num">月利稳定 5 万</td><td>回本 3 年+，大资金玩家的游戏</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn">
+    <span class="tag">PATTERN</span>
+    <p style="margin-bottom:0">线下业态的共同规律：<b>选址决定生死</b>（拿地常需关系）、<b>窗口期极短</b>（台球房从周边 2 家卷到 10 家只用了两年）、<b>跟风者承担最大风险</b>。跑通者的共性是「先算清产能公式再动手」——洗车帖给出的工位/客单/成本估算，是全节点线下商业认知密度的天花板。</p>
+  </div>
+
+  <h3><span class="no">发现 5</span>灰产：收入普遍高于白产，代价也线性上升</h3>
+  <table>
+    <thead><tr><th>模式</th><th>一手数字</th><th>代价 / 注脚</th></tr></thead>
+    <tbody>
+      <tr class="rowbad"><td>留学生作业代写</td><td class="num">300–700 元/小时</td><td>学术违规；AI 检测对抗；肯尼亚工作室低价竞争</td></tr>
+      <tr class="rowbad"><td>游戏私服运营 / 维护</td><td class="num">月 5k / 维护月 1 万</td><td>评论区：「老友开私服被判实刑 4 年」（<a class="cite-ref" href="essence.html#post-1213690">精华 21</a>）</td></tr>
+      <tr class="rowbad"><td>小说采集站</td><td class="num">收入≈0</td><td>版权赔偿 20 万（评论区一手案例，<a class="cite-ref" href="essence.html#post-1185333">精华 22</a>）</td></tr>
+      <tr class="rowbad"><td>刷好评 / 刷弹幕脚本</td><td class="num">单笔 8,000 / 1,000</td><td>平台风控，需求已萎缩</td></tr>
+      <tr class="rowbad"><td>AI 账号中转 / 合租</td><td class="num">日利 80</td><td>封号常态；社区直指「这叫黑灰产」</td></tr>
+      <tr class="rowbad"><td>茅台 / 门票 / 潮玩黄牛</td><td class="num">单张门票利润上千</td><td>楼主自述「基本都是过去式」，有价票证倒卖违法</td></tr>
+    </tbody>
+  </table>
+  <div class="callout bad">
+    <span class="tag">HARD RULE</span>
+    <p style="margin-bottom:0">灰产记录的普遍规律：<b>收入越高，不可持续性与法律风险越高</b>。几乎每条 A 档灰产记录都伴随「被封 / 被诉 / 已收手」的注脚。写出来是坦诚，模仿是接盘。</p>
+  </div>
+
+  <h3><span class="no">发现 6</span>平台政策是副业第一死因</h3>
+  <p>几乎每个「跑通又死掉」的项目，死因都是同一句话——「平台改规则了」：</p>
+  <ul class="dash">
+    <li><span class="h">外卖红包 CPS：</span>高峰月躺赚大几千 → 微信大面积封杀此类小程序 → 只剩 100–200/月。</li>
+    <li><span class="h">大王卡代办：</span>累计 2,000+ 的淘宝信息差生意 → 平台封禁品类，直接归零。</li>
+    <li><span class="h">短剧微信机器人：</span>日入几十到几百 → 微信全面封杀 pad 协议机器人，被迫降级为每周几十的脚本。</li>
+    <li><span class="h">留学代做获客：</span>小红书成单率 90% 的账号 → 平台打击留学行业，被迫注销。</li>
+    <li><span class="h">抖音小程序 ×6：</span>被判定「功能过于单一」全部封禁清零；视频号 AI 号违规封一个月后流量腰斩。</li>
+    <li><span class="h">Google Play 封测代做：</span>信息差红利月入一万多 → 红海化。</li>
+  </ul>
+  <p class="muted">推论：凡是收入 100% 依赖单一平台接口 / 规则 / 补贴的项目，应默认其生命周期以月计，并把「项目死了」写进成本模型。</p>
+
+  <h3><span class="no">发现 7</span>AI 的真实角色：降本工具，不是造富机器</h3>
+  <table>
+    <thead><tr><th>方向</th><th>AI 放大成功</th><th>AI 放大失败</th></tr></thead>
+    <tbody>
+      <tr class="rowgood"><td>接单交付</td><td>4 小时纯 AI 交付 5K 私活；Cursor 接毕设单月 2–4 万；远程架构年 10 万</td><td class="num">—</td></tr>
+      <tr class="rowgood"><td>内容降本</td><td>AI 字幕把搬运成本压到 200 元/年，充电收入 1.4 万</td><td class="num">—</td></tr>
+      <tr class="rowbad"><td>AI 批量起号</td><td class="num">—</td><td>59 条视频 22.35 元；48 元会员换 29 粉；宠物号 28 天零变现</td></tr>
+      <tr class="rowbad"><td>AI 洗稿 / 代发</td><td class="num">—</td><td>账号托管 AI 洗稿矩阵，楼主最终提现 3 元</td></tr>
+      <tr class="rowbad"><td>AI 写网文</td><td class="num">—</td><td>番茄零推荐拿不到全勤；烧 $500 token 重构两轮仍失败</td></tr>
+    </tbody>
+  </table>
+  <p>分界线清晰可辨：<b>AI 交给已有技能的人，是杠杆；AI 交给没有技能和渠道的人，是幻觉。</b>所有的「AI 全自动赚钱」叙事在这个节点里没有一条 A 档正样本。</p>
+</section>
+
+<!-- ================= 四 时薪视角 ================= -->
+<section class="chap" id="s5">
+  <div class="chap-head"><span class="chap-no">四</span><h2>时薪视角：选副业先算时薪，再谈梦想</h2></div>
+  <p>把 444 条记录里可折算的样本拉平到「元/小时」，梯次极其残酷：</p>
+  <table>
+    <thead><tr><th>梯次</th><th>实测时薪</th><th>代表样本（一手）</th></tr></thead>
+    <tbody>
+      <tr class="rowbad"><td><span class="pill b">体力</span>纯时间换钱</td><td class="num">10 – 30 元</td><td>众包配送实测约 15 元/时（月入 1,044 元）；魔兽搬砖 10 元/时；KFC 小时工 12 元/时</td></tr>
+      <tr class="rowwarn"><td><span class="pill w">过渡</span>半技能</td><td class="num">50 – 120 元</td><td>家教 120 元/时；微信清粉脚本客单折算更低；翻译 60 元/千字</td></tr>
+      <tr class="rowgood"><td><span class="pill g">技能</span>主业溢出</td><td class="num">200 – 3,300 元</td><td>留学生代写 300–700/时；论文辅导 500/节；hook 私教 200/时；FinOps 咨询 5 万 ÷ 1.5 天 ≈ 3,300/时</td></tr>
+      <tr class="rowgood"><td><span class="pill g">产品</span>边际成本趋零</td><td class="num">前期为负 → 指数化</td><td>桌面软件峰值日入 2,000+；直播中控插件月 4,000+（近无人值守）；我的世界组件 6 小时开发月入 2,000+</td></tr>
+    </tbody>
+  </table>
+  <div class="callout key">
+    <span class="tag">DECISION RULE</span>
+    <p style="margin-bottom:0">体力型副业的时薪低于送外卖的正职时薪——它买不到成长，也买不到规模。如果一份副业既没有时薪优势、也没有复利资产（作品 / 渠道 / 搜索排名）沉淀，它的正确分类是「过渡性现金流」，不该占用长期精力。</p>
+  </div>
+</section>
+
+<!-- ================= 五 选型框架 ================= -->
+<section class="chap" id="s6">
+  <div class="chap-head"><span class="chap-no">五</span><h2>选型框架：给程序员的三问与梯队速查</h2></div>
+  <h3><span class="no">5.1</span>动手前先过三问</h3>
+  <ul class="dash">
+    <li><span class="h">第一问：我有可溢出的主业技能吗？</span>接单 / 咨询 / 教学的本质是把职级溢价卖给价格不敏感的小客户。没有溢价，接单就是低价内卷（行情帖原话：「要么没需求，要么报价过低」）。</li>
+    <li><span class="h">第二问：我有渠道吗？</span>熟人转介 &gt; 内容资产（店铺 / SEO / 粉丝）&gt; 平台抢单。节点内所有高单价样本的第一单都来自人脉，而不是竞标。</li>
+    <li><span class="h">第三问：算过时薪和死掉的概率吗？</span>把预期收入 ÷ 全部投入时间（含获客与售后），再乘以「平台改规则」的折旧系数。还成立，才值得开干。</li>
+  </ul>
+  <h3><span class="no">5.2</span>梯队速查表</h3>
+  <table>
+    <thead><tr><th>梯队</th><th>代表模式</th><th>本报告态度</th></tr></thead>
+    <tbody>
+      <tr class="rowgood"><td><span class="pill g">🥇 第一梯队</span></td><td>主业技能接单 / 垂直咨询 / 企业级插件与订阅产品 / 评标专家库</td><td>确定性最高，A 档证据最密</td></tr>
+      <tr class="rowwarn"><td><span class="pill w">🥈 第二梯队</span></td><td>垂直内容自媒体 / 白银 LOF 套利 / CPS 返佣 / 小成本线下店 / 网易 MC 组件市场</td><td>有真实数字，但吃赛道 / 窗口 / 政策</td></tr>
+      <tr class="rowbad"><td><span class="pill b">⚠ 第三梯队</span></td><td>灰产全家桶（代写 / 私服 / 采集 / 刷量 / 黄牛）</td><td>收入真实、风险线性上升，仅作信息呈现</td></tr>
+      <tr class="rowbad"><td><span class="pill b">❌ 劝退区</span></td><td>众包配送 / 刷视频金币 / AI 批量起号 / 无准备摆摊 / 主观炒股</td><td>一手数据全部打脸幻想</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ================= 六 风险识别 ================= -->
+<section class="chap" id="s7">
+  <div class="chap-head"><span class="chap-no">六</span><h2>风险识别：C 档广告长什么样 & 三道筛</h2></div>
+  <p>34 条 C 档记录的套路高度模板化，识别特征：</p>
+  <ul class="dash">
+    <li><span class="h">「免费交流群」漏斗：</span>「无韭菜无套路，每日免费分享副业案例」——免费群永远是漏斗顶端，同一作者两周连发两帖。</li>
+    <li><span class="h">引流暗链：</span>标题只有「入群！」，TG 链接用 base64 编码藏在正文里。</li>
+    <li><span class="h">账号托管骗局变体：</span>AI 洗稿矩阵要求上交账号密码给「运营方」，楼主本人就是受害者，最终提现 3 元——还在拉人。</li>
+    <li><span class="h">重复刷屏与副业 IP：</span>同一个小程序在多个帖子重复植入；社区对「专门搞副业的刘卡卡」们的警惕已成共识。</li>
+    <li><span class="h">9.9 元课：</span>淘宝「进群抢单」模式，学到的大概就是模式本身。</li>
+  </ul>
+  <div class="callout key">
+    <span class="tag">三道筛</span>
+    <p style="margin-bottom:0">任何「晒高收入」的帖子先过三道筛：<b>① 是不是广告</b>（有无引流暗链）→ <b>② 是不是转述</b>（AI 清单帖数字全部二手）→ <b>③ 有没有人质疑</b>（翻回复区，社区监督真实存在——283 楼的洗车帖里就有对流水截图的公开对账）。三筛全过，才值得当样本。</p>
+  </div>
+</section>
+
+<!-- ================= 七 方法与局限 ================= -->
+<section class="chap" id="s8">
+  <div class="chap-head"><span class="chap-no">七</span><h2>方法与局限</h2></div>
+  <ul class="dash">
+    <li><span class="h">覆盖：</span>节点全量 139 帖（唯一缺失的 1 帖采集时已被发帖人删除），主楼与全部回复同权重精读，实际解析回复 1,652 条与列表页声明值零偏差。</li>
+    <li><span class="h">分档：</span>A = 一手收入数字（199）；B = 真实过程无数字（211）；C = 广告 / 引流 / 无实质（34）。推荐结论仅基于 A + B，C 档单独进入警示录。</li>
+    <li><span class="h">已知偏差：</span>① 幸存者偏差——失败者更少发总结帖；② 收入全部自报、无审计；③ 样本以程序员为主，对线下业态代表性有限；④ 节点仅存续约 8 个月，长期可持续性证据不足。</li>
+    <li><span class="h">可复现：</span>原始 HTML（raw_html/）+ 结构化 JSON（json/）+ 444 条提炼记录（analysis/all_records.jsonl）全部落盘，本报告每条结论均可回溯到原文。</li>
+  </ul>
+</section>
+
+<!-- ================= 引用 · 精华帖 ================= -->
+<section class="chap" id="citations">
+  <div class="chap-head"><span class="chap-no">附录</span><h2>引用 · 精华帖索引</h2></div>
+  <p class="muted">正文中标注 <span class="cite-ref">精华 XX</span> 的结论，以及本报告的关键数据，均可在以下 23 篇精华帖中回溯原文。点击任意条目直达<a href="essence.html">《精华帖汇编》</a>中对应帖子的位置（含完整正文与高价值回复）。</p>
+
+  <div class="cite-group">
+    <h3><span class="no">壹</span>主业技能溢出 · 确定性最高</h3>
+    <div class="cite-list">
+      <a class="cite" href="essence.html#post-1186058"><span class="arrow">→</span><span class="t"><span class="id">01</span>关于副业，倒是可以分享一下我的经历</span><span class="d">脚本外包 ≈9 万 · 桌面软件流水 37 万 · 8 年技能变现进化史</span></a>
+      <a class="cite" href="essence.html#post-1185052"><span class="arrow">→</span><span class="t"><span class="id">02</span>一天半时间赚了 5 万元的经历</span><span class="d">FinOps 咨询 5 万/1.5 天 · 全节点时薪天花板</span></a>
+      <a class="cite" href="essence.html#post-1184767"><span class="arrow">→</span><span class="t"><span class="id">03</span>[副业] 聊聊我的 2025 年做过的副业以及收入</span><span class="d">接单 5 万 + 卖课 3 万 + 流量主 0.5 万 · 裁员年组合拳</span></a>
+      <a class="cite" href="essence.html#post-1233430"><span class="arrow">→</span><span class="t"><span class="id">04</span>分享一下这 4 年来的接单记录</span><span class="d">AI 接单月入 2–4 万 · 闲鱼到小红书矩阵的渠道演化</span></a>
+      <a class="cite" href="essence.html#post-1186092"><span class="arrow">→</span><span class="t"><span class="id">05</span>一天半时间赚了 3000 元的经历</span><span class="d">评论区金矿：插件 1 万/个 · 订阅站月入 2 万</span></a>
+      <a class="cite" href="essence.html#post-1185170"><span class="arrow">→</span><span class="t"><span class="id">06</span>回顾近 10 年，除薪资以外的收入</span><span class="d">10 年外包累计 20 万 · 「都没有做好做大」的冷静复盘</span></a>
+    </div>
+  </div>
+
+  <div class="cite-group">
+    <h3><span class="no">贰</span>独立开发与产品 · 信仰与现实的落差</h3>
+    <div class="cite-list">
+      <a class="cite" href="essence.html#post-1184914"><span class="arrow">→</span><span class="t"><span class="id">07</span>做副业的两年：NextTerminal 拿到 300+ 付费用户，但赚钱却很难</span><span class="d">2 年流水 6 万 · 月均「不如工资零头」 · 开源商业化标准样本</span></a>
+      <a class="cite" href="essence.html#post-1185219"><span class="arrow">→</span><span class="t"><span class="id">08</span>之前做的插件，没想到今年成为了我的副业，大半年收入 4w</span><span class="d">免费一个月换传播再转付费 · 稳定 4000+/月</span></a>
+      <a class="cite" href="essence.html#post-1185251"><span class="arrow">→</span><span class="t"><span class="id">09</span>[副业] 我的 2025 独立开发副业</span><span class="d">四站全年 $219.34 · 「比月入万刀残酷得多」</span></a>
+    </div>
+  </div>
+
+  <div class="cite-group">
+    <h3><span class="no">叁</span>内容与自媒体 · 头部吃肉、尾部喝风</h3>
+    <div class="cite-list">
+      <a class="cite" href="essence.html#post-1188665"><span class="arrow">→</span><span class="t"><span class="id">10</span>做自媒体一个月从 0 到爆火 20w 粉丝有感</span><span class="d">单月 1.2 万+ · AI 工作流 · 「不发账号就是要卖课」的信任博弈</span></a>
+      <a class="cite" href="essence.html#post-1186314"><span class="arrow">→</span><span class="t"><span class="id">11</span>搬运海外视频 - 1 年收入 14000 元</span><span class="d">充电 1.4 万 / AI 成本 200 · 三条高质量反思</span></a>
+      <a class="cite" href="essence.html#post-1224995"><span class="arrow">→</span><span class="t"><span class="id">12</span>微信视频号 59 条原创能带来多少收入？</span><span class="d">总收入 22.35 元 · 尾部一手对照样本</span></a>
+      <a class="cite" href="essence.html#post-1232613"><span class="arrow">→</span><span class="t"><span class="id">13</span>副业在做小红书，做了 11 天收益 14.5</span><span class="d">12 粉 14.5 元 → 当月 500+ · 39.9 元教程被群嘲下架</span></a>
+    </div>
+  </div>
+
+  <div class="cite-group">
+    <h3><span class="no">肆</span>线下重资产 · 数字最大、坑也最大</h3>
+    <div class="cite-list">
+      <a class="cite" href="essence.html#post-1184755"><span class="arrow">→</span><span class="t"><span class="id">14</span>自助洗车店副业后续（又开了一家）</span><span class="d">283 回复全节点第一热帖 · 月利润 1 万+ · 经验公式全公开</span></a>
+      <a class="cite" href="essence.html#post-1216096"><span class="arrow">→</span><span class="t"><span class="id">15</span>跟风开了一个自助洗车店</span><span class="d">投入 30 万+ · 「事巨多」的跟风者实录</span></a>
+      <a class="cite" href="essence.html#post-1185070"><span class="arrow">→</span><span class="t"><span class="id">16</span>正好记录下自己的赚钱经历</span><span class="d">棋牌室月净 1 万 · 「顺着人性选品」方法论 + 完整开店文档</span></a>
+      <a class="cite" href="essence.html#post-1184814"><span class="arrow">→</span><span class="t"><span class="id">17</span>分享汽车美容店的经历</span><span class="d">春节两月赚 10 万、平时入不敷出 · 县域季节性真相</span></a>
+    </div>
+  </div>
+
+  <div class="cite-group">
+    <h3><span class="no">伍</span>劝退实录 · 一手数据打脸幻想</h3>
+    <div class="cite-list">
+      <a class="cite" href="essence.html#post-1226988"><span class="arrow">→</span><span class="t"><span class="id">18</span>副业尝试之下班兼职跑众包</span><span class="d">月入 1,044 元 · 实测时薪 ≈15 元</span></a>
+      <a class="cite" href="essence.html#post-1188739"><span class="arrow">→</span><span class="t"><span class="id">19</span>分享一下这些年成功 or 失败的尝试</span><span class="d">私活 8 年 25 万+ 与十连「卒」并存 · AI 4 小时交付 5K</span></a>
+      <a class="cite" href="essence.html#post-1185119"><span class="arrow">→</span><span class="t"><span class="id">20</span>勉强的副业，游戏买卖装备，套利</span><span class="d">白银 LOF 日均 10–20 元 · 评论区冒险岛工作室两年 6 万</span></a>
+    </div>
+  </div>
+
+  <div class="cite-group">
+    <h3><span class="no">陆</span>灰色地带 · 收入与风险的双面账本</h3>
+    <div class="cite-list">
+      <a class="cite" href="essence.html#post-1213690"><span class="arrow">→</span><span class="t"><span class="id">21</span>具体到可复制的副业有人会分享吗？我先来两个吧</span><span class="d">AI 中转日利 80 · 冰激凌毛利 80% · 评论区判刑 4 年警示</span></a>
+      <a class="cite" href="essence.html#post-1185333"><span class="arrow">→</span><span class="t"><span class="id">22</span>也谈谈我的副业吧</span><span class="d">网盘 aff → 短剧机器人的三级衰退 · 采集小说赔 20 万</span></a>
+    </div>
+  </div>
+
+  <div class="cite-group">
+    <h3><span class="no">柒</span>节点元帖 · 社区起源</h3>
+    <div class="cite-list">
+      <a class="cite" href="essence.html#post-1184715"><span class="arrow">→</span><span class="t"><span class="id">23</span>[副业] 节点：聊聊你的副业，送 20-500 $V2EX 币</span><span class="d">节点起源帖 · 65 回复的全节点最高密度情报源</span></a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div><a href="essence.html">查看 23 篇精华帖全文汇编 →</a></div>
+  <div>数据：V2EX /go/sidehustle（采集 2026-08-31）· 分析与页面生成 2026-09-01 · 原始数据见 v2ex_sidehustle_data/</div>
+</footer>
+
+</body>
+</html>

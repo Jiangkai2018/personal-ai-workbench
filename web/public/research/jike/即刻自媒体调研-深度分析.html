@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>「做抖音 · 搞自媒体」即刻发言深度调研报告</title>
+<style>
+  :root{
+    --surface-1:#fcfcfb; --page:#f9f9f7;
+    --ink-1:#0b0b0b; --ink-2:#52514e; --ink-3:#898781;
+    --grid:#e1e0d9; --axis:#c3c2b7; --ring:rgba(11,11,11,.10);
+    --s1:#2a78d6; --s2:#1baf7a; --s3:#eda100; --s4:#008300;
+    --s5:#4a3aa7; --s6:#e34948; --s7:#e87ba4; --s8:#eb6834;
+    --seq-250:#86b6ef; --seq-550:#1c5cab;
+    --good-up:#006300;
+    --accent:#2a78d6;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --surface-1:#1a1a19; --page:#0d0d0d;
+      --ink-1:#ffffff; --ink-2:#c3c2b7; --ink-3:#898781;
+      --grid:#2c2c2a; --axis:#383835; --ring:rgba(255,255,255,.10);
+      --s1:#3987e5; --s2:#199e70; --s3:#c98500; --s4:#008300;
+      --s5:#9085e9; --s6:#e66767; --s7:#d55181; --s8:#d95926;
+      --seq-250:#5598e7; --seq-550:#184f95;
+      --good-up:#0ca30c;
+      --accent:#3987e5;
+    }
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--page); color:var(--ink-1);
+    font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei","PingFang SC",sans-serif;
+    font-size:15px; line-height:1.75;
+    -webkit-font-smoothing:antialiased;
+  }
+  @media print{ body{background:#fff} }
+
+  /* ---------- 布局 ---------- */
+  .wrap{max-width:1060px;margin:0 auto;padding:0 28px 96px}
+  nav.topbar{
+    position:sticky;top:0;z-index:50;background:var(--page);
+    border-bottom:1px solid var(--grid);
+  }
+  nav.topbar .inner{
+    max-width:1060px;margin:0 auto;padding:10px 28px;
+    display:flex;gap:22px;align-items:baseline;flex-wrap:wrap;
+    font-size:12.5px;
+  }
+  nav.topbar a{color:var(--ink-3);text-decoration:none;white-space:nowrap}
+  nav.topbar a:hover{color:var(--accent)}
+  nav.topbar .brand{font-weight:600;color:var(--ink-1);margin-right:6px}
+
+  header.hero{padding:72px 0 40px;border-bottom:1px solid var(--grid)}
+  .kicker{
+    font-size:12px;letter-spacing:.18em;color:var(--accent);
+    font-weight:600;text-transform:uppercase;margin-bottom:14px;
+  }
+  h1{font-size:34px;line-height:1.3;font-weight:700;letter-spacing:.01em}
+  .subtitle{color:var(--ink-2);font-size:16px;margin-top:14px;max-width:46em}
+  .meta-row{display:flex;gap:26px;flex-wrap:wrap;margin-top:26px;font-size:12.5px;color:var(--ink-3)}
+  .meta-row b{color:var(--ink-2);font-weight:600}
+
+  section{padding:52px 0 6px}
+  .sec-num{
+    font-size:12px;color:var(--accent);font-weight:700;letter-spacing:.14em;
+    margin-bottom:8px;
+  }
+  h2{font-size:24px;font-weight:700;margin-bottom:6px;letter-spacing:.01em}
+  .lede{color:var(--ink-2);max-width:52em;margin-bottom:26px}
+  h3{font-size:16.5px;font-weight:650;margin:34px 0 12px}
+
+  /* ---------- KPI ---------- */
+  .kpi-row{
+    display:grid;grid-template-columns:repeat(6,1fr);gap:1px;
+    background:var(--grid);border:1px solid var(--grid);border-radius:10px;
+    overflow:hidden;margin:34px 0 8px;
+  }
+  .kpi{background:var(--surface-1);padding:18px 16px 15px}
+  .kpi .lab{font-size:12px;color:var(--ink-3);margin-bottom:6px}
+  .kpi .val{font-size:26px;font-weight:650;line-height:1.15}
+  .kpi .sub{font-size:11.5px;color:var(--ink-3);margin-top:4px}
+  @media (max-width:860px){.kpi-row{grid-template-columns:repeat(3,1fr)}}
+  @media (max-width:520px){.kpi-row{grid-template-columns:repeat(2,1fr)}}
+
+  /* ---------- 图表卡片 ---------- */
+  .chart-card{
+    background:var(--surface-1);border:1px solid var(--grid);border-radius:10px;
+    padding:22px 24px 16px;margin:18px 0;
+  }
+  .chart-head{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;margin-bottom:4px}
+  .chart-title{font-size:14.5px;font-weight:650}
+  .chart-sub{font-size:12.5px;color:var(--ink-3);margin-top:2px;max-width:56em}
+  .tbl-btn{
+    flex:none;font-size:11.5px;color:var(--ink-3);background:none;
+    border:1px solid var(--grid);border-radius:6px;padding:3px 10px;cursor:pointer;
+  }
+  .tbl-btn:hover{color:var(--accent);border-color:var(--accent)}
+  .chart-card svg{display:block;width:100%;height:auto}
+  .chart-card .tbl-wrap{display:none;overflow-x:auto}
+  .chart-card.show-table .viz{display:none}
+  .chart-card.show-table .tbl-wrap{display:block}
+  table.data{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+  table.data th,table.data td{
+    text-align:left;padding:6px 10px;border-bottom:1px solid var(--grid);
+    font-variant-numeric:tabular-nums;
+  }
+  table.data th{color:var(--ink-3);font-weight:600}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;font-size:12px;color:var(--ink-2);margin:6px 0 2px}
+  .legend .key{display:inline-flex;align-items:center;gap:6px}
+  .legend .swatch{width:12px;height:12px;border-radius:3px}
+  .legend .linekey{width:16px;height:2px;border-radius:1px}
+  .footnote{font-size:11.5px;color:var(--ink-3);margin-top:8px}
+
+  /* ---------- 通用组件 ---------- */
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  @media (max-width:860px){.grid2{grid-template-columns:1fr}}
+  .callout{
+    background:var(--surface-1);border:1px solid var(--grid);border-left:3px solid var(--accent);
+    border-radius:8px;padding:16px 20px;margin:18px 0;font-size:13.5px;color:var(--ink-2);
+  }
+  .callout b{color:var(--ink-1)}
+  .warn{border-left-color:var(--s8)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+  .chip{
+    font-size:12px;color:var(--ink-2);background:var(--surface-1);
+    border:1px solid var(--grid);border-radius:99px;padding:3px 12px;
+  }
+  blockquote.qt{
+    background:var(--surface-1);border:1px solid var(--grid);border-radius:10px;
+    padding:18px 22px 14px;margin:14px 0;position:relative;
+  }
+  blockquote.qt .mark{color:var(--accent);font-size:20px;line-height:1;font-weight:700}
+  blockquote.qt p{font-size:14px;color:var(--ink-1);margin:6px 0 10px}
+  blockquote.qt .attr{font-size:12px;color:var(--ink-3)}
+  blockquote.qt .attr b{color:var(--ink-2);font-weight:600}
+  .arch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+  @media (max-width:920px){.arch-grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:600px){.arch-grid{grid-template-columns:1fr}}
+  .arch{
+    background:var(--surface-1);border:1px solid var(--grid);border-radius:10px;
+    padding:18px 20px;
+  }
+  .arch .no{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:.1em}
+  .arch h4{font-size:14.5px;margin:6px 0 8px}
+  .arch p{font-size:12.5px;color:var(--ink-2)}
+  .arch .ex{font-size:11.5px;color:var(--ink-3);margin-top:8px;padding-top:8px;border-top:1px solid var(--grid)}
+  .findings{counter-reset:fd;margin-top:16px}
+  .finding{
+    background:var(--surface-1);border:1px solid var(--grid);border-radius:10px;
+    padding:20px 24px;margin-bottom:14px;position:relative;
+  }
+  .finding::before{
+    counter-increment:fd;content:counter(fd,decimal-leading-zero);
+    position:absolute;top:20px;right:22px;font-size:22px;font-weight:700;
+    color:var(--grid);
+  }
+  .finding h4{font-size:15.5px;margin-bottom:8px;padding-right:52px}
+  .finding p{font-size:13.5px;color:var(--ink-2)}
+  .finding .ev{font-size:12px;color:var(--accent);margin-top:8px}
+  ol.flow{list-style:none;display:flex;flex-wrap:wrap;gap:0;margin:14px 0;align-items:stretch}
+  ol.flow li{
+    flex:1;min-width:150px;background:var(--surface-1);border:1px solid var(--grid);
+    padding:12px 16px;font-size:12.5px;color:var(--ink-2);position:relative;
+  }
+  ol.flow li b{display:block;color:var(--ink-1);font-size:13px;margin-bottom:2px}
+  ol.flow li:not(:last-child){border-right:none}
+  ol.flow li:not(:last-child)::after{
+    content:"→";position:absolute;right:-7px;top:50%;transform:translateY(-50%);
+    color:var(--ink-3);background:var(--page);padding:0 2px;z-index:1;font-size:13px;
+  }
+  .ladder{margin:14px 0;border:1px solid var(--grid);border-radius:10px;overflow:hidden}
+  .ladder .rung{
+    display:grid;grid-template-columns:56px 1fr 210px;gap:14px;align-items:center;
+    background:var(--surface-1);padding:13px 18px;border-bottom:1px solid var(--grid);
+  }
+  .ladder .rung:last-child{border-bottom:none}
+  .ladder .dist{font-size:11px;color:var(--ink-3);font-weight:600;letter-spacing:.06em}
+  .ladder .name{font-size:14px;font-weight:650}
+  .ladder .desc{font-size:12px;color:var(--ink-2)}
+  @media (max-width:700px){.ladder .rung{grid-template-columns:44px 1fr}.ladder .desc{grid-column:2}}
+  .summary-strip{
+    display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--grid);
+    border:1px solid var(--grid);border-radius:10px;overflow:hidden;margin:18px 0;
+  }
+  .summary-strip>div{background:var(--surface-1);padding:16px 18px}
+  .summary-strip .n{font-size:22px;font-weight:650}
+  .summary-strip .l{font-size:11.5px;color:var(--ink-3);margin-top:2px}
+  .summary-strip .d{font-size:11.5px;margin-top:6px}
+  blockquote.qt .attr a{color:var(--accent);text-decoration:none;font-weight:600;margin-left:10px;white-space:nowrap}
+  blockquote.qt .attr a:hover{text-decoration:underline}
+  .up{color:var(--good-up)} .dn{color:var(--s6)}
+  @media (max-width:860px){.summary-strip{grid-template-columns:repeat(2,1fr)}}
+  code.path{font-family:ui-monospace,Consolas,monospace;font-size:12px;background:var(--surface-1);
+    border:1px solid var(--grid);border-radius:5px;padding:1px 7px;color:var(--ink-2)}
+  .tooltip{
+    position:fixed;z-index:99;pointer-events:none;display:none;
+    background:var(--surface-1);border:1px solid var(--grid);border-radius:8px;
+    box-shadow:0 4px 16px rgba(0,0,0,.12);padding:9px 12px;min-width:120px;
+    font-size:12px;color:var(--ink-2);
+  }
+  .tooltip .tt-title{font-weight:600;color:var(--ink-1);margin-bottom:4px}
+  .tooltip .tt-row{display:flex;align-items:center;gap:7px;margin-top:3px}
+  .tooltip .tt-key{width:12px;height:2px;border-radius:1px;flex:none}
+  .tooltip .tt-dot{width:8px;height:8px;border-radius:50%;flex:none}
+  .tooltip .tt-val{font-weight:650;color:var(--ink-1);font-variant-numeric:tabular-nums}
+  footer{border-top:1px solid var(--grid);margin-top:60px;padding-top:26px;font-size:12.5px;color:var(--ink-3)}
+</style>
+</head>
+<body>
+
+<nav class="topbar"><div class="inner">
+  <span class="brand">即刻 · 自媒体舆情深读</span>
+  <a href="#s0">摘要</a><a href="#s1">方法</a><a href="#s2">声量</a><a href="#s3">平台</a>
+  <a href="#s4">变现</a><a href="#s5">情绪</a><a href="#s6">AI</a><a href="#s7">原型</a>
+  <a href="#s8">结论</a><a href="#s9">局限</a><a href="#s10">附录</a>
+</div></nav>
+
+<div class="wrap">
+
+<!-- ============ HERO ============ -->
+<header class="hero" id="s0">
+  <div class="kicker">Jike Social Listening Report · 2026-09</div>
+  <h1>「做抖音」退潮，「搞自媒体」登顶<br>——即刻社区 1,184 条发言的深度分析</h1>
+  <p class="subtitle">通过 18 个关键词对即刻搜索的全量分页抓取，我们对 2019–2026 年间关于做抖音、搞自媒体、起号、涨粉、副业、恰饭的公开发言做了定量打标与定性精读。数据显示：这不是一个关于「平台」的话题，而是一个关于「退路」的话题——并在 2026 年被 AI 重新定价。</p>
+  <div class="meta-row">
+    <span><b>调研日期</b> 2026-09-01</span>
+    <span><b>数据来源</b> web.okjike.com 搜索 API</span>
+    <span><b>方法</b> 关键词分页抓取 → 去重 → 相关性过滤 → 26 类规则打标 → Top120 精读</span>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="lab">原始抓取</div><div class="val">1,738</div><div class="sub">条发言</div></div>
+    <div class="kpi"><div class="lab">去重后</div><div class="val">1,599</div><div class="sub">独立帖子</div></div>
+    <div class="kpi"><div class="lab">有效分析</div><div class="val">1,184</div><div class="sub">通过相关性过滤</div></div>
+    <div class="kpi"><div class="lab">发帖人</div><div class="val">595</div><div class="sub">72% 仅发过 1 帖</div></div>
+    <div class="kpi"><div class="lab">搜索关键词</div><div class="val">18</div><div class="sub">覆盖 7 大平台词</div></div>
+    <div class="kpi"><div class="lab">平均正文</div><div class="val">726<span style="font-size:14px"> 字</span></div><div class="sub">长文反思型社区</div></div>
+  </div>
+</header>
+
+<!-- ============ §1 方法 ============ -->
+<section id="s1">
+  <div class="sec-num">SECTION 01</div>
+  <h2>研究方法与数据管线</h2>
+  <p class="lede">调研采用「广撒网关键词 + 搜索 API 分页」策略，保证每个关键词取满 5–8 页（每页 20 条），再以帖子 ID 全局去重。相比只搜「做抖音」，这能捕捉到用「起号」「恰饭」「播放量」等黑话讨论同一话题的发言。</p>
+
+  <ol class="flow">
+    <li><b>抓取</b>18 关键词 × 5–8 页搜索 API，共 1,738 条</li>
+    <li><b>去重</b>按帖子 ID 合并，1,599 条（415 条被多个关键词命中）</li>
+    <li><b>过滤</b>正文须真实涉及内容创作，剔除「恰饭=吃饭」等语义噪声，剩 1,184 条</li>
+    <li><b>打标</b>26 类主题规则标签（平台/变现/痛点/做法/身份/结果）可多重命中</li>
+    <li><b>精读</b>按互动量排序，精读 Top120 + 2025–26 近期 Top100</li>
+  </ol>
+
+  <h3>检索词覆盖</h3>
+  <div class="chips">
+    <span class="chip">做抖音</span><span class="chip">搞自媒体</span><span class="chip">做自媒体</span>
+    <span class="chip">自媒体</span><span class="chip">做账号</span><span class="chip">起号</span>
+    <span class="chip">涨粉</span><span class="chip">短视频</span><span class="chip">视频号</span>
+    <span class="chip">做小红书</span><span class="chip">做IP</span><span class="chip">做博主</span>
+    <span class="chip">副业</span><span class="chip">拍视频</span><span class="chip">内容创作</span>
+    <span class="chip">接广告</span><span class="chip">恰饭</span><span class="chip">播放量</span>
+  </div>
+
+  <div class="callout warn">
+    <b>⚠ 读数前必读的三种偏差。</b>
+    ① <b>近因偏差</b>：即刻搜索偏重近期内容，2026 年帖子占 52%，年度对比应看比率而非绝对量；
+    ② <b>社区偏差</b>：即刻用户以一二线互联网/产品/运营从业者为主，结论是「即刻视角」，不能外推到全网民；
+    ③ <b>叙事偏差</b>：帖子是公开表达，本身就向「有结果的人」和「有情绪的人」倾斜——本报告在第 5 节专门处理这一点。
+  </div>
+</section>
+
+<!-- ============ §2 声量 ============ -->
+<section id="s2">
+  <div class="sec-num">SECTION 02</div>
+  <h2>声量结构：谁在说，在哪里说</h2>
+  <p class="lede">讨论热度在 2026 年出现数量级跃升（注意搜索的近因放大效应），但更重要的结构信号是：<b>发声者高度长尾化</b>——72% 的用户只发过一帖。这不是KOL的舞台，而是无数个体的一次性表态。</p>
+
+  <div class="chart-card" id="chart-year">
+    <div class="chart-head">
+      <div>
+        <div class="chart-title">图 1 · 年度发言量：2026 年占全部语料的 52%</div>
+        <div class="chart-sub">1,184 条有效帖子按发布年份分布；2026 年数据仅至 9 月 1 日</div>
+      </div>
+      <button class="tbl-btn" data-for="chart-year">表格</button>
+    </div>
+    <div class="viz"></div>
+    <div class="tbl-wrap"></div>
+    <div class="footnote">2019–2021 年样本量较小（11 / 15 / 38 条），其比率型结论参考价值有限，后文图表均附样本量。</div>
+  </div>
+
+  <div class="chart-card" id="chart-topic">
+    <div class="chart-head">
+      <div>
+        <div class="chart-title">图 2 · 讨论发生的圈子：运营、副业、AI 三足鼎立</div>
+        <div class="chart-sub">按帖子所属话题圈子的数量排序，Top 14（其余 465 帖散布于长尾圈子或无话题）</div>
+      </div>
+      <button class="tbl-btn" data-for="chart-topic">表格</button>
+    </div>
+    <div class="viz"></div>
+    <div class="tbl-wrap"></div>
+  </div>
+
+  <div class="callout">
+    <b>解读。</b>专业创作者圈子（「媒体人的日常」34 帖）的声音远小于「运营的日常」（157）、「副业探索小分队」（122）和「AI探索站」（109）。换句话说，即刻上讨论自媒体的主力是<b>想入局的人、在旁边观察的人、教别人做的人</b>，而不是正在靠它吃饭的人。这决定了整个语料的基调：方法论多、复盘多、第一手的平台生存实感相对少。
+  </div>
+</section>
+
+<!-- ============ §3 平台 ============ -->
+<section id="s3">
+  <div class="sec-num">SECTION 03</div>
+  <h2>平台格局：一条清晰的爱憎曲线</h2>
+  <p class="lede">把语料切成「早期（2019–23，298 帖）」与「近期（2024–26，886 帖）」两段，平台提及率的变化讲述了过去七年注意力迁移的完整故事。</p>
+
+  <div class="chart-card" id="chart-dumbbell">
+    <div class="chart-head">
+      <div>
+        <div class="chart-title">图 3 · 平台提及率迁移（2019–23 → 2024–26）</div>
+        <div class="chart-sub">圆点为提及该平台的帖子占比；右列为此消彼长的百分点（pp）</div>
+      </div>
+      <button class="tbl-btn" data-for="chart-dumbbell">表格</button>
+    </div>
+    <div class="legend">
+      <span class="key"><span class="swatch" style="background:var(--seq-250)"></span>早期 2019–2023（298 帖）</span>
+      <span class="key"><span class="swatch" style="background:var(--seq-550)"></span>近期 2024–2026（886 帖）</span>
+    </div>
+    <div class="viz"></div>
+    <div class="tbl-wrap"></div>
+  </div>
+
+  <div class="chart-card" id="chart-platline">
+    <div class="chart-head">
+      <div>
+        <div class="chart-title">图 4 · 四大平台提及率的年度轨迹</div>
+        <div class="chart-sub">悬停查看任意年份各平台数值；2019–21 年样本小（n&lt;40），曲线前段仅供走向参考</div>
+      </div>
+      <button class="tbl-btn" data-for="chart-platline">表格</button>
+    </div>
+    <div class="legend">
+      <span class="key"><span class="linekey" style="background:var(--s1)"></span>小红书</span>
+      <span class="key"><span class="linekey" style="background:var(--s2)"></span>抖音</span>
+      <span class="key"><span class="linekey" style="background:var(--s3)"></span>视频号</span>
+      <span class="key"><span class="linekey" style="background:var(--s4)"></span>公众号</span>
+    </div>
+    <div class="viz"></div>
+    <div class="tbl-wrap"></div>
+  </div>
+
+  <h3>抖音：从「暴富机器」到「商业化红海」的叙事降级</h3>
+  <p class="lede" style="margin-bottom:8px">抖音提及率从 22% 跌至 15%，但更深刻的变化在叙事内容本身：2020 年前后的帖子把做抖音当<b>一夜暴富的门票</b>；近期的帖子把抖音描述为<b>难度过高、商业化过重、不适合素人</b>的红海。成功叙事率（42%）仍是各平台最高之一，但那些成功故事的主角已从「素人博主」换成「商家与服务商」。</p>
+
+  <blockquote class="qt"><span class="mark">“</span>
+    <p>抖音之前说 4 个月亏了百万……我们无数次改方向后，终于有流量涌进来了……一个 30w 粉丝，一个 40w 粉丝，都是沙雕剧情路线。但做抖音的每一天，都奄奄一息。我不得不承认，我再有自我感觉的内容能力，也做不了这件事。我认输了。</p>
+    <div class="attr"><b>@洛怀</b> · 2020-10 · 运营者复盘，此帖是「素人做抖音」叙事的转折点之一 <a href="即刻自媒体调研-引用帖全文.html#p-5f8c67e6a5452e00189c8496">查看全文 →</a></div>
+  </blockquote>
+
+  <blockquote class="qt"><span class="mark">“</span>
+    <p>抖音沦为了我获客最差的渠道，甚至从豆包来的客户都比抖音多。这里没有贬低抖音的意思，只能说我并不谙此道。</p>
+    <div class="attr"><b>@凌空小鱼儿</b> · 2026-08 · 一人公司两年变现百万者，最终选择播客+沙盘的小众组合 <a href="即刻自媒体调研-引用帖全文.html#p-6a858a33cfb5d08b3e00fa57">查看全文 →</a></div>
+  </blockquote>
+
+  <h3>小红书：普通人事实上的默认起点</h3>
+  <p class="lede" style="margin-bottom:8px">小红书是唯一在两段时期都保持 28% 提及率的平台，语料中的共识包括：「涨粉最快的平台，适合普通人」「0–1000 粉最难，50 篇日更才破千粉」「5k 粉即有商业价值，5k–5w 粉广告报价 500–5000 元」「几百粉的垂类博主就能接到 50–150 元商单」。它承接了抖音退潮后的全部素人叙事。</p>
+
+  <h3>两个反共识的赚钱样本</h3>
+  <div class="grid2">
+    <blockquote class="qt"><span class="mark">“</span>
+      <p>她是一个家电数码评测博主，8 万粉丝，广告收入已超过 100 万……B 站这个平台很神奇，因为大家都觉得它没什么流量、变现难，所以竞争不激烈。你分享的是产品和评测，插入一个产品，润物细无声。</p>
+      <div class="attr"><b>@张机</b> · 2026-03 · 「内容离下单近，离钱就近」 <a href="即刻自媒体调研-引用帖全文.html#p-69b3fd20800201ac682c2f42">查看全文 →</a></div>
+    </blockquote>
+    <blockquote class="qt"><span class="mark">“</span>
+      <p>我再度复刻了一次，发现真的实现了单集播客单月变现十万……集体骂「播客不好变现」似乎成了某种优越感的彰显。这种负面情绪之下，必有很多人忽略的机会。</p>
+      <div class="attr"><b>@凌空小鱼儿</b> · 2026-08 · 小众平台 × 小众赛道 × 个人 IP 信任 <a href="即刻自媒体调研-引用帖全文.html#p-6a858a33cfb5d08b3e00fa57">查看全文 →</a></div>
+    </blockquote>
+  </div>
+  <p class="footnote">两个样本共同指向一个结论：当主流注意力涌向「大家都在做」的平台时，被集体低估的渠道（B站长视频、播客）反而出现「竞争真空 + 高信任」的组合。</p>
+</section>
+
+<!-- ============ §4 变现 ============ -->
+<section id="s4">
+  <div class="sec-num">SECTION 04</div>
+  <h2>变现光谱：离钱近的人研究细节</h2>
+  <p class="lede">语料中反复出现的一句话可以作为整个变现讨论的题眼——<b>「离钱近的人研究细节，离钱远的人研究意义。」</b>（@小马宋王大洋，2026-06）按帖子提及次数排列五条主流变现路径，再按「离钱距离」重排，得到下面的光谱。</p>
+
+  <div class="chart-card" id="chart-monet">
+    <div class="chart-head">
+      <div>
+        <div class="chart-title">图 5 · 变现路径的讨论热度（帖数，可多重命中）</div>
+        <div class="chart-sub">1,184 帖中提及各变现方式的帖子数</div>
+      </div>
+      <button class="tbl-btn" data-for="chart-monet">表格</button>
+    </div>
+    <div class="viz"></div>
+    <div class="tbl-wrap"></div>
+  </div>
+
+  <div class="ladder">
+    <div class="rung">
+      <div class="dist">最近钱</div><div class="name">带货 / 电商佣金</div>
+      <div class="desc">「宇宙的尽头是带货」——内容与下单之间只隔一个购物车链接。近期出现的更激进版本：素人别做 IP，直接发笔记挂车。</div>
+    </div>
+    <div class="rung">
+      <div class="dist">↑</div><div class="name">广告恰饭</div>
+      <div class="desc">门槛最低、被唱衰最狠：「接广告是最差劲的变现路径，几十万粉不赚钱的账号一大把」。报价锚点：千粉级 50–150 元，5k–5w 粉 500–5000 元。</div>
+    </div>
+    <div class="rung">
+      <div class="dist">↑</div><div class="name">私域 + 咨询服务</div>
+      <div class="desc">即刻人群最推崇的路径：内容获客 → 微信成交 → 高客单咨询/陪跑。慢，但每一步都沉淀在自己的资产里。</div>
+    </div>
+    <div class="rung">
+      <div class="dist">↑</div><div class="name">知识付费 / 课程</div>
+      <div class="desc">争议最大。成功者：运营手册 2800 份营收百万；翻车者：阿里 P8 招 3 人做 IP，半年烧 50 万只卖出十几单 99 元咨询。</div>
+    </div>
+    <div class="rung">
+      <div class="dist">最远钱</div><div class="name">直播打赏</div>
+      <div class="desc">被视为最卷的路径，且正被短剧和官方流量成本挤压。「直播越来越卷，开不下去了」——连两三千人在线的农村阿姨直播间也感同身受。</div>
+    </div>
+  </div>
+
+  <h3>社区的结构性观点：三种自媒体</h3>
+  <blockquote class="qt"><span class="mark">“</span>
+    <p>第一种，纯记录生活型——爽是很爽，但和创业无关，只有情绪发泄。第二种，流量焦虑型——天天研究算法追热点，但从不问「这些流量最后要被我带到哪去」。第三种，创业型——内容是服务业生意的最前端，所有内容只做一件事：吸引未来可能为自己付费的那群人。</p>
+    <div class="attr"><b>@人生管理指南-RAY</b> · 2026-03 · 全网 25 万粉创业者的三分法，高赞帖几乎全部站在第三种一边 <a href="即刻自媒体调研-引用帖全文.html#p-69c149106d59f6d7a53a9ede">查看全文 →</a></div>
+  </blockquote>
+
+  <blockquote class="qt"><span class="mark">“</span>
+    <p>素人最快的赚钱方法应该不是做自媒体了，而是直接发笔记卖货，别管是口播还是图文，一天发 10 条挂车链接，干就完了……别搞什么 IP 了，普通人搞 IP 搞不明白的，直接卖就完事儿了。</p>
+    <div class="attr"><b>@HandsoMeng</b> · 2026-05 · 语料中最极端的「去 IP 化」主张（此人日更公众号 750+ 天，另一帖） <a href="即刻自媒体调研-引用帖全文.html#p-6a027ddc9c4fdb29a2a2a4cb">查看全文 →</a></div>
+  </blockquote>
+</section>
+
+<!-- ============ §5 情绪 ============ -->
+<section id="s5">
+  <div class="sec-num">SECTION 05</div>
+  <h2>情绪结构：乐观叙事是悲观的两倍，且差距在收窄</h2>
+  <p class="lede">对每条帖子做叙事检测（成功词表：做起来了/涨粉/月入/变现/破万…；挫折词表：放弃/断更/亏了/没人看/凉了…）。结果不是简单的「卷」或「丧」，而是一个<b>双向撕裂、烈度整体上升</b>的情绪市场。</p>
+
+  <div class="summary-strip">
+    <div><div class="n up">29%</div><div class="l">近期帖含成功叙事</div><div class="d">早期 23% <b>↑6pp</b></div></div>
+    <div><div class="n dn">14%</div><div class="l">近期帖含挫折叙事</div><div class="d">早期 8% <b>↑6pp</b></div></div>
+    <div><div class="n dn">17%</div><div class="l">焦虑/内耗提及率</div><div class="d">早期 7% <b>翻倍</b></div></div>
+    <div><div class="n dn">8%</div><div class="l">亏钱/被割提及率</div><div class="d">早期 4% <b>翻倍</b></div></div>
+  </div>
+
+  <div class="chart-card" id="chart-senti">
+    <div class="chart-head">
+      <div>
+        <div class="chart-title">图 6 · 成功叙事 vs 挫折叙事的年度轨迹</div>
+        <div class="chart-sub">含成功/挫折词表命中的帖子占比；2019 年挫折率为 0 不是没有失败，而是失败还不值得公开讲述</div>
+      </div>
+      <button class="tbl-btn" data-for="chart-senti">表格</button>
+    </div>
+    <div class="legend">
+      <span class="key"><span class="swatch" style="background:var(--s1)"></span>成功叙事</span>
+      <span class="key"><span class="swatch" style="background:var(--s6)"></span>挫折叙事</span>
+    </div>
+    <div class="viz"></div>
+    <div class="tbl-wrap"></div>
+  </div>
+
+  <h3>撕裂的两极：同一时间里发生的事</h3>
+  <div class="grid2">
+    <blockquote class="qt"><span class="mark">“</span>
+      <p>随便做的小红书卖成大 V 号，视频号 3 个月涨了 300 万粉……AI 领域账号 4 个月做到全网 10 万+ 粉丝。</p>
+      <div class="attr"><b>乐观侧样本</b> · @42修养版 2025-02 / @西里森森 2025-12 <a href="即刻自媒体调研-引用帖全文.html#p-67a5a06a647a66f75295035f">查看全文 →</a> <a href="即刻自媒体调研-引用帖全文.html#p-6930649500d3cf2801a7e00f">查看全文 →</a></div>
+    </blockquote>
+    <blockquote class="qt"><span class="mark">“</span>
+      <p>一个四万粉丝的账号发布了退网视频，三千都拿不出的他决定去好好上班……日更 800 天公众号，阅读量只有个位数。</p>
+      <div class="attr"><b>悲观侧样本</b> · @努力赚钱的威宝 2021-10 / @HandsoMeng 转述 2026-03 <a href="即刻自媒体调研-引用帖全文.html#p-617938d6fe12a90010abf8b1">查看全文 →</a> <a href="即刻自媒体调研-引用帖全文.html#p-69a94b9225bae566125c0f9b">查看全文 →</a></div>
+    </blockquote>
+  </div>
+
+  <div class="chart-card" id="chart-platsenti">
+    <div class="chart-head">
+      <div>
+        <div class="chart-title">图 7 · 分平台的叙事温度：小红书最热，视频号最冷</div>
+        <div class="chart-sub">提及该平台的帖子中，成功/挫折叙事的命中率；括号内为帖子数</div>
+      </div>
+      <button class="tbl-btn" data-for="chart-platsenti">表格</button>
+    </div>
+    <div class="legend">
+      <span class="key"><span class="swatch" style="background:var(--s1)"></span>成功叙事率</span>
+      <span class="key"><span class="swatch" style="background:var(--s6)"></span>挫折叙事率</span>
+    </div>
+    <div class="viz"></div>
+    <div class="tbl-wrap"></div>
+  </div>
+
+  <h3>幸存者偏差的社区自觉</h3>
+  <p class="lede" style="margin-bottom:8px">本次调研最有价值的发现之一：即刻用户对「暴富叙事」本身发展出了系统性的免疫力——<b>拆穿幸存者偏差的帖子，比暴富故事本身拿到更高的赞</b>。</p>
+  <blockquote class="qt"><span class="mark">“</span>
+    <p>能快速暴富，大概具备这两个条件：1、长期持续的积累。2、运气。但在讲述暴富的故事时，通常不会提这两点，因为提了就不性感了，这个故事就失色了。</p>
+    <div class="attr"><b>@韩叙HanXu</b> · 2026-02 · 前短视频平台运营负责人 <a href="即刻自媒体调研-引用帖全文.html#p-69a01a13ba379496828d57c1">查看全文 →</a></div>
+  </blockquote>
+  <blockquote class="qt"><span class="mark">“</span>
+    <p>副业收入超过主业，这很难，不要给自己订立这样的目标，反正我是没做到。现在不是写个公众号接广告就能轻易得到三倍于工资收入的时代了。</p>
+    <div class="attr"><b>@王梦珂Mengke</b> · 2023-11 · 「副业探索小分队」主理人，对圈内焦虑的官方降温 <a href="即刻自媒体调研-引用帖全文.html#p-65549ebede31fdaa4e08b761">查看全文 →</a></div>
+  </blockquote>
+</section>
+
+<!-- ============ §6 AI ============ -->
+<section id="s6">
+  <div class="sec-num">SECTION 06</div>
+  <h2>AI 变量：2026 年最大的定价器</h2>
+  <p class="lede">在全部 26 个主题标签中，AI 相关提及率的变化最剧烈：<b>早期 6% → 近期 30%，五倍</b>。按季度看，2025 上半年至 2026 二季度从 13% 一路爬到 38%。AI 不再是自媒体话题的旁注，它正在重置整个游戏的价格体系。</p>
+
+  <div class="chart-card" id="chart-ai">
+    <div class="chart-head">
+      <div>
+        <div class="chart-title">图 8 · AI 相关提及率：四年从 0 到 35%</div>
+        <div class="chart-sub">帖子正文含 AI / GPT / Claude / 大模型 / DeepSeek / AIGC 等词的占比（按年）</div>
+      </div>
+      <button class="tbl-btn" data-for="chart-ai">表格</button>
+    </div>
+    <div class="viz"></div>
+    <div class="tbl-wrap"></div>
+    <div class="footnote">季度粒度（仅 2025 之后）：2025H1 13% → 2025H2 20% → 2026Q1 29% → 2026Q2 38% → 2026Q3 34%。2026 年内首次出现回落，与下文「反 AI 神棍」声量的崛起同步。</div>
+  </div>
+
+  <h3>两个阵营的正面碰撞</h3>
+  <div class="grid2">
+    <div>
+      <p style="font-size:13px;color:var(--ink-2);margin-bottom:10px"><b style="color:var(--ink-1)">阵营 A · 工作流派</b>——AI 是普通人的产能杠杆，起号流程正在被 skill 化、工程化。</p>
+      <blockquote class="qt"><span class="mark">“</span>
+        <p>我做了一套小红书起号的 Skill，结合我运营小红书三年多、三个万粉账号的经验，覆盖定位、选题、写作、视觉、复盘五个环节，一共 10 个。</p>
+        <div class="attr"><b>@空格.space</b> · 2026-07 · 同类开源工作流在语料中出现至少 4 套 <a href="即刻自媒体调研-引用帖全文.html#p-6a676f84bd0563695b92da27">查看全文 →</a></div>
+      </blockquote>
+      <blockquote class="qt"><span class="mark">“</span>
+        <p>AI 时代有一万种方法搞流量赚钱，说一个最朴素最适合普通人的：和 AI 学周易，把学习笔记出图发小红书，一边涨粉一边卖挂饰和算命服务。你学啥，你就卖啥。</p>
+        <div class="attr"><b>@Yangyi.</b> · 2026-05 · 「学习式带货」的极简样本 <a href="即刻自媒体调研-引用帖全文.html#p-69fa07fe53e36367c38b3a88">查看全文 →</a></div>
+      </blockquote>
+    </div>
+    <div>
+      <p style="font-size:13px;color:var(--ink-2);margin-bottom:10px"><b style="color:var(--ink-1)">阵营 B · 反神棍派</b>——AI 内容的爆炸让「人味」成为唯一稀缺品，贩卖 AI 焦虑本身成了一门生意。</p>
+      <blockquote class="qt"><span class="mark">“</span>
+        <p>他不是在用 AI 赚钱。他是在用「AI」这两个字赚钱……某个模型刚发布，使用指南已经在你时间线上了。他根本没打算搞懂，搞懂不是目的，抢先发出来才是目的。</p>
+        <div class="attr"><b>@风小海</b> · 2026-04 · 「AI 神棍」檄文，297 赞 <a href="即刻自媒体调研-引用帖全文.html#p-69e63325800201ac68ba3fe2">查看全文 →</a></div>
+      </blockquote>
+      <blockquote class="qt"><span class="mark">“</span>
+        <p>要活得更像人，才不怕被 AI 取代。（引人类学家项飙）如果 AI 能把你取代掉，是不是说明你原来写的文章本身就没有太大价值？</p>
+        <div class="attr"><b>@西里森森</b> · 2026-05 · 头部美妆博主断更三年复出涨粉千万后的反思 <a href="即刻自媒体调研-引用帖全文.html#p-6a116b2d514a9975b9200ea7">查看全文 →</a></div>
+      </blockquote>
+    </div>
+  </div>
+
+  <div class="callout">
+    <b>深读。</b>AI 对这个话题的作用不是「又一个新的内容赛道」，而是<b>成本曲线的整体下移</b>：当选题、写作、配图、剪辑的成本同时趋零，内容供给必然爆炸，普通内容的平均价值加速崩塌——语料中「批量/矩阵」标签从 6% 升至 8% 只是先兆。均值回归的另一面是：真实经历、垂直信任、活人感（「人味」）从「锦上添花」变成「唯一的护城河」。甚至在农村老年群体中，「数字人带货」已经成为微信群里的热门话题——AI 话术的渗透率超出了绝大多数从业者的想象。
+  </div>
+</section>
+
+<!-- ============ §7 原型 ============ -->
+<section id="s7">
+  <div class="sec-num">SECTION 07</div>
+  <h2>六种叙事原型：高赞帖的模式化解剖</h2>
+  <p class="lede">对互动量 Top120 的精读归纳出六种反复出现的叙事原型。一个耐人寻味的细节：<b>全场最高赞（712）不是任何赚钱故事，而是一个农村母亲通过抖音完成自我救赎的温情叙事</b>——这是即刻社区价值观最诚实的投影。</p>
+
+  <div class="arch-grid">
+    <div class="arch"><div class="no">ARCHETYPE 01</div><h4>草根温情逆袭</h4>
+      <p>普通到不能再普通的人（农村妈妈、小镇青年）借平台完成自我证明。情绪内核是救赎，不是财富。</p>
+      <div class="ex">农村妈妈做抖音 3 年 5–6 万粉，直播间两三千人 · 712 赞 · 全场第一</div></div>
+    <div class="arch"><div class="no">ARCHETYPE 02</div><h4>反割韭菜檄文</h4>
+      <p>对流量话术、卖课套路、焦虑贩卖的系统性揭露。批判者比布道者获得更多共鸣。</p>
+      <div class="ex">「AI 神棍，求求你们别蒸馏了」· 297 赞</div></div>
+    <div class="arch"><div class="no">ARCHETYPE 03</div><h4>老兵失败复盘</h4>
+      <p>亲手做过的人交出的学费清单。价值在于打破「人人都能做起来」的幻觉。</p>
+      <div class="ex">公司化做抖音 4 个月亏百万认输 · P8 创业半年烧 50 万</div></div>
+    <div class="arch"><div class="no">ARCHETYPE 04</div><h4>理性方法论</h4>
+      <p>把玄学变成工程学：18 条运营经验、四象限矩阵、30+3+1 选题法、「30 条视频前不看数据」。</p>
+      <div class="ex">18 条小红书运营经验 · 315 赞 · 被多次转述</div></div>
+    <div class="arch"><div class="no">ARCHETYPE 05</div><h4>财富学寓言</h4>
+      <p>用纳瓦尔/芒格/杠杆/复利的投资学话语为内容创作赋魅。近期 17 篇，密度上升。</p>
+      <div class="ex">「用代码和媒体，创造可复利的资产」</div></div>
+    <div class="arch"><div class="no">ARCHETYPE 06</div><h4>时代浪潮上车论</h4>
+      <p>公众号→抖音→视频号→AI 的机会序列叙事，FOMO 与机会主义并存。</p>
+      <div class="ex">「30 岁上下的人，AI 最是你们的机会」· 546 赞</div></div>
+  </div>
+</section>
+
+<!-- ============ §8 结论 ============ -->
+<section id="s8">
+  <div class="sec-num">SECTION 08</div>
+  <h2>深度结论</h2>
+  <div class="findings">
+    <div class="finding">
+      <h4>「做抖音」作为话题已经过气，「做自媒体」作为生存策略正在巅峰</h4>
+      <p>抖音提及率 22%→15%，且叙事主体从「素人博主」切换为「商家与服务商」；与此同时讨论重心全面转向「多平台组合 + 私域 + 产品」的全链路。抖音被重新定价为一台商业化机器——它依然赚钱，但不再是普通人的故事。</p>
+      <div class="ev">证据：图 3 / 图 4；@洛怀 2020 复盘 vs @凌空小鱼儿 2026 获客对比</div>
+    </div>
+    <div class="finding">
+      <h4>变现共识高度收敛：内容是获客前端，不是生意本身</h4>
+      <p>「先想清楚卖什么、卖给谁，再选平台做内容」是高赞方法论的公共分母。广告被一致评为最差路径（「几十万粉不赚钱一大把」），带货与私域服务离钱最近。真正赚到大钱的样本都出现在「内容直接服务交易决策」的形态里（评测、种草、咨询）。</p>
+      <div class="ev">证据：图 5；@张机 B站评测年入百万 / @HandsoMeng 「直接卖货」反转</div>
+    </div>
+    <div class="finding">
+      <h4>情绪市场在分化，不在周期轮回</h4>
+      <p>成功与挫折叙事同步上升（23→29% 与 8→14%），焦虑与亏钱提及率翻倍。这不是「行情差所以丧」的单向故事，而是 FOMO 与厌倦并存的撕裂结构——同一批读者既给暴富故事点赞，也给拆穿暴富故事的帖子点赞。</p>
+      <div class="ev">证据：图 6；乐观/悲观双极引文对照</div>
+    </div>
+    <div class="finding">
+      <h4>幸存者偏差的社区自觉，正在抬高内容营销的门槛</h4>
+      <p>「暴富故事是卖课的剧情需要」已成为社区常识。这意味着面向即刻这类成熟受众的转化叙事必须升级为「可验证的过程展示」（数据截图、时间戳、亏损清单），单纯的结果宣称正在失效。</p>
+      <div class="ev">证据：@韩叙HanXu 2026-02；@王梦珂Mengke 圈内降温帖</div>
+    </div>
+    <div class="finding">
+      <h4>AI 重置成本曲线之后，「人味」完成从装饰品到护城河的升格</h4>
+      <p>提及率 6%→30% 的背后是制作成本的全面趋零：起号流程 skill 化、配图视频批量生成、数字人下沉到农村微信群。供给爆炸的直接后果是普通内容价值崩塌，而真实经历、垂直信任、活人感成为唯一无法批量复制的资产。2026 年内 AI 提及率的首次回落（38%→34%）与反 AI 神棍声量崛起同步，预示话题即将进入均值回归期。</p>
+      <div class="ev">证据：图 8 及季度序列；@风小海 檄文 vs @空格.space 工作流的两极对照</div>
+    </div>
+    <div class="finding">
+      <h4>如果只保留一句话的方法论共识</h4>
+      <p>先产品后流量；内容离交易越近越好；30 条视频之前不看数据；小众赛道 × 小众平台 × 个人信任是普通人的最优组合；所有快速暴富的故事，先问一句——他是不是在卖课。</p>
+      <div class="ev">证据：@Joey乔伊 / @斐斐不会飞 / @凌空小鱼儿 / @韩叙HanXu 交叉印证</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ §9 局限 ============ -->
+<section id="s9">
+  <div class="sec-num">SECTION 09</div>
+  <h2>研究局限与复现</h2>
+  <div class="callout warn">
+    <b>本报告不能回答的问题。</b>① 没有抓取评论区，发言者的观点不等于围观者的观点；② 互动量受即刻社区推荐机制影响，高赞 ≠ 代表性；③ 词表打标存在误伤与漏检（如「恰饭」的双关、「IP」的多义）；④ 2026 年样本占比过半，所有「早期 vs 近期」对比都应理解为「2019–23 vs 2024–26」两段而非连续趋势；⑤ 搜索 API 的排序算法未公开，可能存在偏向高互动内容的系统性偏差。
+  </div>
+  <h3>数据与代码</h3>
+  <p style="font-size:13.5px;color:var(--ink-2)">
+    原始数据 <code class="path">data/*.json</code>（18 关键词）→ 去重 <code class="path">merged.json</code>（1,599 条）→ 打标 <code class="path">relevant.json</code>（1,184 条 + 主题标签）；分析脚本 <code class="path">analyze.py / analyze2.py / analyze3.py</code>；精读材料 <code class="path">top_posts.md / recent_posts.md</code>。全部指标可复现。
+  </p>
+</section>
+
+<!-- ============ §10 附录 ============ -->
+<section id="s10">
+  <div class="sec-num">SECTION 10</div>
+  <h2>附录 · 引用帖索引</h2>
+  <p class="lede">正文中被引用、提及的 25 篇帖子，全文收录于姊妹篇《引用帖全文》（<code class="path">即刻自媒体调研-引用帖全文.html</code>）。点击下表任意标题即可跳转阅读全文；正文引文区的署名后也附有「查看全文」入口。全文页内每篇另附「在即刻打开」原始链接。</p>
+  <div style="background:var(--surface-1);border:1px solid var(--grid);border-radius:10px;overflow-x:auto;margin-top:16px">
+    <table class="data" style="margin-top:0">
+      <thead><tr><th style="width:44px">#</th><th>帖子</th><th>作者</th><th style="width:96px">日期</th><th style="width:64px">赞</th></tr></thead>
+      <tbody>
+<tr><td>01</td><td><a href="即刻自媒体调研-引用帖全文.html#p-6896e5e5369da0a84b0891c2">农村妈妈做抖音三年：从精神疾病复发到直播间两三千人</a></td><td>每天2000ml水</td><td>2025-08-09</td><td>712</td></tr>
+<tr><td>02</td><td><a href="即刻自媒体调研-引用帖全文.html#p-5f8c67e6a5452e00189c8496">公司化做抖音 4 个月亏百万：我认输了</a></td><td>洛怀</td><td>2020-10-18</td><td>234</td></tr>
+<tr><td>03</td><td><a href="即刻自媒体调研-引用帖全文.html#p-6a858a33cfb5d08b3e00fa57">一人公司两年百万：我获客上做得最对的事</a></td><td>凌空小鱼儿</td><td>2026-08-19</td><td>11</td></tr>
+<tr><td>04</td><td><a href="即刻自媒体调研-引用帖全文.html#p-69b3fd20800201ac682c2f42">最赚钱的自媒体：B站 8 万粉评测博主年广告百万</a></td><td>张机</td><td>2026-03-13</td><td>181</td></tr>
+<tr><td>05</td><td><a href="即刻自媒体调研-引用帖全文.html#p-69c949dec5a1d4e6493469c0">30 岁上下的人，AI 最是你们的机会</a></td><td>张机</td><td>2026-03-29</td><td>546</td></tr>
+<tr><td>06</td><td><a href="即刻自媒体调研-引用帖全文.html#p-69c149106d59f6d7a53a9ede">为什么生意越来越难做：三种自媒体的分法</a></td><td>人生管理指南-RAY</td><td>2026-03-23</td><td>185</td></tr>
+<tr><td>07</td><td><a href="即刻自媒体调研-引用帖全文.html#p-6a027ddc9c4fdb29a2a2a4cb">素人最快的赚钱方法：直接发笔记卖货，别搞 IP 了</a></td><td>HandsoMeng</td><td>2026-05-12</td><td>149</td></tr>
+<tr><td>08</td><td><a href="即刻自媒体调研-引用帖全文.html#p-67a5a06a647a66f75295035f">草台班子世界：视频号 3 个月涨 300 万粉之后</a></td><td>42修养版</td><td>2025-02-07</td><td>264</td></tr>
+<tr><td>09</td><td><a href="即刻自媒体调研-引用帖全文.html#p-6930649500d3cf2801a7e00f">人要趁早发现自己的天赋：AI 账号 4 个月全网 10 万粉</a></td><td>西里森森</td><td>2025-12-03</td><td>219</td></tr>
+<tr><td>10</td><td><a href="即刻自媒体调研-引用帖全文.html#p-617938d6fe12a90010abf8b1">四万粉账号退网：接广告是最差劲的变现路径</a></td><td>努力赚钱的威宝</td><td>2021-10-27</td><td>130</td></tr>
+<tr><td>11</td><td><a href="即刻自媒体调研-引用帖全文.html#p-69a94b9225bae566125c0f9b">日更 750 天、阅读量几十：回应「愚蠢的坚持」</a></td><td>HandsoMeng</td><td>2026-03-05</td><td>136</td></tr>
+<tr><td>12</td><td><a href="即刻自媒体调研-引用帖全文.html#p-69a01a13ba379496828d57c1">暴富的反面案例：阿里 P8 创业半年烧 50 万</a></td><td>韩叙HanXu</td><td>2026-02-26</td><td>196</td></tr>
+<tr><td>13</td><td><a href="即刻自媒体调研-引用帖全文.html#p-65549ebede31fdaa4e08b761">副业探索小分队主理人：副业收入很难超过主业</a></td><td>王梦珂Mengke</td><td>2023-11-15</td><td>705</td></tr>
+<tr><td>14</td><td><a href="即刻自媒体调研-引用帖全文.html#p-6a676f84bd0563695b92da27">我做了一套小红书起号 Skill（10 个工作流）</a></td><td>空格.space</td><td>2026-07-27</td><td>435</td></tr>
+<tr><td>15</td><td><a href="即刻自媒体调研-引用帖全文.html#p-69fa07fe53e36367c38b3a88">AI 时代搞流量最朴素的方法：学啥卖啥</a></td><td>Yangyi.</td><td>2026-05-05</td><td>158</td></tr>
+<tr><td>16</td><td><a href="即刻自媒体调研-引用帖全文.html#p-69e63325800201ac68ba3fe2">AI 神棍，求求你们别蒸馏了</a></td><td>风小海</td><td>2026-04-20</td><td>297</td></tr>
+<tr><td>17</td><td><a href="即刻自媒体调研-引用帖全文.html#p-6a116b2d514a9975b9200ea7">要活得更像人，才不怕被 AI 取代</a></td><td>西里森森</td><td>2026-05-23</td><td>137</td></tr>
+<tr><td>18</td><td><a href="即刻自媒体调研-引用帖全文.html#p-640a78f3cf6cca2e7dc85cff">18 条小红书博主运营经验总结</a></td><td>是松月呀</td><td>2023-03-10</td><td>315</td></tr>
+<tr><td>19</td><td><a href="即刻自媒体调研-引用帖全文.html#p-646c36354061e4f7db08120d">如何做好一个明星直播电商操盘手</a></td><td>Joey乔伊</td><td>2023-05-23</td><td>184</td></tr>
+<tr><td>20</td><td><a href="即刻自媒体调研-引用帖全文.html#p-6706b13736482cc6c2af5b29">失业 2 年，做自媒体 18 个月，0 到 7.2 万粉</a></td><td>斐斐不会飞</td><td>2024-10-09</td><td>267</td></tr>
+<tr><td>21</td><td><a href="即刻自媒体调研-引用帖全文.html#p-6a3a8b503065cddd97590533">离钱近的人研究细节，离钱远的人研究意义</a></td><td>小马宋王大洋</td><td>2026-06-23</td><td>39</td></tr>
+<tr><td>22</td><td><a href="即刻自媒体调研-引用帖全文.html#p-68483b572b50c689185a363d">公众号是做 IP 最好的载体：秀出你的工作</a></td><td>叁斤</td><td>2025-06-10</td><td>8</td></tr>
+<tr><td>23</td><td><a href="即刻自媒体调研-引用帖全文.html#p-68774b87a430547ab607644e">稳定副业的 3 大底层逻辑：结构、节奏、复利</a></td><td>王梦珂Mengke</td><td>2025-07-16</td><td>306</td></tr>
+<tr><td>24</td><td><a href="即刻自媒体调研-引用帖全文.html#p-69f02af0c2dc8bf83f568857">原来芒格 40 岁才赚到 100 万</a></td><td>王紫君Zima</td><td>2026-04-28</td><td>313</td></tr>
+<tr><td>25</td><td><a href="即刻自媒体调研-引用帖全文.html#p-68ef23fe26b22c70b79d1e3a">为什么影视飓风的内容总能爆火（Tim 方法论）</a></td><td>AI产品黄叔</td><td>2025-10-15</td><td>272</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<footer>
+  即刻社区「做抖音 / 搞自媒体」发言深度调研 · 数据截至 2026-09-01 · 1,738 条抓取 / 1,184 条有效 / 595 位发帖人 ·
+  图表遵循无障碍可视化规范（色觉障碍安全调色板已验证；每图均提供表格视图）。
+</footer>
+
+</div>
+
+<div class="tooltip" id="tt"></div>
+
+<script>
+/* ================= 数据 ================= */
+const DATA = {
+  yearVol: [
+    {c:'2019', v:11},{c:'2020', v:15},{c:'2021', v:38},{c:'2022', v:89},
+    {c:'2023', v:145},{c:'2024', v:137},{c:'2025', v:128},{c:'2026', v:621}
+  ],
+  topics: [
+    {c:'运营的日常', v:157},{c:'你不知道的行业内幕', v:127},{c:'副业探索小分队', v:122},
+    {c:'AI探索站', v:109},{c:'浴室沉思', v:58},{c:'一个想法不一定对', v:57},
+    {c:'一起听播客', v:42},{c:'职场那些事儿', v:36},{c:'记一件小事', v:34},
+    {c:'媒体人的日常', v:34},{c:'创业者的日常', v:33},{c:'读书会', v:33},
+    {c:'即友日记本', v:30},{c:'产品经理的日常', v:26}
+  ],
+  dumbbell: [
+    {c:'小红书', a:28, b:28},{c:'抖音', a:22, b:15},{c:'视频号', a:5, b:12},
+    {c:'公众号', a:7, b:12},{c:'播客', a:9, b:7},{c:'B站', a:6, b:2},{c:'快手', a:5, b:2}
+  ],
+  years: ['2019','2020','2021','2022','2023','2024','2025','2026'],
+  platSeries: [
+    {name:'小红书', color:'--s1', vals:[18,13,11,24,37,36,37,24]},
+    {name:'抖音',   color:'--s2', vals:[18,20,16,19,27,13,16,15]},
+    {name:'视频号', color:'--s3', vals:[0,0,5,4,6,7,6,14]},
+    {name:'公众号', color:'--s4', vals:[0,7,3,6,10,10,12,13]}
+  ],
+  yearNs: [11,15,38,89,145,137,128,621],
+  senti: {
+    win:[18,13,18,18,28,31,26,30],
+    fail:[0,7,5,8,10,8,11,15]
+  },
+  ai: [0,0,0,1,8,9,17,35],
+  monet: [
+    {c:'私域 + 咨询服务', v:277},{c:'广告恰饭', v:252},{c:'带货电商', v:151},
+    {c:'直播', v:144},{c:'知识付费', v:114}
+  ],
+  platSenti: [
+    {c:'小红书', n:329, win:47, fail:17},{c:'抖音', n:200, win:42, fail:16},
+    {c:'公众号', n:131, win:46, fail:23},{c:'视频号', n:121, win:36, fail:21},
+    {c:'播客', n:86, win:36, fail:15}
+  ]
+};
+
+/* ================= 工具 ================= */
+const $=s=>document.querySelector(s);
+const NS='http://www.w3.org/2000/svg';
+const cssVar=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function el(tag,attrs,parent){
+  const e=document.createElementNS(NS,tag);
+  for(const k in attrs) e.setAttribute(k,attrs[k]);
+  if(parent) parent.appendChild(e);
+  return e;
+}
+const tt=$('#tt');
+function showTT(html,ev){
+  tt.innerHTML=html; tt.style.display='block';
+  const pad=14, w=tt.offsetWidth, h=tt.offsetHeight;
+  let x=ev.clientX+pad, y=ev.clientY+pad;
+  if(x+w>innerWidth-8) x=ev.clientX-w-pad;
+  if(y+h>innerHeight-8) y=ev.clientY-h-pad;
+  tt.style.left=x+'px'; tt.style.top=y+'px';
+}
+function hideTT(){tt.style.display='none'}
+function ttRow(keyColor,val,label,dot){
+  return '<div class="tt-row">'+(dot
+    ?'<span class="tt-dot" style="background:'+keyColor+'"></span>'
+    :'<span class="tt-key" style="background:'+keyColor+'"></span>')
+    +'<span class="tt-val">'+val+'</span><span>'+label+'</span></div>';
+}
+function bindTip(target, htmlFn){
+  target.addEventListener('pointermove',e=>showTT(htmlFn(e),e));
+  target.addEventListener('pointerleave',hideTT);
+  target.addEventListener('focus',()=>{const r=target.getBoundingClientRect();showTT(htmlFn(),{clientX:r.left+20,clientY:r.bottom+8})});
+  target.addEventListener('blur',hideTT);
+}
+function buildTable(host, headers, rows){
+  let h='<table class="data"><thead><tr>';
+  headers.forEach(x=>h+='<th>'+x+'</th>'); h+='</tr></thead><tbody>';
+  rows.forEach(r=>{h+='<tr>';r.forEach((x,i)=>h+='<td>'+(i===0?x:x)+'</td>');h+='</tr>'});
+  h+='</tbody></table>';
+  host.innerHTML=h;
+}
+function toggleTable(){
+  document.querySelectorAll('.tbl-btn').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const card=document.getElementById(btn.dataset.for);
+      card.classList.toggle('show-table');
+      btn.textContent=card.classList.contains('show-table')?'图表':'表格';
+    });
+  });
+}
+
+/* ================= 图 1：年度列（强调 2026） ================= */
+(function(){
+  const W=980,H=300,padL=52,padR=20,padT=26,padB=34;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img','aria-label':'年度发言量柱状图'});
+  const d=DATA.yearVol, max=621;
+  const iw=W-padL-padR, ih=H-padT-padB;
+  const bw=Math.min(56, iw/d.length*0.56);
+  const accent=cssVar('--s1'), de=cssVar('--axis');
+  // 网格
+  for(let g=0;g<=3;g++){
+    const y=padT+ih-ih*g/3;
+    el('line',{x1:padL,x2:W-padR,y1:y,y2:y,stroke:cssVar('--grid'),'stroke-width':1},svg);
+    el('text',{x:padL-8,y:y+4,'text-anchor':'end','font-size':11,fill:cssVar('--ink-3')},svg)
+      .textContent=Math.round(max*g/3);
+  }
+  d.forEach((p,i)=>{
+    const x=padL+iw*(i+0.5)/d.length;
+    const h=ih*p.v/max, y=padT+ih-h;
+    const is26=p.c==='2026';
+    const bar=el('rect',{x:x-bw/2,y:y,width:bw,height:h,rx:0,fill:is26?accent:de,tabindex:0,role:'img','aria-label':p.c+'年 '+p.v+' 帖'},svg);
+    if(is26||p.c==='2023'){
+      el('text',{x:x,y:y-8,'text-anchor':'middle','font-size':12,'font-weight':is26?700:500,fill:is26?cssVar('--ink-1'):cssVar('--ink-3')},svg).textContent=p.v;
+    }
+    el('text',{x:x,y:padT+ih+20,'text-anchor':'middle','font-size':12,fill:cssVar('--ink-2')},svg).textContent=p.c;
+    bindTip(bar,()=>'<div class="tt-title">'+p.c+' 年</div>'+ttRow(is26?accent:de,p.v+' 帖','占比 '+Math.round(100*p.v/1184)+'%',true));
+  });
+  el('line',{x1:padL,x2:W-padR,y1:padT+ih,y2:padT+ih,stroke:cssVar('--axis'),'stroke-width':1},svg);
+  $('#chart-year .viz').appendChild(svg);
+  buildTable($('#chart-year .tbl-wrap'),['年份','帖子数','占比'],
+    d.map(p=>[p.c,p.v+' 帖',Math.round(1000*p.v/1184)/10+'%']));
+})();
+
+/* ================= 横向条通用 ================= */
+function hBar(hostId, rows, unit, fmt){
+  const W=980, rh=34, padT=8, padB=10, padL=140, padR=64;
+  const H=padT+padB+rows.length*rh;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img'});
+  const max=Math.max(...rows.map(r=>r.v));
+  const iw=W-padL-padR, fill=cssVar('--s1');
+  rows.forEach((r,i)=>{
+    const y=padT+i*rh, bh=18, w=iw*r.v/max;
+    const bar=el('rect',{x:padL,y:y+(rh-bh)/2,width:Math.max(w,2),height:bh,rx:0,fill:fill,tabindex:0,role:'img','aria-label':r.c+' '+r.v+unit},svg);
+    el('text',{x:padL-10,y:y+rh/2+4,'text-anchor':'end','font-size':12.5,fill:cssVar('--ink-2')},svg).textContent=r.c;
+    el('text',{x:padL+w+8,y:y+rh/2+4,'font-size':12,fill:cssVar('--ink-1'),'font-weight':600},svg).textContent=fmt?fmt(r.v):r.v;
+    bindTip(bar,()=>'<div class="tt-title">'+r.c+'</div>'+ttRow(fill,r.v+unit,'占有效语料 '+Math.round(1000*r.v/1184)/10+'%',true));
+  });
+  $('#'+hostId+' .viz').appendChild(svg);
+}
+hBar('chart-topic', DATA.topics, ' 帖');
+buildTable($('#chart-topic .tbl-wrap'),['话题圈子','帖子数'],
+  DATA.topics.map(r=>[r.c,r.v]));
+hBar('chart-monet', DATA.monet, ' 帖');
+buildTable($('#chart-monet .tbl-wrap'),['变现路径','提及帖数'],
+  DATA.monet.map(r=>[r.c,r.v]));
+
+/* ================= 图 3：哑铃图 ================= */
+(function(){
+  const W=980, rh=44, padT=10, padB=24, padL=90, padR=150;
+  const rows=DATA.dumbbell, H=padT+padB+rows.length*rh;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img'});
+  const iw=W-padL-padR, max=30;
+  const cEarly=cssVar('--seq-250'), cLate=cssVar('--seq-550'), surf=cssVar('--surface-1');
+  for(let g=0;g<=3;g++){
+    const x=padL+iw*g/3;
+    el('line',{x1:x,x2:x,y1:padT,y2:H-padB,stroke:cssVar('--grid'),'stroke-width':1},svg);
+    el('text',{x:x,y:H-padB+14,'text-anchor':'middle','font-size':11,fill:cssVar('--ink-3')},svg).textContent=(max*g/3)+'%';
+  }
+  rows.forEach((r,i)=>{
+    const y=padT+i*rh+rh/2;
+    const x1=padL+iw*r.a/max, x2=padL+iw*r.b/max;
+    el('text',{x:padL-10,y:y+4,'text-anchor':'end','font-size':12.5,fill:cssVar('--ink-2')},svg).textContent=r.c;
+    el('line',{x1:x1,x2:x2,y1:y,y2:y,stroke:cssVar('--axis'),'stroke-width':2},svg);
+    const d1=el('circle',{cx:x1,cy:y,r:6,fill:cEarly,stroke:surf,'stroke-width':2,tabindex:0,role:'img','aria-label':r.c+' 早期 '+r.a+'%'},svg);
+    const d2=el('circle',{cx:x2,cy:y,r:6,fill:cLate,stroke:surf,'stroke-width':2,tabindex:0,role:'img','aria-label':r.c+' 近期 '+r.b+'%'},svg);
+    el('text',{x:x1-(x1>x2?0:0)-0,y:y-12,'text-anchor':'middle','font-size':10.5,fill:cssVar('--ink-3')},svg).textContent=r.a+'%';
+    el('text',{x:x2,y:y+(Math.abs(x2-x1)<26?22:12),'text-anchor':'middle','font-size':10.5,fill:cssVar('--ink-3')},svg).textContent=r.b+'%';
+    const d=r.b-r.a;
+    el('text',{x:W-padR+22,y:y+4,'font-size':12,'font-weight':600,fill:d>0?cssVar('--ink-1'):cssVar('--ink-2')},svg)
+      .textContent=(d>0?'↑ +':'↓ ')+d+'pp';
+    bindTip(d1,()=>'<div class="tt-title">'+r.c+'</div>'+ttRow(cEarly,r.a+'%','早期 2019–23',true));
+    bindTip(d2,()=>'<div class="tt-title">'+r.c+'</div>'+ttRow(cLate,r.b+'%','近期 2024–26',true));
+  });
+  $('#chart-dumbbell .viz').appendChild(svg);
+  buildTable($('#chart-dumbbell .tbl-wrap'),['平台','早期 2019–23','近期 2024–26','变化'],
+    rows.map(r=>[r.c,r.a+'%',r.b+'%',(r.b-r.a>0?'+':'')+(r.b-r.a)+'pp']));
+})();
+
+/* ================= 折线通用（含十字线） ================= */
+function lineChart(hostId, series, years, yMax, yLabelFmt, tipTitle, ns){
+  const W=980,H=330,padL=48,padR=88,padT=20,padB=40;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img'});
+  const iw=W-padL-padR, ih=H-padT-padB;
+  const X=i=>padL+iw*i/(years.length-1);
+  const Y=v=>padT+ih-ih*v/yMax;
+  for(let g=0;g<=4;g++){
+    const y=padT+ih-ih*g/4;
+    el('line',{x1:padL,x2:W-padR,y1:y,y2:y,stroke:cssVar('--grid'),'stroke-width':1},svg);
+    el('text',{x:padL-8,y:y+4,'text-anchor':'end','font-size':11,fill:cssVar('--ink-3')},svg).textContent=yLabelFmt(yMax*g/4);
+  }
+  years.forEach((yr,i)=>{
+    el('text',{x:X(i),y:padT+ih+20,'text-anchor':'middle','font-size':11.5,fill:cssVar('--ink-2')},svg).textContent=yr;
+    if(ns&&ns[i]<40) el('text',{x:X(i),y:padT+ih+34,'text-anchor':'middle','font-size':9.5,fill:cssVar('--ink-3')},svg).textContent='n='+ns[i];
+  });
+  el('line',{x1:padL,x2:W-padR,y1:padT+ih,y2:padT+ih,stroke:cssVar('--axis'),'stroke-width':1},svg);
+  const surf=cssVar('--surface-1');
+  const cross=el('line',{x1:0,x2:0,y1:padT,y2:padT+ih,stroke:cssVar('--axis'),'stroke-width':1,opacity:0},svg);
+  series.forEach(s=>{
+    const col=cssVar(s.color);
+    let pts=s.vals.map((v,i)=>X(i)+','+Y(v)).join(' ');
+    if(s.area){
+      el('polygon',{points:pts+' '+X(s.vals.length-1)+','+Y(0)+' '+X(0)+','+Y(0),fill:col,opacity:.1},svg);
+    }
+    el('polyline',{points:pts,fill:'none',stroke:col,'stroke-width':2,'stroke-linejoin':'round','stroke-linecap':'round'},svg);
+    s.vals.forEach((v,i)=>{
+      el('circle',{cx:X(i),cy:Y(v),r:4,fill:col,stroke:surf,'stroke-width':2},svg);
+    });
+    // 末端直接标注
+    const last=s.vals[s.vals.length-1];
+    el('text',{x:X(s.vals.length-1)+10,y:Y(last)+4,'font-size':11.5,'font-weight':600,fill:cssVar('--ink-2')},svg)
+      .textContent=s.name+' '+last+'%';
+  });
+  // 十字线 tooltip
+  const overlay=el('rect',{x:padL,y:padT,width:iw,height:ih,fill:'transparent'},svg);
+  overlay.addEventListener('pointermove',e=>{
+    const r=svg.getBoundingClientRect();
+    const px=(e.clientX-r.left)*(W/r.width);
+    let idx=Math.round((px-padL)/(iw/(years.length-1)));
+    idx=Math.max(0,Math.min(years.length-1,idx));
+    cross.setAttribute('x1',X(idx));cross.setAttribute('x2',X(idx));cross.setAttribute('opacity',1);
+    let html='<div class="tt-title">'+tipTitle+' '+years[idx]+(ns?'（n='+ns[idx]+'）':'')+'</div>';
+    series.forEach(s=>{html+=ttRow(cssVar(s.color),s.vals[idx]+'%',s.name,false)});
+    showTT(html,e);
+  });
+  overlay.addEventListener('pointerleave',()=>{cross.setAttribute('opacity',0);hideTT()});
+  $('#'+hostId+' .viz').appendChild(svg);
+}
+
+lineChart('chart-platline', DATA.platSeries.map(s=>({name:s.name,color:s.color,vals:s.vals})), DATA.years, 40, v=>v+'%', '提及率', DATA.yearNs);
+buildTable($('#chart-platline .tbl-wrap'),['年份','n','小红书','抖音','视频号','公众号'],
+  DATA.years.map((y,i)=>[y,DATA.yearNs[i],
+    DATA.platSeries[0].vals[i]+'%',DATA.platSeries[1].vals[i]+'%',
+    DATA.platSeries[2].vals[i]+'%',DATA.platSeries[3].vals[i]+'%']));
+
+lineChart('chart-ai', [{name:'AI 提及率',color:'--s1',vals:DATA.ai,area:true}], DATA.years, 40, v=>v+'%', 'AI 提及率', DATA.yearNs);
+buildTable($('#chart-ai .tbl-wrap'),['年份','n','AI 提及率'],
+  DATA.years.map((y,i)=>[y,DATA.yearNs[i],DATA.ai[i]+'%']));
+
+/* ================= 图 6：成败分组列 ================= */
+(function(){
+  const W=980,H=320,padL=48,padR=20,padT=24,padB=40;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img'});
+  const iw=W-padL-padR, ih=H-padT-padB;
+  const ys=DATA.years, max=40, gW=iw/ys.length, bw=18, gap=2;
+  const cWin=cssVar('--s1'), cFail=cssVar('--s6');
+  for(let g=0;g<=4;g++){
+    const y=padT+ih-ih*g/4;
+    el('line',{x1:padL,x2:W-padR,y1:y,y2:y,stroke:cssVar('--grid'),'stroke-width':1},svg);
+    el('text',{x:padL-8,y:y+4,'text-anchor':'end','font-size':11,fill:cssVar('--ink-3')},svg).textContent=(max*g/4)+'%';
+  }
+  ys.forEach((yr,i)=>{
+    const cx=padL+iw*(i+0.5)/ys.length;
+    const w=DATA.senti.win[i], f=DATA.senti.fail[i];
+    const x1=cx-bw-gap/2, x2=cx+gap/2;
+    const h1=ih*w/max, h2=ih*f/max;
+    const b1=el('rect',{x:x1,y:padT+ih-h1,width:bw,height:h1,fill:cWin,tabindex:0,role:'img','aria-label':yr+'年成功叙事 '+w+'%'},svg);
+    const b2=el('rect',{x:x2,y:padT+ih-h2,width:bw,height:h2,fill:cFail,tabindex:0,role:'img','aria-label':yr+'年挫折叙事 '+f+'%'},svg);
+    el('text',{x:cx,y:padT+ih+20,'text-anchor':'middle','font-size':11.5,fill:cssVar('--ink-2')},svg).textContent=yr;
+    el('text',{x:cx,y:padT+ih+34,'text-anchor':'middle','font-size':9.5,fill:cssVar('--ink-3')},svg).textContent='n='+DATA.yearNs[i];
+    if(i>=4){
+      el('text',{x:x1+bw/2,y:padT+ih-h1-6,'text-anchor':'middle','font-size':10.5,fill:cssVar('--ink-3')},svg).textContent=w;
+      el('text',{x:x2+bw/2,y:padT+ih-h2-6,'text-anchor':'middle','font-size':10.5,fill:cssVar('--ink-3')},svg).textContent=f;
+    }
+    bindTip(b1,()=>'<div class="tt-title">'+yr+' 年（n='+DATA.yearNs[i]+'）</div>'+ttRow(cWin,w+'%','成功叙事',true));
+    bindTip(b2,()=>'<div class="tt-title">'+yr+' 年（n='+DATA.yearNs[i]+'）</div>'+ttRow(cFail,f+'%','挫折叙事',true));
+  });
+  el('line',{x1:padL,x2:W-padR,y1:padT+ih,y2:padT+ih,stroke:cssVar('--axis'),'stroke-width':1},svg);
+  $('#chart-senti .viz').appendChild(svg);
+  buildTable($('#chart-senti .tbl-wrap'),['年份','n','成功叙事率','挫折叙事率'],
+    ys.map((y,i)=>[y,DATA.yearNs[i],DATA.senti.win[i]+'%',DATA.senti.fail[i]+'%']));
+})();
+
+/* ================= 图 7：分平台成败（成对横条） ================= */
+(function(){
+  const W=980, rh=40, padT=8, padB=8, padL=132, padR=60;
+  const rows=DATA.platSenti, H=padT+padB+rows.length*rh;
+  const svg=el('svg',{viewBox:`0 0 ${W} ${H}`,role:'img'});
+  const iw=W-padL-padR, max=50;
+  const cWin=cssVar('--s1'), cFail=cssVar('--s6');
+  rows.forEach((r,i)=>{
+    const y=padT+i*rh, bh=14;
+    const w1=iw*r.win/max, w2=iw*r.fail/max;
+    const b1=el('rect',{x:padL,y:y+3,width:w1,height:bh,fill:cWin,tabindex:0,role:'img','aria-label':r.c+' 成功叙事 '+r.win+'%'},svg);
+    const b2=el('rect',{x:padL,y:y+3+bh+2,width:w2,height:bh,fill:cFail,tabindex:0,role:'img','aria-label':r.c+' 挫折叙事 '+r.fail+'%'},svg);
+    el('text',{x:padL-10,y:y+bh+8,'text-anchor':'end','font-size':12.5,fill:cssVar('--ink-2')},svg).textContent=r.c+'（'+r.n+'）';
+    el('text',{x:padL+w1+8,y:y+3+bh/2+4,'font-size':11.5,'font-weight':600,fill:cssVar('--ink-1')},svg).textContent=r.win+'%';
+    el('text',{x:padL+w2+8,y:y+3+bh+2+bh/2+4,'font-size':11.5,fill:cssVar('--ink-2')},svg).textContent=r.fail+'%';
+    bindTip(b1,()=>'<div class="tt-title">'+r.c+'（'+r.n+' 帖）</div>'+ttRow(cWin,r.win+'%','成功叙事率',true));
+    bindTip(b2,()=>'<div class="tt-title">'+r.c+'（'+r.n+' 帖）</div>'+ttRow(cFail,r.fail+'%','挫折叙事率',true));
+  });
+  $('#chart-platsenti .viz').appendChild(svg);
+  buildTable($('#chart-platsenti .tbl-wrap'),['平台','帖子数','成功叙事率','挫折叙事率'],
+    rows.map(r=>[r.c,r.n,r.win+'%',r.fail+'%']));
+})();
+
+toggleTable();
+</script>
+</body>
+</html>

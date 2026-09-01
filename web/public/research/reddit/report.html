@@ -1,0 +1,620 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reddit 副业生态调研</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@700;900&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#F7F6F3; --surface:#FFFFFF; --ink:#201D1A; --muted:#6B655E;
+  --hairline:#E5E1DA; --accent:#C93D12; --accent-ink:#8A2A0C;
+  --wash:#F6EAE2; --pos:#1E6B4E; --neg:#A63A2E; --code:#5C4A3D;
+  --shadow:0 1px 2px rgba(32,29,26,.05),0 8px 24px rgba(32,29,26,.05);
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --ground:#191613; --surface:#211D19; --ink:#EDE8E1; --muted:#A59C90;
+  --hairline:#312C26; --accent:#FF6B3D; --accent-ink:#FFA07E;
+  --wash:#2A211A; --pos:#4CB884; --neg:#E0766A; --code:#C9AE96;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+}}
+:root[data-theme="dark"]{
+  --ground:#191613; --surface:#211D19; --ink:#EDE8E1; --muted:#A59C90;
+  --hairline:#312C26; --accent:#FF6B3D; --accent-ink:#FFA07E;
+  --wash:#2A211A; --pos:#4CB884; --neg:#E0766A; --code:#C9AE96;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.25);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{
+  background:var(--ground); color:var(--ink);
+  font-family:"Noto Sans SC",system-ui,sans-serif;
+  font-size:16px; line-height:1.85; -webkit-font-smoothing:antialiased;
+}
+main{max-width:47rem; margin:0 auto; padding:0 1.25rem 6rem}
+a{color:var(--accent); text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.mono{font-family:"IBM Plex Mono",monospace}
+
+/* ---------- header ---------- */
+header{border-bottom:1px solid var(--hairline); padding:3.2rem 0 2rem; margin-bottom:2.4rem}
+.eyebrow{
+  font-family:"IBM Plex Mono",monospace; font-size:.72rem; letter-spacing:.22em;
+  color:var(--accent); text-transform:uppercase; margin-bottom:1rem;
+}
+h1{
+  font-family:"Noto Serif SC",serif; font-weight:900; font-size:clamp(1.9rem,5vw,2.7rem);
+  line-height:1.25; text-wrap:balance; margin-bottom:1rem;
+}
+.standfirst{color:var(--muted); font-size:1.02rem; max-width:38rem}
+.statchips{display:flex; flex-wrap:wrap; gap:.6rem; margin-top:1.6rem}
+.chip{
+  background:var(--surface); border:1px solid var(--hairline); border-radius:.5rem;
+  padding:.55rem .95rem; box-shadow:var(--shadow);
+}
+.chip b{font-family:"IBM Plex Mono",monospace; font-weight:500; font-size:1.05rem; display:block}
+.chip span{font-size:.74rem; color:var(--muted)}
+
+/* ---------- sections ---------- */
+section{margin-top:3.4rem}
+.sec-head{display:flex; align-items:baseline; gap:.9rem; margin-bottom:1.3rem}
+.sec-no{
+  font-family:"IBM Plex Mono",monospace; font-size:.78rem; color:var(--accent);
+  border:1px solid var(--hairline); border-radius:.4rem; padding:.1rem .5rem;
+  background:var(--surface); white-space:nowrap;
+}
+h2{
+  font-family:"Noto Serif SC",serif; font-weight:700; font-size:1.45rem;
+  line-height:1.4; text-wrap:balance;
+}
+h3{font-weight:700; font-size:1.05rem; margin:1.8rem 0 .6rem}
+p{margin:.8rem 0; max-width:42rem}
+li{margin:.45rem 0}
+ul,ol{padding-left:1.4rem; max-width:42rem}
+strong{font-weight:700}
+.note{color:var(--muted); font-size:.86rem}
+
+/* ---------- callout quote ---------- */
+.quote{
+  background:var(--wash); border-left:3px solid var(--accent); border-radius:0 .5rem .5rem 0;
+  padding:.85rem 1.1rem; margin:1.1rem 0; font-size:.95rem;
+}
+.quote .src{font-family:"IBM Plex Mono",monospace; font-size:.74rem; color:var(--muted); display:block; margin-top:.35rem}
+
+/* ---------- tables ---------- */
+.tblwrap{overflow-x:auto; margin:1.1rem 0; border:1px solid var(--hairline); border-radius:.6rem; background:var(--surface)}
+table{border-collapse:collapse; width:100%; font-size:.88rem; line-height:1.6}
+th{
+  text-align:left; font-weight:700; font-size:.78rem; letter-spacing:.04em; color:var(--muted);
+  padding:.6rem .85rem; border-bottom:1px solid var(--hairline); white-space:nowrap;
+}
+td{padding:.6rem .85rem; border-bottom:1px solid var(--hairline); vertical-align:top}
+tr:last-child td{border-bottom:none}
+td.num{font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums; white-space:nowrap}
+.pill{display:inline-block; font-size:.72rem; padding:.05rem .5rem; border-radius:99px; border:1px solid var(--hairline); white-space:nowrap}
+.pill.pos{color:var(--pos); border-color:var(--pos)}
+.pill.neg{color:var(--neg); border-color:var(--neg)}
+.pill.mix{color:var(--accent-ink); border-color:var(--accent-ink)}
+
+/* ---------- mobile: tables become cards ---------- */
+@media (max-width: 720px){
+  main{padding:0 .95rem 4rem}
+  header{padding-top:2.2rem}
+  .tblwrap{border:none; background:transparent; overflow-x:visible; margin:.6rem 0}
+  table{font-size:.9rem}
+  thead{display:none}
+  table, tbody, tr, td, th{display:block; width:100%}
+  tr{border:1px solid var(--hairline); border-radius:.6rem; background:var(--surface); box-shadow:var(--shadow); margin:.7rem 0; padding:.35rem .3rem}
+  td{border:none; padding:.42rem .7rem; white-space:normal}
+  td.k{white-space:normal}
+  td::before{content:attr(data-label); display:block; font-size:.68rem; font-weight:700; color:var(--muted); letter-spacing:.05em; margin-bottom:.05rem}
+  td.k::before{margin-bottom:.15rem}
+  td:only-child::before{display:none}
+  td.num{white-space:normal}
+  .statchips{gap:.45rem}
+  .chip{padding:.42rem .7rem}
+  .chip b{font-size:.95rem}
+}
+
+/* ---------- charts ---------- */
+figure{margin:1.4rem 0; background:var(--surface); border:1px solid var(--hairline); border-radius:.6rem; padding:1.1rem 1.1rem .7rem}
+figcaption{font-size:.8rem; color:var(--muted); margin-bottom:.8rem}
+figcaption b{color:var(--ink); font-weight:700}
+.chart{width:100%; height:auto; display:block}
+.bar{fill:var(--accent)}
+.gridline{stroke:var(--hairline); stroke-width:1}
+.axis-label{font-size:11px; fill:var(--muted); font-family:"IBM Plex Mono",monospace}
+.val-label{font-size:11px; fill:var(--ink); font-family:"IBM Plex Mono",monospace; font-variant-numeric:tabular-nums}
+#tip{
+  position:fixed; pointer-events:none; background:var(--ink); color:var(--ground);
+  font-family:"IBM Plex Mono",monospace; font-size:.72rem; padding:.3rem .55rem; border-radius:.35rem;
+  opacity:0; transition:opacity .12s; z-index:9; white-space:nowrap;
+}
+
+/* ---------- finding list ---------- */
+.findings{list-style:none; padding:0; counter-reset:find}
+.findings li{
+  counter-increment:find; position:relative; padding-left:2.6rem; margin:1rem 0; max-width:none;
+}
+.findings li::before{
+  content:counter(find,decimal-leading-zero); position:absolute; left:0; top:.28em;
+  font-family:"IBM Plex Mono",monospace; font-size:.8rem; color:var(--accent);
+}
+.yearblock{border-left:2px solid var(--hairline); padding:.1rem 0 .1rem 1.2rem; margin:1.4rem 0}
+.yearblock .yr{
+  font-family:"IBM Plex Mono",monospace; font-weight:500; color:var(--accent);
+  font-size:.85rem; letter-spacing:.08em;
+}
+.yearblock p{margin:.4rem 0}
+
+/* ---------- highlights table: clickable post IDs ---------- */
+td.mono a, .pidlink{
+  color:var(--accent); text-decoration:none;
+  border-bottom:1px dotted var(--accent-ink);
+  padding-bottom:1px;
+}
+td.mono a:hover, .pidlink:hover{
+  text-decoration:none; border-bottom-style:solid;
+  background:var(--wash); border-radius:.2rem; padding:.05rem .25rem .15rem;
+}
+td.mono{white-space:nowrap}
+
+/* ---------- highlights callout ---------- */
+.hl-callout{
+  background:var(--surface); border:1px solid var(--hairline); border-radius:.6rem;
+  padding:1.1rem 1.25rem; margin:1.4rem 0; box-shadow:var(--shadow);
+  display:flex; gap:1rem; align-items:center; flex-wrap:wrap;
+}
+.hl-callout .ico{
+  flex:0 0 2.4rem; height:2.4rem; border-radius:.6rem; background:var(--wash);
+  display:flex; align-items:center; justify-content:center;
+  font-family:"IBM Plex Mono",monospace; font-size:1rem; color:var(--accent); font-weight:700;
+}
+.hl-callout .body{flex:1 1 18rem; min-width:0}
+.hl-callout .body b{display:block; font-size:1rem; margin-bottom:.15rem}
+.hl-callout .body span{color:var(--muted); font-size:.88rem}
+.hl-callout .btn{
+  display:inline-block; background:var(--accent); color:#fff; padding:.55rem .95rem;
+  border-radius:.5rem; font-size:.88rem; font-weight:500; flex:0 0 auto;
+}
+.hl-callout .btn:hover{background:var(--accent-ink); text-decoration:none}
+
+/* ---------- TOC (in-header nav) ---------- */
+.toc{
+  margin-top:1.6rem; padding:1rem 0 0; border-top:1px dashed var(--hairline);
+  display:flex; flex-wrap:wrap; gap:.4rem .7rem; font-size:.78rem;
+}
+.toc a{
+  color:var(--muted); font-family:"IBM Plex Mono",monospace; padding:.18rem .5rem;
+  border:1px solid var(--hairline); border-radius:.35rem; background:var(--surface);
+}
+.toc a:hover{color:var(--accent); border-color:var(--accent); text-decoration:none}
+
+/* ---------- reading progress + back-to-top ---------- */
+#progress{
+  position:fixed; top:0; left:0; height:2px; background:var(--accent);
+  width:0; z-index:50; transition:width .08s linear;
+}
+#totop{
+  position:fixed; right:1.2rem; bottom:1.2rem; z-index:40;
+  width:2.4rem; height:2.4rem; border-radius:50%;
+  background:var(--surface); border:1px solid var(--hairline); color:var(--muted);
+  font-family:"IBM Plex Mono",monospace; font-size:.95rem; cursor:pointer;
+  display:none; align-items:center; justify-content:center; box-shadow:var(--shadow);
+}
+#totop.show{display:flex}
+#totop:hover{color:var(--accent); border-color:var(--accent)}
+
+footer{margin-top:4.5rem; border-top:1px solid var(--hairline); padding-top:1.4rem; color:var(--muted); font-size:.84rem}
+</style>
+</head>
+<body>
+<div id="progress"></div>
+<button id="totop" aria-label="回到顶部" title="回到顶部">↑</button>
+<div id="tip"></div>
+<main>
+
+<header>
+  <div class="eyebrow">Side Hustle · Reddit Field Report · 2023–2026</div>
+  <h1>Reddit 副业生态调研报告</h1>
+  <p class="standfirst">基于 19 个版块、三年半窗口的全量抓取与多 agent 结构化分析：副业讨论的真实图景、收入证据、骗局生态与三年趋势演变。</p>
+  <div class="statchips">
+    <div class="chip"><b>30,315</b><span>帖子（去重）</span></div>
+    <div class="chip"><b>151,714</b><span>清洗后评论</span></div>
+    <div class="chip"><b>19</b><span>版块</span></div>
+    <div class="chip"><b>4,504</b><span>抓取全量评论的帖子</span></div>
+    <div class="chip"><b>~4.4M</b><span>分析 token</span></div>
+  </div>
+  <nav class="toc" aria-label="目录">
+    <a href="#s1">01 发现</a>
+    <a href="#s2">02 全景</a>
+    <a href="#s3">03 图谱</a>
+    <a href="#s4">04 趋势</a>
+    <a href="#s5">05 共识</a>
+    <a href="#s6">06 争议</a>
+    <a href="#s7">07 骗局</a>
+    <a href="#s8">08 框架</a>
+    <a href="#s9">09 中文</a>
+    <a href="#s10">10 精选</a>
+    <a href="#s11">11 方法</a>
+    <a href="#s12">12 引用</a>
+    <a href="highlights.html" style="background:var(--wash);border-color:var(--accent);color:var(--accent)">↗ 精华帖</a>
+  </nav>
+</header>
+
+<!-- ============ 01 核心发现 ============ -->
+<section id="s1">
+  <div class="sec-head"><span class="sec-no">01</span><h2>核心发现</h2></div>
+  <ol class="findings">
+    <li><strong>“副业”这个词本身是分裂的。</strong>r/antiwork 史上最高赞帖（7,371 分）把 side hustle 定义为“主业工资不够花”的委婉语和媒体宣传；r/Entrepreneur 则视其为创业孵化器。2024 年“就叫它第二份工作吧”（433 赞）、2026 年“怀念没被副业化的一切”（698 赞）构成完整的反弹线。</li>
+    <li><strong>“被动收入”完成了一轮完整祛魅。</strong>2023 年底“HYSA 吃 5% 利息”是统治性答案 → 2024 年自动售货机等伪被动被逐个拆穿（“没人会卖给你印钞机”，108 赞）→ 2026 年定调帖“被动收入不属于穷人”（718 分）。口头禅：<em>Passive income usually starts as active income with extra steps.</em></li>
+    <li><strong>AI 双向重塑副业。</strong>一面清场：转录、翻译、代写、图库、配音、博客 SEO 被系统性取代；一面发牌：AI 数据标注成为被推荐最多的线上副业（DataAnnotation $20-45/hr，2026 年报出 $60/hr），vibe coding 小 SaaS（$1,373 MRR 实晒）成为新叙事。但标注赛道同样快速轮动——2024-09 即曾集体“dried up”。</li>
+    <li><strong>众包平台呈高度一致的“先养后割”生命周期：</strong>补贴获客 → 砍费率 → 封高收入账号 → 关停。2026-08 MTurk 官宣永久关闭是标志性终点。社区铁律：<strong>余额即风险，攒到最低提现额立刻取</strong>。</li>
+    <li><strong>真实收入呈哑铃形。</strong>底层是“咖啡钱”（问卷/收据 App $5-50/月），认真做 $100-500/月；顶层是少数真生意。社区校准的诚实基准：<strong>$300/周副业 ≈ top 1%</strong>；OnlyFans 平均创作者月入不足 $100；“TikTok 10 万粉丝终生收入 $10”。</li>
+    <li><strong>抗 AI、口碑最稳的是本地体力服务。</strong>扫狗屎路线 $1,500/周、压力清洗 $100/hr（有从业者做到 $140k/年）、体育裁判 $30-80/场、垃圾桶代回收 $20/月/户。共性：本地信任、现金结算、无法被线上复制。</li>
+    <li><strong>骗局是副业社区的第一生产力。</strong>guru 卖课、PLR/MRR、社交赌场薅羊毛、加密钓鱼、AI slop 成功帖构成五大模板。垃圾营销已进化到字符级对抗——赌场用西里尔同形字母 Ѕ 伪装 S 绕过 automod 投放 7 个月（打假帖 2,162 分）。</li>
+    <li><strong>“算真实时薪”成为核心方法论。</strong>折算平台费、耗材、油费、培训时间后，大量“盈利”副业时薪只有 $5-8。税务从冷知识变标配：$400 申报线、1099-K $600 门槛、预留 25-35%、QBI 20% 扣减。</li>
+    <li><strong>裸辞 all-in 被一边倒劝阻。</strong>社区辞职纪律：副业 ≥ 工资 3/4 持续一年、留 6-18 个月 runway、确认非季节性、医保折算、单一客户 ≤ 20-25%。“第一个好月份是动机，第二个是模式，第十二个才是生意。”</li>
+    <li><strong>平台依赖是最大结构性风险。</strong>Etsy 头部卖家（$38-42k/月）一次算法调整流量 -67%；对策统一为独立站 + 邮件列表 + 老客复购。卖家端还需防御 chargeback 诈骗潮。</li>
+  </ol>
+</section>
+
+<!-- ============ 02 数据全景 ============ -->
+<section id="s2">
+  <div class="sec-head"><span class="sec-no">02</span><h2>数据全景</h2></div>
+  <p>抓取窗口 2023-01 至 2026-09（UTC）。核心副业板块全量抓取；12 个泛社区（Entrepreneur、personalfinance、antiwork 等）检索标题含 "side hustle"；中文板块全量抓取后按关键词筛选。对互动达标（评论 ≥8 或分数 ≥15）的 4,504 帖抓取全量评论树，零失败。</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>指标</th><th>数值</th><th>备注</th></tr></thead>
+    <tbody>
+      <tr><td>帖子总量</td><td class="num">30,315</td><td>去重后</td></tr>
+      <tr><td>清洗后有效评论</td><td class="num">151,714</td><td>另剔除 [removed]/bot 约 2.7 万条</td></tr>
+      <tr><td>正文被删占比</td><td class="num">64%</td><td>beermoney 89% / WorkOnline 80% / sidehustle 73%，标题与评论仍完整</td></tr>
+      <tr><td>年度分布</td><td class="num">7,802 / 8,205 / 7,938 / 6,370*</td><td>2023 / 2024 / 2025 / 2026 前 8 个月，年化为四年最高</td></tr>
+      <tr><td>中文副业主题帖</td><td class="num">~4</td><td>30,315 帖中仅个位数，中文圈精力不在此</td></tr>
+    </tbody>
+  </table></div>
+
+  <figure>
+    <figcaption><b>版块分布</b> · 帖量 Top 8（全量抓取板块为完整计数，泛社区为标题检索命中）</figcaption>
+    <svg class="chart" viewBox="0 0 640 264" role="img" aria-label="版块帖量横向条形图">
+      <g id="subchart"></g>
+    </svg>
+  </figure>
+
+  <figure>
+    <figcaption><b>AI 话题的年度轨迹</b> · 含 AI/ChatGPT 等关键词的帖子数（*2026 为前 8 个月，年化约 630，仍在增长）</figcaption>
+    <svg class="chart" viewBox="0 0 640 220" role="img" aria-label="AI 关键词帖子数年度柱状图">
+      <g id="aichart"></g>
+    </svg>
+  </figure>
+</section>
+
+<!-- ============ 03 类型图谱 ============ -->
+<section id="s3">
+  <div class="sec-head"><span class="sec-no">03</span><h2>副业类型图谱：口碑 × 实证收入</h2></div>
+  <p class="note">收入均为社区自述并经评论区校验的案例；口碑综合高赞评论倾向。</p>
+
+  <h3>线上微任务 / 众包（beermoney 层）</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>类型</th><th>口碑</th><th>实证收入基准</th><th>关键事实</th></tr></thead>
+    <tbody>
+      <tr><td>AI 数据标注/训练</td><td><span class="pill mix">当前最佳线上</span></td><td class="num">$20-45/hr（2026 报 $60/hr）</td><td>准入是瓶颈：测评严、数月零任务常见；警告绩效清退与索要人脸数据</td></tr>
+      <tr><td>问卷平台</td><td><span class="pill mix">分化剧烈</span></td><td class="num">$50-300/月（系统化玩家 $2.5-3k/月罕见）</td><td>Prolific 一枝独秀但 waitlist 以年计、封号黑箱；头部平台 2025-26 集中“变烂”</td></tr>
+      <tr><td>用户测试</td><td><span class="pill mix">中性</span></td><td class="num">$4-90/测试；5 年累计 $18k 案例</td><td>时长膨胀压时薪至 ~$10/hr；UserTesting 被收购后质量下滑</td></tr>
+      <tr><td>Amazon MTurk</td><td><span class="pill neg">已死</span></td><td class="num">老手 $920/月 → $30-70/月</td><td>2026-09-30 官宣永久关闭</td></tr>
+      <tr><td>收据/回扣 App</td><td><span class="pill mix">可薅不可恃</span></td><td class="num">$150-400/年</td><td>“先养后割”典型：Amazon Shopper Panel 一年两连砍</td></tr>
+      <tr><td>游戏/走路/挂机 App</td><td><span class="pill neg">负面</span></td><td class="num">时薪 ~$1/hr</td><td>靠“鲸鱼玩家”变现；提现门槛 $10→$65 连续跳涨模式</td></tr>
+      <tr><td>社交赌场薅羊毛</td><td><span class="pill neg">高危争议</span></td><td class="num">免费日奖励 $100-800/月</td><td>有玩家 $1.4 万资金被扣押 4 个月；成瘾者绝对禁入</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>内容 / 数字产品</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>类型</th><th>口碑</th><th>实证收入基准</th><th>关键事实</th></tr></thead>
+    <tbody>
+      <tr><td>二手转卖/Flipping</td><td><span class="pill pos">反复验证</span></td><td class="num">$70k/年@12hr/周；手表 $1.2M 销售/63k 净利</td><td>赢家纪律：100%+ sell-through、$30 最低利润；防 chargeback 是必修课</td></tr>
+      <tr><td>Etsy 数字产品/模板</td><td><span class="pill mix">马太效应</span></td><td class="num">细分模板 $250-400/月；头部峰值 $38-42k/月</td><td>泛 AI 合集无路；“解决具体痛点的细分模板”是唯一共识打法</td></tr>
+      <tr><td>KDP/电子书</td><td><span class="pill neg">AI slop 污染</span></td><td class="num">无受众 5 个月 5-7 单；NSFW 言情头部 $3-6k/月</td><td>唯一“免营销热卖”品类是 NSFW 言情（1,184 赞长文）</td></tr>
+      <tr><td>YouTube/自媒体</td><td><span class="pill mix">中性偏负</span></td><td class="num">8k 粉月净 $479（时薪 $23.95）</td><td>TikTok 粉丝不值钱；faceless AI 频道中位数仅几百刀/月；YPP 门槛 2027 翻倍</td></tr>
+      <tr><td>剪辑/Clipping/UGC</td><td><span class="pill mix">明码标价</span></td><td class="num">clipping $3/千播；30s 品牌剪辑 $350-500</td><td>UGC“成功学”被当场打假为 $2,500 卖课盘</td></tr>
+      <tr><td>OnlyFans/性内容</td><td><span class="pill neg">系统性质疑</span></td><td class="num">平均 <$100/月</td><td>“脚照只是通往裸照的入口”（239 赞）</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>本地服务 / 体力（社区公认的“最优解”层）</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>类型</th><th>实证收入基准</th></tr></thead>
+    <tbody>
+      <tr><td>宠物粪便清理</td><td>个人 $300+/天；60 户社区路线 $1,500/周@4hr/天</td></tr>
+      <tr><td>压力清洗/外墙</td><td>$100/hr；47 岁从业者副业 $140k/年（成本纳税全公开）</td></tr>
+      <tr><td>体育裁判</td><td>$30-80/场；锦标赛周末 $500-1k</td></tr>
+      <tr><td>泳池维护</td><td>单人 60 池/周，$12k/月</td></tr>
+      <tr><td>HVAC/屋顶（蓝领进阶）</td><td>HVAC $30-40k/月；屋顶销售顶销 $650k 利润/年</td></tr>
+      <tr><td>垃圾桶代回收</td><td>$20/月/户，整街区一趟</td></tr>
+    </tbody>
+  </table></div>
+  <p>2025-26 年的合规修正课：责任保险（蹦床租赁被要求 $5M 保单）、州牌照差异（部分州 handyman 限额 &lt;$500）、交通与设备损耗必须折进报价。</p>
+
+  <h3>技能型 / 创业型</h3>
+  <div class="tblwrap"><table>
+    <thead><tr><th>类型</th><th>实证收入基准</th><th>关键事实</th></tr></thead>
+    <tbody>
+      <tr><td>订阅制建站/自由职业</td><td class="num">$150/月×N 客户，$7k/月；咨询 $300/hr</td><td>最大风险是收款：50% 预付 + Net15/30 + 水印是标准答案</td></tr>
+      <tr><td>AI 自动化服务/定制 GPT</td><td class="num">首单 $500；定制 $497-1,500/单</td><td>“AI Automation Agency”已沦为卖课话术</td></tr>
+      <tr><td>vibe coding 小 SaaS</td><td class="num">$1,373 MRR/4 个月实晒</td><td>$15k MRR 被视为西方辞职红线；“AI 造、人工终审”</td></tr>
+      <tr><td>银行开户奖励 churning</td><td class="num">$12k-20k/年（每月 15 分钟）</td><td>低门槛+可验证度最高；生态成熟（r/churning）</td></tr>
+      <tr><td>献血浆/临床试验</td><td class="num">血浆 $100-125/周；试验单期 $12k</td><td>健康争议大；多国不合法——高度地域绑定</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============ 04 趋势线 ============ -->
+<section id="s4">
+  <div class="sec-head"><span class="sec-no">04</span><h2>三年趋势线</h2></div>
+  <div class="yearblock"><span class="yr">2023 · 通胀生存与 AI 分水岭</span>
+    <p>antiwork 三连爆帖定调“副业=低薪症状”（最高 7,371 分）；ChatGPT 引爆 AI 标注（$14-40/hr）的同时转录平台停招、内容 mills 变鬼城——AI 一进一退在同一年完成；HYSA 5% 利息成为“真被动收入”统治性答案；平台批量死亡元年（Appen 崩盘登 CNBC、Neevo 欠薪、Perksy/Premise 被拉黑）。</p></div>
+  <div class="yearblock"><span class="yr">2024 · 祛魅与“先养后割”显形</span>
+    <p>“补贴换数据→成型后收割”被大规模记录（Amazon Shopper Panel 两连砍、Evidation 积分腰斩、Mode 冻结高收入账号）；“36% 美国成年人有副业”引发“就叫它第二份工作”正名运动（433 赞）；社交赌场薅羊毛 12 月破圈并被集中拆穿；Dropshipping 被正式定性为“卖课骗局”。</p></div>
+  <div class="yearblock"><span class="yr">2025 · 平台恶化与诚实风潮</span>
+    <p>问卷平台口碑集中崩塌（Pinecone 吞问卷、Respondent 事后拒付）；AI slop 大举进场，社区进化出文风鉴伪（“nothing fancy 是新的 em dash”）；“诚实数字”成为内容策略——但连诚实帖也被武器化（411 赞“真实复盘”帖被识破为 AI 广告）；803 分定调：“卖副业的人都在卖课。The side hustle IS grifting.”</p></div>
+  <div class="yearblock"><span class="yr">2026 · 清场、塌方与务实</span>
+    <p>AI 替代进入清场阶段（转写收入单月腰斩）；众包平台信用塌方（MTurk 关停、Shopkick 余额蒸发、Prolific AI 验证误封 $10k 老用户）；祛魅定调“被动收入不属于穷人”（718 分）；vibe coding 落地为可验证收入；反弹情绪峰值：“怀念没被副业化的一切”（698 赞）。</p></div>
+</section>
+
+<!-- ============ 05 共识 ============ -->
+<section id="s5">
+  <div class="sec-head"><span class="sec-no">05</span><h2>社区共识清单</h2></div>
+  <ol>
+    <li><strong>"Never pay to get paid"</strong>——任何先交钱（材料/注册/提现/课程）的都是骗局。全语料最高频防骗金句。</li>
+    <li><strong>算真实时薪</strong>：折算平台费、耗材、油费、无薪培训时间之后再评估。</li>
+    <li><strong>余额即风险</strong>：攒到最低提现额立刻提现，绝不囤积分。</li>
+    <li><strong>先技能后被动</strong>：数字产品只对已有受众或真实专业度的人有效；600 个设计六个月赚 $14 更接近中位数。</li>
+    <li><strong>解决一个已有人为之付钱的具体小麻烦</strong>，比追风口靠谱——这是被采信案例的共同结构。</li>
+    <li><strong>本地服务是普通人时薪天花板</strong>，前提是保险/牌照/交通成本折进报价。</li>
+    <li><strong>辞职纪律</strong>：单一客户 ≤20-25%；副业 ≥ 工资 3/4 持续一年；永远把医保折进对比。</li>
+    <li><strong>对雇主隐瞒是压倒性主流</strong>（122 赞“第一守则”），但金融/政府岗强制申报、IP 条款要查。</li>
+    <li><strong>MLM 全面否决</strong>（FTC：99% 参与者亏损）。</li>
+    <li><strong>税务不是可选项</strong>：净收入 $400 即达申报线；1099-K $600 时代线上收入无法隐匿；真实边际税负只比工资高约 7.65%（SE 税一半可抵 + QBI 20%），且解锁 solo 401k。</li>
+  </ol>
+</section>
+
+<!-- ============ 06 争议 ============ -->
+<section id="s6">
+  <div class="sec-head"><span class="sec-no">06</span><h2>争议与分歧</h2></div>
+  <div class="tblwrap"><table>
+    <thead><tr><th>争议</th><th>双方立场</th></tr></thead>
+    <tbody>
+      <tr><td>剥削委婉语 vs 多元收入</td><td>antiwork：媒体宣传掩盖工资停滞（463 赞） ⇄ Entrepreneur：几乎所有创业者从副业起步</td></tr>
+      <tr><td>现金收入报不报税</td><td>Flipping 主流“别报”，报税者被讥为 “fed” ⇄ 反方：1099-K 时代线上收入无处可逃</td></tr>
+      <tr><td>赌场薅羊毛算不算副业</td><td>实践派：只薅免费日奖励可控 ⇄ 拆穿派：loss leader 获客+转介返佣，成瘾不可控</td></tr>
+      <tr><td>hobbies 要不要变现</td><td>“Have hobbies, not jobbies”（698 赞） ⇄ “一切都得副业化是因为工资不够活”</td></tr>
+      <tr><td>副业 vs 深耕主业</td><td>“fuck your side hustle”（主业天花板更高） ⇄ 副业是唯一不依赖老板的现金流</td></tr>
+      <tr><td>AI 内容是机会还是毒瘤</td><td>“I don't care as long as it sells” ⇄ “你在直接帮骗子”（AI 语音授权警告）</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============ 07 骗局 ============ -->
+<section id="s7">
+  <div class="sec-head"><span class="sec-no">07</span><h2>骗局与避坑体系</h2></div>
+  <h3>五大骗局模板（三年持续迭代）</h3>
+  <ul>
+    <li><strong>Guru 卖课漏斗</strong>：暴富叙事 → 卖课/卖社群/newsletter；2026 变体是 AI 工具软广（$2,500 UGC 课被当场扒皮）。</li>
+    <li><strong>PLR/MRR 数字产品</strong>：同一文案换号重发，金额还会漂移（$3k→$4k 被截图对比）——“钱不在 PDF，在卖梦想”（70 赞）。</li>
+    <li><strong>社交赌场/sweepstakes</strong>：登录奖励+washing 话术，攻略作者赚转介返佣；字符级对抗（西里尔 Ѕ 伪装 S）。</li>
+    <li><strong>转账/招聘钓鱼</strong>：高薪打字走 Telegram、翻译“提现费 $100”、“Interested”机器人报名帖、交付后假银行链接骗“升级费”。</li>
+    <li><strong>加密类</strong>：EOS 地址钓鱼+bot 对戏、13% APY 质押、memecoin 网红盘、“AI 交易机器人”订阅。</li>
+  </ul>
+  <h3>平台作恶模式（比骗局更普遍）</h3>
+  <p>拒付/欠薪（Neevo 千条录音后清零；justDice 伪造支付记录）、黑箱封号（Prolific“赚太多”即封不可申诉；CloudResearch 按累计收入清洗用户）、规则虫洞（提现门槛 $10→$25→$65 跳涨；礼品卡饥饿营销）。</p>
+  <p><strong>社区反制武器</strong>：Qualtrics 元数据/屏幕录像留证、绕过客服直接找支付方审计、州消费者保护法（可主张三倍赔偿）、BBB/FTC 投诉。</p>
+  <div class="quote">鉴别铁律："DM 我" = 骗局（“不敢公开回答的人，到 DM 里多半要宰你”，45 赞）· 先交钱 = 骗局 · 新号+暴富数字+导流 = 诈骗三件套 · "太容易、可复制、人人想干"的机会必然已红海 · 警惕评论区 shill 合唱团 · 法律红线：刷好评每条最高罚 $5 万、Spotify 刷量=欺诈、LinkedIn 自动化=封号<span class="src">来源：多版块高赞鉴别帖汇总（<a href="highlights.html#p-1279vqo">1279vqo</a> / <a href="highlights.html#p-1ho2tps">1ho2tps</a> / <a href="highlights.html#p-1hnzsnb">1hnzsnb</a> 等，点击直达全文）</span></div>
+</section>
+
+<!-- ============ 08 行动框架 ============ -->
+<section id="s8">
+  <div class="sec-head"><span class="sec-no">08</span><h2>给新手的行动框架</h2></div>
+  <p><strong>第一步：先算账，再动手。</strong>目标金额 ÷ 期望时薪 = 所需小时数。$1,000/月@$10/hr = 每周 25 小时——先确认有没有这个时间。“三份时薪 $5-8 的小副业会悄悄吃掉你所有时间”是 2026 年被引用最多的劝退句。</p>
+  <p><strong>第二步：按处境选赛道（社区默认推荐序）。</strong></p>
+  <ul>
+    <li>立刻要现金：卖闲置 → 献血浆 → 本地零工/加班（“找个班上就是最快的副业”，89 赞）</li>
+    <li>稳定咖啡钱：Prolific / UserTesting / DataAnnotation 组合，预期 $100-300/月</li>
+    <li>愿意干体力：本地服务——天花板最高、最抗 AI</li>
+    <li>有专业技能：自由职业（先练 50% 预付纪律）；会 vibe coding 就做小 SaaS</li>
+    <li>有受众/专业度：数字产品/课程（否则是给平台打工的幻觉）</li>
+  </ul>
+  <p><strong>第三步：跑通最小闭环再投入。</strong>“你平均要试 7 件事才能找到 1 件能成的”；先验证能否连续三个月、换不同客户复制同一个月的好行情，再考虑加钱加时间。</p>
+  <p><strong>第四步：从第一天就记账、留税、留证。</strong>独立账户 + 预留 25-35% + 收入凭证；查 noncompete/IP 条款；平台类副业备好 KYC 材料。</p>
+</section>
+
+<!-- ============ 09 中文视角 ============ -->
+<section id="s9">
+  <div class="sec-head"><span class="sec-no">09</span><h2>中文圈视角</h2></div>
+  <ul>
+    <li><strong>声量极小</strong>：30,315 帖中真正以副业为主题的中文帖仅 3-4 篇——Reddit 中文圈的精力几乎全在政治与社会议题。</li>
+    <li><strong>零星信号</strong>：SAT 名师私教 ¥1,500/小时；直播带货水军与税务倒查内幕；小红书兼职群“血头”中介曝光。</li>
+    <li><strong>零工权益才是中文区真正的副业焦虑</strong>：深圳骑手被“培训”名义集中罚款 ¥2,000/人、“两巴掌也许很爽，但你会失去五到十万”的理性计算——与英文区 gig work 差评互为印证：零工议价权缺失。</li>
+    <li><strong>诈骗警觉与英文区完全同构</strong>：“陌生私信兼职要擦亮眼睛”“兼职 5 分钟三十到手”被直接标记为可能“吃牢饭”。</li>
+  </ul>
+</section>
+
+<!-- ============ 10 帖子精选 ============ -->
+<section id="s10">
+  <div class="sec-head"><span class="sec-no">10</span><h2>值得细读的帖子</h2></div>
+  <div class="hl-callout">
+    <div class="ico">↗</div>
+    <div class="body">
+      <b>23 篇原文已收录</b>
+      <span>点击帖子 ID 直接跳转查看中文翻译 + 英文原文 + 前 6 条高赞评论（含 3 篇鉴别帖来源）</span>
+    </div>
+    <a class="btn" href="highlights.html">打开精华帖页面 →</a>
+  </div>
+  <div class="tblwrap"><table>
+    <thead><tr><th>帖子</th><th>分数</th><th>为什么值得读</th></tr></thead>
+    <tbody>
+      <tr><td class="mono"><a href="highlights.html#p-11i3ws0">11i3ws0</a></td><td class="num">7,371</td><td>全语料最高赞：“副业 = 主业工资不够”的定义之争起点</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1vuwit1">1vuwit1</a></td><td class="num">2,162</td><td>版主深挖赌场用西里尔字母绕过 automod 投放垃圾 7 个月</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-16jo2ax">16jo2ax</a></td><td class="num">1,184</td><td>“免营销热卖品类”研究：NSFW 言情电子书头部 $3-6k/月</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1ocvbd7">1ocvbd7</a></td><td class="num">803</td><td>2025 定调帖：“卖副业的人都在卖课”</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1rppa5u">1rppa5u</a></td><td class="num">178（热评 755）</td><td>chargeback 防御手册：签名确认+打包录像+USPIS 报案</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1vtzktx">1vtzktx</a></td><td class="num">718</td><td>“被动收入不属于穷人”——三年祛魅的定调帖</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1f7lf98">1f7lf98</a></td><td class="num">471（热评 402）</td><td>压力清洗 $140k/年，成本/纳税/运营全公开的信任标杆</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1hm7btk">1hm7btk</a></td><td class="num">671</td><td>唯一附收入证明的年度总结（含失败项目）</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1upbxbh">1upbxbh</a></td><td class="num">411</td><td>faceless AI YouTube 诚实复盘 + 评论区 AI 帖鉴伪现场</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1vva3j8">1vva3j8</a></td><td class="num">341</td><td>600 个设计赚 $14 → 细分模板 $250-400/月的完整反转</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1edcbt6">1edcbt6</a></td><td class="num">250（热评 270）</td><td>辞职时机的社区标准答案</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-11h2xyc">11h2xyc</a></td><td class="num">379（热评 843）</td><td>“avoid all MLMs”经典回复 + 低收入者选项全景</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1rilqr6">1rilqr6</a><sup style="color:var(--muted);font-size:.6em;margin-left:.15em">含评论区</sup></td><td class="num">9（热评 49）</td><td>现金收入报税大战现场</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1u2d3j0">1u2d3j0</a></td><td class="num">63</td><td>被平台拒付后的教科书级反击（邮件支付方实锤）</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1q0fea0">1q0fea0</a></td><td class="num">62</td><td>$38-42k/月 Etsy 店铺算法调整后流量 -67%：平台依赖风险样本</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1qgf29u">1qgf29u</a></td><td class="num">213</td><td>手表倒卖完整损益（含初期亏损 $10k）</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1fzuhoh">1fzuhoh</a></td><td class="num">230（热评 433）</td><td>“Can we start calling it a second job again?”副业正名运动</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1vykxfa">1vykxfa</a></td><td class="num">261</td><td>MTurk 官宣关停 + 众包黄金期收入考古</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1hjq718">1hjq718</a></td><td class="num">222（热评 125）</td><td>社交赌场薅羊毛最完整辩论（含 $1.4 万被扣押亲历）</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-18pmyd6">18pmyd6</a></td><td class="num">108</td><td>卖血浆健康之争：'perfectly safe' vs 连捐 6 个月免疫力下降</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1279vqo">1279vqo</a></td><td class="num">101（热评 149）</td><td>“对雇主隐瞒副业”社区第一守则（鉴别帖来源 1）</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1ho2tps">1ho2tps</a></td><td class="num">0（热评 25）</td><td>联盟营销 $680/天暴富帖被当场扒皮（鉴别帖来源 2）</td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1hnzsnb">1hnzsnb</a></td><td class="num">85</td><td>AI 写稿交付后被客户跑单（鉴别帖来源 3）</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">点击帖子 ID 跳转精华帖全文页并定位到该帖（英文原帖均已本地预翻译，可在页首一键全局切换 中/英）。“分数”为帖子分，括号内为该帖最高赞评论分；Reddit 原帖：<span class="mono">https://www.reddit.com/comments/&lt;帖子ID&gt;</span></p>
+</section>
+
+<!-- ============ 11 方法 ============ -->
+<section id="s11">
+  <div class="sec-head"><span class="sec-no">11</span><h2>方法与局限</h2></div>
+  <p>数据源为 Arctic Shift 公开归档 API（Reddit 官方 API 已停止向个人开放）。管线：全量抓取 → 清洗去重 → 14 批次多 agent 结构化提取（13 批成功，约 440 万 token）→ 完整性审查 agent 抽查 6 个批次补漏 → 综合。</p>
+  <p><strong>局限</strong>：① 核心副业板块归档约自 2023-12 起（泛社区有完整 2023 数据）；② 64% 帖子正文被删（标题与评论完整），正文分析存在幸存者偏差；③ 收入数字为社区自述，报告以“社区是否采信”标注可信度；④ 1 个批次因内容过滤跳过（有效副业样本仅 4 帖，影响可忽略）。</p>
+</section>
+
+<!-- ============ 12 引用精华帖 ============ -->
+<section id="s12">
+  <div class="sec-head"><span class="sec-no">12</span><h2>引用精华帖索引</h2></div>
+  <p>本报告引用的全部 23 篇精华帖。点击帖子 ID 跳转 <a href="highlights.html">精华帖全文页</a> 并定位到该帖（含中文翻译、英文原文与前 6 条高赞评论，页首可全局切换 中/英）；“原帖”直连 Reddit。</p>
+  <div class="tblwrap"><table>
+    <thead><tr><th>帖子 ID</th><th>标题（中）</th><th>版块</th><th>日期</th><th>分数</th><th>原帖</th></tr></thead>
+    <tbody>
+      <tr><td class="mono"><a href="highlights.html#p-11i3ws0">11i3ws0</a></td><td>副业 = “我的主业工资不够花”</td><td>antiwork</td><td class="num">2023-03</td><td class="num">7,371</td><td><a href="https://www.reddit.com/comments/11i3ws0" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1vuwit1">1vuwit1</a></td><td>有人在版里偷偷给一家赌场打了七个月广告</td><td>passive_income</td><td class="num">2026-08</td><td class="num">2,162</td><td><a href="https://www.reddit.com/comments/1vuwit1" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-16jo2ax">16jo2ax</a></td><td>卖电子书是我做过最棒的决定！</td><td>beermoney</td><td class="num">2023-09</td><td class="num">1,184</td><td><a href="https://www.reddit.com/comments/16jo2ax" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1ocvbd7">1ocvbd7</a></td><td>2025 年，每一个“教你做副业”的人</td><td>povertyfinance</td><td class="num">2025-10</td><td class="num">803</td><td><a href="https://www.reddit.com/comments/1ocvbd7" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1rppa5u">1rppa5u</a></td><td>拒付快把我的副业拖垮了，急需防拒付方案</td><td>smallbusiness</td><td class="num">2026-03</td><td class="num">178</td><td><a href="https://www.reddit.com/comments/1rppa5u" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1vtzktx">1vtzktx</a></td><td>被动收入不属于穷人</td><td>passive_income</td><td class="num">2026-08</td><td class="num">718</td><td><a href="https://www.reddit.com/comments/1vtzktx" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1f7lf98">1f7lf98</a></td><td>副业做成了 $140k/年的生意</td><td>Entrepreneur</td><td class="num">2024-09</td><td class="num">471</td><td><a href="https://www.reddit.com/comments/1f7lf98" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1hm7btk">1hm7btk</a></td><td>2024 副业收入 $6,000：什么有效、什么无效</td><td>sidehustle</td><td class="num">2024-12</td><td class="num">671</td><td><a href="https://www.reddit.com/comments/1hm7btk" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1upbxbh">1upbxbh</a></td><td>试了两个月 AI 无人出镜 YouTube Shorts 赚钱法</td><td>sidehustle</td><td class="num">2026-07</td><td class="num">411</td><td><a href="https://www.reddit.com/comments/1upbxbh" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1vva3j8">1vva3j8</a></td><td>对存款 $0 的人，大多数“被动收入”建议是骗局</td><td>passive_income</td><td class="num">2026-08</td><td class="num">341</td><td><a href="https://www.reddit.com/comments/1vva3j8" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1edcbt6">1edcbt6</a></td><td>副业比主业挣得多，该辞职 all-in 吗？</td><td>Entrepreneur</td><td class="num">2024-07</td><td class="num">250</td><td><a href="https://www.reddit.com/comments/1edcbt6" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-11h2xyc">11h2xyc</a></td><td>这位单亲妈妈需要一个副业</td><td>povertyfinance</td><td class="num">2023-03</td><td class="num">379</td><td><a href="https://www.reddit.com/comments/11h2xyc" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1rilqr6">1rilqr6</a></td><td>现金倒卖收入都怎么报税？</td><td>Flipping</td><td class="num">2026-03</td><td class="num">9</td><td><a href="https://www.reddit.com/comments/1rilqr6" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1u2d3j0">1u2d3j0</a></td><td>抓个正着：justDice 系 App 伪造客服记录骗提现</td><td>beermoney</td><td class="num">2026-06</td><td class="num">63</td><td><a href="https://www.reddit.com/comments/1u2d3j0" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1q0fea0">1q0fea0</a></td><td>副业做到月入 $40k，然后被算法调整干趴了</td><td>Entrepreneur</td><td class="num">2025-12</td><td class="num">62</td><td><a href="https://www.reddit.com/comments/1q0fea0" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1qgf29u">1qgf29u</a></td><td>副业成功案例——奢侈手表</td><td>Entrepreneur</td><td class="num">2026-01</td><td class="num">213</td><td><a href="https://www.reddit.com/comments/1qgf29u" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1fzuhoh">1fzuhoh</a></td><td>36% 的美国成年人有副业，你的呢？</td><td>povertyfinance</td><td class="num">2024-10</td><td class="num">230</td><td><a href="https://www.reddit.com/comments/1fzuhoh" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1vykxfa">1vykxfa</a></td><td>MTurk 即将永久关闭</td><td>beermoney</td><td class="num">2026-08</td><td class="num">261</td><td><a href="https://www.reddit.com/comments/1vykxfa" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1hjq718">1hjq718</a></td><td>我教人怎么从在线赌场“薅钱”</td><td>passive_income</td><td class="num">2024-12</td><td class="num">222</td><td><a href="https://www.reddit.com/comments/1hjq718" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-18pmyd6">18pmyd6</a></td><td>我急需多赚点钱</td><td>sidehustle</td><td class="num">2023-12</td><td class="num">108</td><td><a href="https://www.reddit.com/comments/18pmyd6" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1279vqo">1279vqo</a></td><td>该不该告诉新雇主我在做副业？</td><td>Entrepreneur</td><td class="num">2023-03</td><td class="num">101</td><td><a href="https://www.reddit.com/comments/1279vqo" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1ho2tps">1ho2tps</a></td><td>我靠联盟营销日入 $680（骗局样本）</td><td>sidehustle</td><td class="num">2024-12</td><td class="num">0</td><td><a href="https://www.reddit.com/comments/1ho2tps" target="_blank" rel="noopener">↗</a></td></tr>
+      <tr><td class="mono"><a href="highlights.html#p-1hnzsnb">1hnzsnb</a></td><td>YouTube 脚本 140 万播放，客户把我鸽了</td><td>passive_income</td><td class="num">2024-12</td><td class="num">85</td><td><a href="https://www.reddit.com/comments/1hnzsnb" target="_blank" rel="noopener">↗</a></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<footer>
+  <div class="hl-callout" style="margin:0 0 1.4rem">
+    <div class="ico">★</div>
+    <div class="body">
+      <b>附录：23 篇精华帖全文</b>
+      <span>每篇均含中文翻译、英文原文、最高赞前 6 条评论；页首“中 / 英”按钮可一键全局切换。</span>
+    </div>
+    <a class="btn" href="highlights.html">打开精华帖页面 →</a>
+  </div>
+  <p>本页由数据管线自动生成 · 数据文件与全部抓取/分析脚本存于本目录（<span class="mono">reddit_side_hustle_data\</span>，含 <span class="mono">report.md / report.html / highlights.html</span>）· 引用数据请保留帖子 ID 以便溯源。</p>
+</footer>
+
+</main>
+<script>
+(function(){
+  var tip = document.getElementById('tip');
+  function draw(gid, data, opts){
+    var g = document.getElementById(gid);
+    var NS = 'http://www.w3.org/2000/svg';
+    var max = Math.max.apply(null, data.map(function(d){return d.v;}));
+    var chartW = opts.w - opts.left - 8, bw = opts.bw, gap = opts.gap, y0 = opts.h - opts.bottom;
+    data.forEach(function(d, i){
+      var x = opts.left + i*(bw+gap);
+      var h = Math.max(2, (d.v/max)*(opts.h - opts.bottom - opts.top));
+      var r = document.createElementNS(NS,'rect');
+      r.setAttribute('class','bar'); r.setAttribute('x',x); r.setAttribute('y',y0-h);
+      r.setAttribute('width',bw); r.setAttribute('height',h); r.setAttribute('rx',3);
+      r.addEventListener('mousemove',function(e){tip.style.opacity=1;tip.style.left=(e.clientX+12)+'px';tip.style.top=(e.clientY-24)+'px';tip.textContent=d.label+': '+d.display;});
+      r.addEventListener('mouseleave',function(){tip.style.opacity=0;});
+      g.appendChild(r);
+      var yl = document.createElementNS(NS,'text');
+      yl.setAttribute('class','axis-label'); yl.setAttribute('x',x+bw/2); yl.setAttribute('y',y0+16);
+      yl.setAttribute('text-anchor','middle'); yl.textContent=d.label; g.appendChild(yl);
+      var vl = document.createElementNS(NS,'text');
+      vl.setAttribute('class','val-label'); vl.setAttribute('x',x+bw/2); vl.setAttribute('y',y0-h-6);
+      vl.setAttribute('text-anchor','middle'); vl.textContent=d.display; g.appendChild(vl);
+    });
+    for(var j=0;j<=2;j++){
+      var gy = y0 - j*((y0-opts.top)/2);
+      var ln = document.createElementNS(NS,'line');
+      ln.setAttribute('class','gridline'); ln.setAttribute('x1',opts.left-6); ln.setAttribute('x2',opts.left+chartW);
+      ln.setAttribute('y1',gy); ln.setAttribute('y2',gy); g.appendChild(ln);
+    }
+  }
+  var subs = [
+    {label:'beermoney', v:12379, display:'12,379'},
+    {label:'passive_income', v:3606, display:'3,606'},
+    {label:'WorkOnline', v:3405, display:'3,405'},
+    {label:'sidehustle', v:2985, display:'2,985'},
+    {label:'Entrepreneur', v:1120, display:'1,120'},
+    {label:'smallbusiness', v:447, display:'447'},
+    {label:'jobs', v:354, display:'354'},
+    {label:'personalfinance', v:348, display:'348'}
+  ];
+  draw('subchart', subs, {w:640,h:250,left:8,right:8,top:26,bottom:26,bw:56,gap:18});
+  var ai = [
+    {label:'2023', v:160, display:'160'},
+    {label:'2024', v:202, display:'202'},
+    {label:'2025', v:393, display:'393'},
+    {label:'2026*', v:420, display:'420*'}
+  ];
+  draw('aichart', ai, {w:640,h:206,left:8,right:8,top:26,bottom:26,bw:92,gap:52});
+
+  // mobile table adaptation: label each td with its column header
+  document.querySelectorAll('.tblwrap table').forEach(function(tb){
+    var hs = Array.prototype.map.call(tb.querySelectorAll('thead th'), function(th){return th.textContent.trim();});
+    if(!hs.length) return;
+    tb.querySelectorAll('tbody tr').forEach(function(tr){
+      Array.prototype.forEach.call(tr.children, function(td,i){
+        if(hs[i] && !td.hasAttribute('data-label')) td.setAttribute('data-label', hs[i]);
+      });
+    });
+  });
+
+  // reading progress bar
+  var progress = document.getElementById('progress');
+  var totop = document.getElementById('totop');
+  function onScroll(){
+    var h = document.documentElement;
+    var b = document.body;
+    var scrollTop = h.scrollTop || b.scrollTop || window.scrollY;
+    var max = (h.scrollHeight || b.scrollHeight) - h.clientHeight;
+    var pct = max > 0 ? Math.min(100, Math.max(0, (scrollTop / max) * 100)) : 0;
+    progress.style.width = pct + '%';
+    if (scrollTop > 600) totop.classList.add('show'); else totop.classList.remove('show');
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+  totop.addEventListener('click', function(){ window.scrollTo({top:0, behavior:'smooth'}); });
+})();
+</script>
+</body>
+</html>
