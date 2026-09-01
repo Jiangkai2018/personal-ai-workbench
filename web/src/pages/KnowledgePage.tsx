@@ -1,6 +1,7 @@
 // 知识库页面（0828-01 §1/§2）：左目录树 + 右阅读/编辑，附件区与回收站以特殊入口呈现
 // 人不受 Agent 黑名单限制（决策 #4）；md 渲染复用 markdown.ts（本期含 GFM 表格/围栏代码块）
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { FileText, Folder, FolderOpen, Paperclip, Pencil, Trash2 } from 'lucide-react'
 import { api } from '../api/client'
 import type { KbAttachment, KbEntry, KbFileData, KbTrashItem, KbUploadResult } from '../api/client'
 import { renderMarkdown } from '../lib/markdown'
@@ -90,6 +91,8 @@ export default function KnowledgePage() {
   const fileInput = useRef<HTMLInputElement>(null)
   // 移动端抽屉
   const [drawerOpen, setDrawerOpen] = useState(false)
+  // 仓库配置（0830-01 决策 #15）：树内隐藏的根 README/CLAUDE 仍可在 UI 编辑
+  const [showRepoCfg, setShowRepoCfg] = useState(false)
 
   const tree = useMemo(() => buildTree(entries ?? []), [entries])
 
@@ -251,23 +254,30 @@ export default function KnowledgePage() {
   const rendered = useMemo(() => (mode === 'read' && file?.content ? renderMarkdown(file.content) : ''), [mode, file])
 
   // ── 树节点渲染 ─────────────────────────────────────
+  // 0830-01 §2 八项样式：lucide 图标、左侧朱砂竖条激活态、悬停只变文字色、
+  // 行高 py-1.5、缩进 16px、改/删图标化（触屏常显，md 起悬停/聚焦显形）
   const renderNode = (node: TreeNode, depth: number): React.ReactNode => {
     const isOpen = expanded.has(node.path)
     const isActive = selected === node.path
+    const Icon = node.type === 'dir' ? (isOpen ? FolderOpen : Folder) : node.binary ? Paperclip : FileText
     return (
       <div key={node.path}>
         <div
-          className={`group flex items-center gap-1 rounded px-1 py-[3px] ${isActive ? 'bg-accent-soft' : 'hover:bg-paper-deep'}`}
-          style={{ paddingLeft: depth * 12 + 4 }}
+          className={`group flex items-center gap-1 rounded py-1.5 pr-1 text-[13px] ${
+            isActive
+              ? 'border-l-2 border-accent bg-paper-deep/50 font-medium text-ink'
+              : 'border-l-2 border-transparent text-ink-2 hover:text-ink'
+          }`}
+          style={{ paddingLeft: depth * 16 + 4 }}
         >
           <button
             type="button"
             data-testid="kb-node"
-            className="min-w-0 flex-1 truncate text-left text-[13px] text-ink"
+            className="flex min-w-0 flex-1 items-center gap-1.5 truncate text-left"
             onClick={() => (node.type === 'dir' ? toggleDir(node.path) : void openFile(node.path))}
           >
-            {node.type === 'dir' ? (isOpen ? '📂 ' : '📁 ') : node.binary ? '📎 ' : '📄 '}
-            {node.name}
+            <Icon size={14} className="shrink-0 text-muted group-hover:text-ink" aria-hidden />
+            <span className="truncate">{node.name}</span>
           </button>
           <button
             type="button"
@@ -277,17 +287,17 @@ export default function KnowledgePage() {
               setRenaming(node.path)
               setRenameTo(node.path)
             }}
-            className="shrink-0 px-1 text-xs text-muted opacity-70 hover:text-accent hover:opacity-100"
+            className="shrink-0 rounded p-0.5 text-muted opacity-100 hover:text-accent md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100"
           >
-            改
+            <Pencil size={14} aria-hidden />
           </button>
           <button
             type="button"
             aria-label={`删除 ${node.name}`}
             onClick={() => doDelete(node.path)}
-            className="shrink-0 px-1 text-xs text-muted opacity-70 hover:text-danger hover:opacity-100"
+            className="shrink-0 rounded p-0.5 text-muted opacity-100 hover:text-danger md:opacity-0 md:group-hover:opacity-100 md:focus-within:opacity-100"
           >
-            删
+            <Trash2 size={14} aria-hidden />
           </button>
         </div>
         {node.type === 'dir' && isOpen && node.children.map((c) => renderNode(c, depth + 1))}
@@ -307,7 +317,7 @@ export default function KnowledgePage() {
 
       {/* ── 左栏：目录树 ── */}
       <aside
-        className={`${drawerOpen ? 'fixed inset-x-0 bottom-0 top-[100px] z-20 block bg-paper shadow-lg md:static md:shadow-none' : 'hidden'} w-72 shrink-0 flex-col overflow-y-auto border-r border-line bg-card-warm p-2 md:flex`}
+        className={`${drawerOpen ? 'fixed inset-x-0 bottom-0 top-[100px] z-20 block bg-paper shadow-lg md:static md:shadow-none' : 'hidden'} w-72 shrink-0 flex-col overflow-y-auto bg-paper p-2 md:flex`}
         data-testid="kb-tree"
       >
         <div className="mb-2 flex flex-wrap gap-1.5 px-1">
@@ -460,12 +470,26 @@ export default function KnowledgePage() {
               ))}
             </div>
           )}
+          {/* 仓库配置（0830-01 决策 #15）：树内隐藏 ≠ 不可达，根 README/CLAUDE 仍可编辑 */}
+          <button type="button" data-testid="kb-repo-config" className="w-full px-1 py-1 text-left text-xs text-ink2" onClick={() => setShowRepoCfg((v) => !v)}>
+            {showRepoCfg ? '▾' : '▸'} 仓库配置（README / CLAUDE）
+          </button>
+          {showRepoCfg && (
+            <div data-testid="kb-repo-config-list" className="px-2">
+              {(['README.md', 'CLAUDE.md'] as const).map((name) => (
+                <button key={name} type="button" className="block w-full truncate py-1 text-left text-xs text-accent underline-offset-2 hover:underline" onClick={() => void openFile(name)}>
+                  {name}
+                </button>
+              ))}
+              <p className="py-1 text-[11px] leading-relaxed text-muted">树里隐藏的仓库活文档；.gitignore 请用外部编辑器改。</p>
+            </div>
+          )}
         </div>
       </aside>
 
       {/* ── 右栏：内容区 ── */}
       <section
-        className={`relative flex min-h-0 min-w-0 flex-1 flex-col pt-[38px] md:pt-0 ${dragOver ? 'kb-drag-over' : ''}`}
+        className={`relative flex min-h-0 min-w-0 flex-1 flex-col rounded-[var(--radius)] bg-card shadow-sm pt-[38px] md:pt-0 ${dragOver ? 'kb-drag-over' : ''}`}
         data-testid="kb-content"
         onDragOver={(e) => {
           e.preventDefault()
