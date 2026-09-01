@@ -37,9 +37,15 @@ function closeAll() {
   for (const c of liveCloses) try { c() } catch {}
   liveCloses.clear()
 }
-process.once('SIGTERM', closeAll)
-process.once('SIGINT', closeAll)
 process.once('exit', closeAll)
+// 信号处理：先关活连接（stdio 子进程走 SDK kill 阶梯，异步），再主动退出。
+// 只挂 listener 会吞掉 Node 默认终止行为 → pm2 restart 永远等不到退出、只能 SIGKILL（code 130）
+function shutdown() {
+  closeAll()
+  setTimeout(() => process.exit(0), 1500).unref()
+}
+process.once('SIGTERM', shutdown)
+process.once('SIGINT', shutdown)
 
 /**
  * 解析单个 provider：内置默认 + 用户配置合并；key 解析后为空 → null（跳过不装配）。
