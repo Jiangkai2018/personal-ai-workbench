@@ -13,14 +13,24 @@ const providerSchema = z.object({
   apiKey: z.string().optional(),
 })
 
+const webSearchProviderSchema = z.object({
+  transport: z.enum(['http', 'stdio']),
+  url: z.string().optional(),
+  apiKey: z.string().optional(),
+  command: z.string().optional(),
+  args: z.array(z.string()).optional(),
+  env: z.record(z.string(), z.string()).optional(),
+})
+
 const configSchema = z.object({
   providers: z.array(providerSchema).default([]),
   defaultModel: z.object({ providerId: z.string(), model: z.string() }),
   webSearch: z
     .object({
       order: z.array(z.string()).default(['bigmodel-mcp', 'minimax-mcp', 'searxng']),
-      searxngBaseURL: z.string().optional(),
-      /** 搜索 MCP（bigmodel web_search_prime）端点与专项 Key；缺省回退环境变量 */
+      /** 通用 provider 字典（0830-01 §3.3）：key 覆盖内置默认；searxng 暂未实现 */
+      providers: z.record(z.string(), webSearchProviderSchema).optional(),
+      /** 旧字段保留 1 个 release 向后兼容（旧值映射成 providers.bigmodel-mcp）；过期再移除 */
       mcpUrl: z.string().optional(),
       mcpApiKey: z.string().optional(),
     })

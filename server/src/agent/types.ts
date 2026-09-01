@@ -12,13 +12,24 @@ export interface ProviderConfig {
   apiKey?: string
 }
 
+/** 联网搜索单个 MCP provider 的接入形态（0830-01 §3） */
+export interface WebSearchProvider {
+  transport: 'http' | 'stdio'
+  url?: string
+  apiKey?: string
+  command?: string
+  args?: string[]
+  env?: Record<string, string>
+}
+
 export interface AgentConfig {
   providers: ProviderConfig[]
   defaultModel: { providerId: string; model: string }
-  /** 联网搜索（bug082702-6 起接入 bigmodel 搜索 MCP） */
+  /** 联网搜索（bug082702-6 起 bigmodel；0830-01 起多 provider 降级链） */
   webSearch?: {
     order: string[]
-    searxngBaseURL?: string
+    providers?: Record<string, WebSearchProvider>
+    /** 旧字段（1 个 release 向后兼容）：自动映射成 providers['bigmodel-mcp'] */
     mcpUrl?: string
     mcpApiKey?: string
   }
